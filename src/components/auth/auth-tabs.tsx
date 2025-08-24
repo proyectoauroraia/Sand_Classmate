@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -33,11 +34,9 @@ export function AuthTabs() {
             <Label htmlFor="password-login">Password</Label>
             <Input id="password-login" type="password" required />
           </div>
-          <Link href="/dashboard" passHref legacyBehavior>
-            <Button asChild className="w-full">
-              <a>Login</a>
-            </Button>
-          </Link>
+          <Button asChild className="w-full">
+             <Link href="/dashboard">Login</Link>
+          </Button>
           <div className="relative my-2">
             <Separator />
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">OR</span>
@@ -58,11 +57,9 @@ export function AuthTabs() {
             <Label htmlFor="password-signup">Password</Label>
             <Input id="password-signup" type="password" required />
           </div>
-           <Link href="/dashboard" passHref legacyBehavior>
-            <Button asChild className="w-full">
-              <a>Create Account</a>
-            </Button>
-          </Link>
+           <Button asChild className="w-full">
+             <Link href="/dashboard">Create Account</Link>
+          </Button>
           <div className="relative my-2">
             <Separator />
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">OR</span>
