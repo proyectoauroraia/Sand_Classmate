@@ -1,23 +1,42 @@
 
-export function Logo() {
+export function Logo({ className }: { className?: string }) {
   return (
-    <div className="flex items-center justify-center p-2 rounded-lg aspect-square h-full w-auto">
-        <svg
-            width="100"
-            height="100"
-            viewBox="0 0 100 100"
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-8"
-            >
-            <path
-                d="M0,100 C20,80 40,70 60,80 C80,90 100,100 100,100 L100,50 C80,60 60,40 40,50 C20,60 0,80 0,80 Z"
-                fill="#C2A47C"
-            />
-            <path
-                d="M0,100 C15,85 30,80 50,85 C70,90 85,95 100,100 L100,70 C85,75 70,65 50,70 C30,75 15,85 0,90 Z"
-                fill="#D2B48C"
-            />
-        </svg>
+    <div className={`flex items-center gap-3 ${className}`}>
+      <svg
+        width="40"
+        height="40"
+        viewBox="0 0 100 100"
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-10 w-10"
+      >
+        <defs>
+          <clipPath id="squircle">
+            <rect x="0" y="0" width="100" height="100" rx="20" ry="20" />
+          </clipPath>
+        </defs>
+        <g clipPath="url(#squircle)">
+          <rect width="100" height="100" fill="#F0DDBF" />
+          <path
+            d="M -5,65 
+               C 30,50 70,80 105,60 
+               L 105,105 -5,105 Z"
+            fill="#D9A16B"
+          />
+          <path
+            d="M -5,55 
+               C 25,35 75,65 105,45 
+               L 105,60 
+               C 70,80 30,50 -5,65 Z"
+            fill="#BA7C46"
+          />
+        </g>
+      </svg>
+      <span
+        style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
+        className="text-2xl font-medium"
+        >
+        Sand Classmate
+      </span>
     </div>
   );
 }
