@@ -20,7 +20,7 @@ export function MaterialsHistory() {
 
     const handleViewAnalysis = (id: string) => {
         // TODO: Implement logic to fetch and display the analysis for the given ID.
-        // For now, it can navigate to a placeholder or log to the console.
+        // For now, it can log to the console.
         console.log(`Navigating to analysis for ID: ${id}`);
         // Example navigation: router.push(`/dashboard/analysis/${id}`);
     };
@@ -30,7 +30,7 @@ export function MaterialsHistory() {
         <CardContent className="pt-6">
           <Table>
             <TableHeader>
-              <TableRow className="border-border/80">
+              <TableRow>
                 <TableHead>Nombre del Curso</TableHead>
                 <TableHead className="text-right">Ver Análisis</TableHead>
               </TableRow>
@@ -44,10 +44,9 @@ export function MaterialsHistory() {
                 </TableRow>
               ) : (
                 mockHistory.map((item) => (
-                  <TableRow key={item.id} className="border-border/80">
+                  <TableRow key={item.id}>
                     <TableCell className="font-medium">
-                        <div>{item.fileName}</div>
-                        <div className="text-xs text-muted-foreground sm:hidden mt-1">{item.date}</div>
+                        {item.fileName}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button 
@@ -56,7 +55,7 @@ export function MaterialsHistory() {
                         onClick={() => handleViewAnalysis(item.id)}
                       >
                         <Search className="mr-2 h-4 w-4" />
-                        Ver Análisis
+                        Ver
                       </Button>
                     </TableCell>
                   </TableRow>
