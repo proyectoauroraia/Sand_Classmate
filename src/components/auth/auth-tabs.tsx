@@ -1,5 +1,6 @@
-"use client";
-import Link from 'next/link';
+'use client';
+
+import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +9,14 @@ import { Separator } from "@/components/ui/separator";
 import { GoogleIcon } from '@/components/icons/google-icon';
 
 export function AuthTabs() {
+  const router = useRouter();
+
+  const handleAuthAction = () => {
+    // Here you would typically handle real authentication logic.
+    // For this prototype, we'll just navigate to the dashboard.
+    router.push('/dashboard');
+  };
+
   return (
     <Tabs defaultValue="login" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
@@ -24,16 +33,14 @@ export function AuthTabs() {
             <Label htmlFor="password-login">Password</Label>
             <Input id="password-login" type="password" required />
           </div>
-          <Link href="/dashboard" passHref>
-            <Button asChild type="submit" className="w-full">
-              <a>Login</a>
-            </Button>
-          </Link>
+          <Button onClick={handleAuthAction} type="button" className="w-full">
+            Login
+          </Button>
           <div className="relative my-2">
             <Separator />
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">OR</span>
           </div>
-          <Button variant="outline" className="w-full">
+          <Button onClick={handleAuthAction} variant="outline" className="w-full">
              <GoogleIcon className="mr-2" />
              Sign in with Google
           </Button>
@@ -49,16 +56,14 @@ export function AuthTabs() {
             <Label htmlFor="password-signup">Password</Label>
             <Input id="password-signup" type="password" required />
           </div>
-           <Link href="/dashboard" passHref>
-             <Button asChild type="submit" className="w-full">
-                <a>Create Account</a>
-             </Button>
-           </Link>
+           <Button onClick={handleAuthAction} type="button" className="w-full">
+              Create Account
+           </Button>
           <div className="relative my-2">
             <Separator />
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">OR</span>
           </div>
-          <Button variant="outline" className="w-full">
+          <Button onClick={handleAuthAction} variant="outline" className="w-full">
             <GoogleIcon className="mr-2" />
             Sign up with Google
           </Button>

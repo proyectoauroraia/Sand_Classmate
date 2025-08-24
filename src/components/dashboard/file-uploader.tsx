@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from '@/components/ui/card';
-import { UploadCloud, FilePresentation, FileText, ClipboardCheck, MousePointerClick, Loader2, Download, RefreshCw, AlertCircle } from 'lucide-react';
+import { UploadCloud, Presentation, FileText, ClipboardCheck, MousePointerClick, Loader2, Download, RefreshCw, AlertCircle } from 'lucide-react';
 import { generateMaterialsAction } from '@/lib/actions';
 import type { GeneratedMaterials } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -96,7 +96,7 @@ export function FileUploader() {
             <div>
                 <h3 className="text-lg font-semibold mb-4 font-headline">Your materials for "{fileName}" are ready!</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <MaterialCard icon={FilePresentation} title="Presentation" description="PowerPoint slides" href={result.powerpointPresentation} fileName="presentation.pptx"/>
+                    <MaterialCard icon={Presentation} title="Presentation" description="PowerPoint slides" href={result.powerpointPresentation} fileName="presentation.pptx"/>
                     <MaterialCard icon={FileText} title="Work Guide" description="PDF document" href={result.workGuide} fileName="work-guide.pdf"/>
                     <MaterialCard icon={ClipboardCheck} title="Example Tests" description="PDF document" href={result.exampleTests} fileName="example-tests.pdf"/>
                     <MaterialCard icon={MousePointerClick} title="Interactive Review" description="Interactive PDF" href={result.interactiveReviewPdf} fileName="interactive-review.pdf"/>
