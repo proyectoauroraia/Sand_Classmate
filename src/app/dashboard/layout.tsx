@@ -8,6 +8,8 @@ import { Home, History, Settings, LogOut, Gem, User } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
 import { Logo } from '@/components/logo';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
 
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -17,6 +19,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { href: "/dashboard/profile", icon: User, label: "Mi Perfil" },
         { href: "/dashboard/pricing", icon: Gem, label: "Planes" },
     ];
+    
+    const router = useRouter();
+    const supabase = createClient();
+
+    const handleSignOut = async () => {
+        await supabase.auth.signOut();
+        router.push('/');
+        router.refresh();
+    }
 
     const sidebarContent = (
         <div className="flex h-full max-h-screen flex-col gap-2">
@@ -46,10 +57,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <p className="text-xs text-muted-foreground">Académico, Universidad de Chile</p>
                          <p className="text-xs text-muted-foreground">Santiago, Chile</p>
                     </div>
-                    <Button variant="ghost" size="icon" className="ml-auto flex-shrink-0" asChild>
-                        <Link href="/">
-                            <LogOut className="h-5 w-5" />
-                        </Link>
+                    <Button variant="ghost" size="icon" className="ml-auto flex-shrink-0" onClick={handleSignOut}>
+                        <LogOut className="h-5 w-5" />
                     </Button>
                 </div>
             </div>

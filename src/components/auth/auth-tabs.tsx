@@ -1,21 +1,82 @@
 
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { GoogleIcon } from '@/components/icons/google-icon';
+import { createClient } from '@/lib/supabase/client';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { AlertCircle, Loader2 } from 'lucide-react';
 
 export function AuthTabs() {
   const router = useRouter();
+  const supabase = createClient();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // This function can still be used for other auth providers like Google
-  const handleAuthAction = () => {
-    router.push('/dashboard');
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+        const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                emailRedirectTo: `${location.origin}/auth/callback`,
+            },
+        });
+        if (error) throw error;
+        router.push('/confirm-email'); // Redirect to a page telling them to check their email
+    } catch (error: any) {
+        setError(error.message);
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+        if (error) throw error;
+        router.push('/dashboard');
+        router.refresh();
+    } catch (error: any) {
+        setError(error.message);
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
+    } catch(error: any) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -24,51 +85,66 @@ export function AuthTabs() {
         <TabsTrigger value="login">Login</TabsTrigger>
         <TabsTrigger value="signup">Sign Up</TabsTrigger>
       </TabsList>
+      
+      {error && (
+        <Alert variant="destructive" className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error de Autenticación</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
       <TabsContent value="login">
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="email-login">Email</Label>
-            <Input id="email-login" type="email" placeholder="professor@university.edu" required />
+        <form onSubmit={handleSignIn}>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="email-login">Email</Label>
+              <Input id="email-login" type="email" placeholder="professor@university.edu" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password-login">Password</Label>
+              <Input id="password-login" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Login
+            </Button>
+            <div className="relative my-2">
+              <Separator />
+              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">OR</span>
+            </div>
+            <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" type="button" disabled={loading}>
+               <GoogleIcon className="mr-2" />
+               Sign in with Google
+            </Button>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password-login">Password</Label>
-            <Input id="password-login" type="password" required />
-          </div>
-          <Button asChild className="w-full">
-             <Link href="/dashboard">Login</Link>
-          </Button>
-          <div className="relative my-2">
-            <Separator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">OR</span>
-          </div>
-          <Button onClick={handleAuthAction} variant="outline" className="w-full">
-             <GoogleIcon className="mr-2" />
-             Sign in with Google
-          </Button>
-        </div>
+        </form>
       </TabsContent>
       <TabsContent value="signup">
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="email-signup">Email</Label>
-            <Input id="email-signup" type="email" placeholder="professor@university.edu" required />
+        <form onSubmit={handleSignUp}>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="email-signup">Email</Label>
+              <Input id="email-signup" type="email" placeholder="professor@university.edu" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password-signup">Password</Label>
+              <Input id="password-signup" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Create Account
+            </Button>
+            <div className="relative my-2">
+              <Separator />
+              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">OR</span>
+            </div>
+            <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" type="button" disabled={loading}>
+              <GoogleIcon className="mr-2" />
+              Sign up with Google
+            </Button>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password-signup">Password</Label>
-            <Input id="password-signup" type="password" required />
-          </div>
-           <Button asChild className="w-full">
-             <Link href="/dashboard">Create Account</Link>
-          </Button>
-          <div className="relative my-2">
-            <Separator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">OR</span>
-          </div>
-          <Button onClick={handleAuthAction} variant="outline" className="w-full">
-            <GoogleIcon className="mr-2" />
-            Sign up with Google
-          </Button>
-        </div>
+        </form>
       </TabsContent>
     </Tabs>
   );
