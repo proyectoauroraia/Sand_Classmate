@@ -176,15 +176,15 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                         </CardHeader>
                         <CardContent className="space-y-8">
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {analysisResult.weeks && (
-                                    <div className="bg-secondary/30 p-4 rounded-lg">
+                                    <div className="bg-secondary/30 p-4 rounded-lg flex-1">
                                         <div className="flex items-center gap-3 text-lg font-semibold"><Calendar className="h-6 w-6" /> Duración Estimada</div>
                                         <p className="text-primary text-3xl font-bold mt-2">{analysisResult.weeks} {typeof analysisResult.weeks === 'number' && analysisResult.weeks > 1 ? 'Semanas' : 'Semana'}</p>
                                     </div>
                                 )}
                                  {analysisResult.keyConcepts && (
-                                    <div className="bg-secondary/30 p-4 rounded-lg">
+                                    <div className="bg-secondary/30 p-4 rounded-lg flex-1">
                                         <div className="flex items-center gap-3 text-lg font-semibold"><BookCopy className="h-6 w-6" /> Conceptos Clave</div>
                                         <div className="flex flex-wrap gap-2 justify-start mt-2">
                                             {analysisResult.keyConcepts.map((concept, i) => (
@@ -360,5 +360,7 @@ function MaterialButton({ icon: Icon, title, onClick, disabled }: { icon: React.
         </Button>
     );
 }
+
+    
 
     
