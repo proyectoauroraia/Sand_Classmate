@@ -17,9 +17,14 @@ const AnalyzeContentInputSchema = z.object({
     ),
 });
 
+const ClassSchema = z.object({
+    topic: z.string().describe("The specific topic of this class session."),
+});
+
 const UnitSchema = z.object({
   title: z.string().describe("The title of the unit or module."),
   learningObjectives: z.array(z.string()).describe("A list of specific learning objectives for this unit."),
+  classes: z.array(ClassSchema).describe("A list of individual classes or topics within this unit."),
 });
 
 const AssessmentSchema = z.object({
@@ -74,7 +79,7 @@ export async function analyzeAndEnrichContent(
           *   **Subject Area:** Identify the specific field of study (e.g., Kinesiology, Nutrition, Philosophy).
           *   **Summary:** Provide a concise summary of the document's main topics and purpose.
           *   **Key Concepts:** List the most critical keywords and concepts.
-          *   **Course Structure & Assessments:** Identify units, learning objectives, and assessments as defined in the schema.
+          *   **Course Structure & Assessments:** Identify units, learning objectives, and assessments as defined in the schema. For each unit, you MUST break it down into a list of individual, specific class topics. For example, a unit on "Cell Biology" might have classes on "The Cell Membrane", "Mitochondria and Energy", and "Protein Synthesis".
 
       2.  **Critical Pedagogical Analysis:**
           *   **Coherence Analysis:** Critically evaluate the alignment between the stated **Learning Outcomes** (or general learning goals) and the **Evaluation Methods** (exams, projects). Does the exam truly measure the analytical and application skills mentioned in the plan, or does it only measure memorization? Identify any misalignments.
@@ -109,6 +114,11 @@ const GenerateMaterialInputSchema = z.object({
         bibliography: z.any().optional(),
     }),
     materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
+    // Add context for single-class generation
+    classContext: z.object({
+        unitTitle: z.string(),
+        classTopic: z.string(),
+    }).optional(),
 });
 
 const GenerateMaterialOutputSchema = z.object({
@@ -209,10 +219,19 @@ Este enfoque asegura que el material no es un producto genérico, sino una herra
 const MaterialPrompts = {
     powerpointPresentation: `
         Generate the content for a PowerPoint presentation based on the provided analysis.
+        {{#if classContext}}
+        - The presentation should focus exclusively on the topic "{{classContext.classTopic}}" within the unit "{{classContext.unitTitle}}".
+        - The first H1 (#) should be the main title of the presentation, which is "{{classContext.classTopic}}".
+        - Create 4-6 slides, each with an H2 (##) title.
+        - Under each slide title, create 3-5 bullet points (*) with key information, explanations, or examples related to the slide's topic.
+        - Ensure the content is detailed, clear, and specifically tailored for this single class session.
+        {{else}}
+        - The presentation should cover the entire course.
         - The first H1 (#) should be the main title of the presentation.
         - Each subsequent H2 (##) should represent a new slide title, usually corresponding to a course unit.
         - Under each slide title, create 4-6 bullet points (*) summarizing the key information and learning objectives for that topic.
         - Ensure the content is clear, concise, and well-suited for a presentation format.
+        {{/if}}
     `,
     workGuide: `
         Generate a comprehensive work guide in markdown format.
@@ -246,7 +265,7 @@ const MaterialPrompts = {
 export async function generateMaterialFromAnalysis(
   input: z.infer<typeof GenerateMaterialInputSchema>
 ): Promise<string> {
-    const { analysisResult, materialType } = input;
+    const { analysisResult, materialType, classContext } = input;
 
     const basePrompt = `You are an expert curriculum developer for the field of ${analysisResult.subjectArea}.
         

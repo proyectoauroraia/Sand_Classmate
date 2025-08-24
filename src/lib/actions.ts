@@ -17,25 +17,40 @@ const AnalyzeInputSchema = z.object({
   ),
 });
 
+const ClassSchema = z.object({
+    topic: z.string(),
+});
+
+const UnitSchema = z.object({
+    title: z.string(),
+    learningObjectives: z.array(z.string()),
+    classes: z.array(ClassSchema),
+});
+
+
 const GenerateMaterialInputSchema = z.object({
     analysisResult: z.object({
         summary: z.string().optional(),
         keyConcepts: z.array(z.string()).optional(),
         subjectArea: z.string(),
-        weeks: z.union([z.number(), z.string()]).optional(),
-        courseStructure: z.array(z.object({
-          title: z.string(),
-          learningObjectives: z.array(z.string()),
-        })).optional(),
+        coherenceAnalysis: z.string().optional(),
+        strengths: z.array(z.string()).optional(),
+        weaknesses: z.array(z.string()).optional(),
+        recommendations: z.array(z.string()).optional(),
+        courseStructure: z.array(UnitSchema).optional(),
         assessments: z.array(z.object({
           type: z.string(),
           description: z.string(),
+          feedback: z.string(),
         })).optional(),
         bibliography: z.any().optional(),
-        enrichedContent: z.any().optional(),
     }),
     materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
-    format: z.enum(['docx', 'pdf']),
+    format: z.enum(['docx', 'pdf', 'pptx']),
+    classContext: z.object({
+        unitTitle: z.string(),
+        classTopic: z.string(),
+    }).optional(),
 });
 
 
@@ -327,9 +342,10 @@ export async function analyzeContentAction(
 export async function generateMaterialsActionFromAnalysis(
   analysisResult: AnalysisResult,
   materialType: keyof GeneratedMaterials,
-  format: 'docx' | 'pdf'
+  format: 'docx' | 'pdf' | 'pptx',
+  classContext?: { unitTitle: string; classTopic: string }
 ): Promise<{ data: string | null; error: string | null }> {
-    const validation = GenerateMaterialInputSchema.safeParse({ analysisResult, materialType, format });
+    const validation = GenerateMaterialInputSchema.safeParse({ analysisResult, materialType, format, classContext });
     if (!validation.success) {
         const error = validation.error.errors[0]?.message || 'Datos de entrada inválidos para la generación.';
         return { data: null, error };
@@ -339,6 +355,7 @@ export async function generateMaterialsActionFromAnalysis(
         const markdownContent = await generateMaterialFromAnalysis({
             analysisResult,
             materialType,
+            classContext,
         });
 
         if (!markdownContent) {
@@ -351,7 +368,7 @@ export async function generateMaterialsActionFromAnalysis(
             workGuide: 'Guía de Trabajo',
             exampleTests: 'Examen de Ejemplo',
             interactiveReviewPdf: 'Repaso Interactivo',
-            powerpointPresentation: analysisResult.subjectArea || 'Presentación'
+            powerpointPresentation: classContext?.classTopic || analysisResult.subjectArea || 'Presentación'
         };
         const title = titleMap[materialType];
 

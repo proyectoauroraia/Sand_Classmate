@@ -38,6 +38,8 @@ interface GenerationButtonProps {
     status: MaterialStatus;
     setStatus: (status: MaterialStatus) => void;
     isAnyTaskRunning: boolean;
+    classContext?: { unitTitle: string; classTopic: string };
+    isCompact?: boolean;
 }
 
 export const GenerationButton: React.FC<GenerationButtonProps> = ({
@@ -48,19 +50,21 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
     status,
     setStatus,
     isAnyTaskRunning,
+    classContext,
+    isCompact = false,
 }) => {
     const { toast } = useToast();
     const IconComponent = ICONS[icon];
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
     
-    const handleGenerationSubmit = async (format: 'docx' | 'pdf') => {
+    const handleGenerationSubmit = async (format: 'docx' | 'pdf' | 'pptx') => {
         if (!analysisResult) return;
         setIsDialogOpen(false);
         setStatus('generating');
 
         try {
-            const response = await generateMaterialsActionFromAnalysis(analysisResult, materialType, format);
+            const response = await generateMaterialsActionFromAnalysis(analysisResult, materialType, format, classContext);
             if (response.error || !response.data) {
                 throw new Error(response.error || `No se pudo generar el material: ${materialType}`);
             }
@@ -68,28 +72,24 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
             const link = document.createElement('a');
             link.href = response.data;
             
-            const fileExtensions = {
-                powerpointPresentation: 'pptx',
-                workGuide: format,
-                exampleTests: format,
-                interactiveReviewPdf: format
-            };
+             const fileName = classContext 
+                ? `presentacion_${classContext.classTopic.replace(/\s+/g, '_')}.pptx`
+                : {
+                    powerpointPresentation: 'presentacion_completa.pptx',
+                    workGuide: `guia_de_trabajo.${format}`,
+                    exampleTests: `examen_de_ejemplo.${format}`,
+                    interactiveReviewPdf: `repaso_interactivo.${format}`
+                }[materialType] || `material.${format}`;
 
-            const fileNames: Record<MaterialKey, string> = {
-                powerpointPresentation: 'presentacion.pptx',
-                workGuide: `guia_de_trabajo.${fileExtensions.workGuide}`,
-                exampleTests: `examen_de_ejemplo.${fileExtensions.exampleTests}`,
-                interactiveReviewPdf: `repaso_interactivo.${fileExtensions.interactiveReviewPdf}`
-            };
 
-            link.download = fileNames[materialType] || `material.${fileExtensions[materialType]}`;
+            link.download = fileName;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
 
              toast({
                 title: '¡Material Generado!',
-                description: `Tu ${link.download} se ha descargado.`,
+                description: `Tu archivo ${link.download} se ha descargado.`,
                 className: 'bg-green-100 border-green-300 text-green-800'
             });
             setStatus('success');
@@ -108,22 +108,36 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
     const isGenerating = status === 'generating';
     const isSuccess = status === 'success';
 
-    const triggerButton = (
-        <Button 
-            disabled={isAnyTaskRunning || isSuccess}
-            size="lg"
-            className="w-full sm:w-auto"
-        >
+    const buttonContent = isCompact ? (
+         <>
+            {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : 
+             isSuccess ? <CheckCircle2 className="h-4 w-4" /> : 
+             IconComponent ? <IconComponent className="h-4 w-4" /> : null}
+            <span className="sr-only">{title}</span>
+        </>
+    ) : (
+        <>
             {isGenerating ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : 
              isSuccess ? <CheckCircle2 className="mr-2 h-5 w-5" /> : 
              IconComponent ? <IconComponent className="mr-2 h-5 w-5" /> : null}
             {isSuccess ? `${title.split(' ')[1]} Generado` : title}
+        </>
+    );
+
+    const triggerButton = (
+        <Button 
+            disabled={isAnyTaskRunning || isSuccess}
+            size={isCompact ? "icon" : "lg"}
+            className={isCompact ? "" : "w-full sm:w-auto"}
+            aria-label={isCompact ? title : undefined}
+        >
+           {buttonContent}
         </Button>
     );
 
      if (materialType === 'powerpointPresentation') {
         return (
-             <div onClick={() => handleGenerationSubmit('docx')}>
+             <div onClick={() => handleGenerationSubmit('pptx')}>
                 {triggerButton}
             </div>
         );

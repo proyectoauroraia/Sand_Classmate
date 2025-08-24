@@ -4,7 +4,7 @@
 import * as React from 'react';
 import type { AnalysisResult } from '@/lib/types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ListChecks } from 'lucide-react';
+import { ListChecks, BookCopy, Presentation } from 'lucide-react';
 import type { MaterialStatus } from './analysis-display';
 import { GenerationButton } from './generation-button';
 
@@ -36,17 +36,44 @@ export const StructureTab: React.FC<StructureTabProps> = React.memo(({
                     {analysisResult.courseStructure.map((unit, i) => (
                         <AccordionItem value={`item-${i}`} key={i}>
                             <AccordionTrigger className="text-base font-medium hover:no-underline">{unit.title}</AccordionTrigger>
-                            <AccordionContent>
-                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2 pl-4">
-                                    {unit.learningObjectives.map((obj, j) => <li key={j}>{obj}</li>)}
-                                </ul>
+                            <AccordionContent className="space-y-4">
+                                <div>
+                                    <h4 className="font-semibold text-sm mb-2 text-secondary-foreground">Resultados de Aprendizaje de la Unidad:</h4>
+                                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2 pl-4">
+                                        {unit.learningObjectives.map((obj, j) => <li key={j}>{obj}</li>)}
+                                    </ul>
+                                </div>
+                                <div className="border-t pt-4">
+                                    <h4 className="font-semibold text-sm mb-3 text-secondary-foreground">Clases de la Unidad ({unit.classes?.length || 0}):</h4>
+                                     <div className="space-y-3">
+                                        {unit.classes?.map((cls, j) => (
+                                            <div key={j} className="flex items-center justify-between p-3 rounded-md bg-secondary/40">
+                                                <div className="flex items-center gap-3">
+                                                    <BookCopy className="h-5 w-5 text-primary/80" />
+                                                    <p className="font-medium text-sm text-foreground">{cls.topic}</p>
+                                                </div>
+                                                <GenerationButton
+                                                    title="Generar PPT"
+                                                    materialType="powerpointPresentation"
+                                                    icon="presentation"
+                                                    analysisResult={analysisResult}
+                                                    status={statuses[`ppt-${i}-${j}`] || 'idle'}
+                                                    setStatus={(s) => setStatuses(p => ({ ...p, [`ppt-${i}-${j}`]: s }))}
+                                                    isAnyTaskRunning={isAnyTaskRunning}
+                                                    classContext={{ unitTitle: unit.title, classTopic: cls.topic }}
+                                                    isCompact={true}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </AccordionContent>
                         </AccordionItem>
                     ))}
                 </Accordion>
                 <div className="border-t pt-6 mt-6">
                     <GenerationButton
-                        title="Generar Presentación"
+                        title="Generar Presentación Completa"
                         materialType="powerpointPresentation"
                         icon="presentation"
                         analysisResult={analysisResult}

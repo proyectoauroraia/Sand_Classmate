@@ -13,6 +13,9 @@ export type AnalysisResult = {
   courseStructure?: {
     title: string;
     learningObjectives: string[];
+    classes: {
+        topic: string;
+    }[];
   }[];
   
   assessments?: {
