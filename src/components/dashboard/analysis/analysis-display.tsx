@@ -11,8 +11,6 @@ import { SummaryTab } from './summary-tab';
 import { StructureTab } from './structure-tab';
 import { AssessmentsTab } from './assessments-tab';
 import { BibliographyTab } from './bibliography-tab';
-import { ResourcesTab } from './resources-tab';
-import { GenerationButton } from './generation-button';
 
 type MaterialKey = keyof GeneratedMaterials;
 export type MaterialStatus = 'idle' | 'generating' | 'success';
@@ -35,21 +33,10 @@ export function AnalysisDisplay({ analysisResult, onReset }: AnalysisDisplayProp
 
     const handleGenerateAll = async () => {
         setIsGeneratingAll(true);
-        const materialsToGenerate: MaterialKey[] = ['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf'];
-        
-        // This is a simplified sequential generation. A more advanced implementation
-        // could use Promise.all to run them in parallel if the server supports it.
-        for (const materialType of materialsToGenerate) {
-            if (materialStatuses[materialType] === 'idle') {
-                // We need to find the button and click it programmatically
-                // Or better, extract the generation logic to a shared hook or function.
-                // For now, this is a placeholder for the complex logic.
-                // In a real scenario, this would trigger the generation action for each.
-            }
-        }
+        // In a real app, you'd trigger all generation actions here.
+        // For this example, we'll just simulate it.
+        console.log("Generating all materials...");
         // This is a simplified approach. A better one would use a shared generation function.
-        // For the purpose of this refactor, we'll assume we can't trigger all at once easily
-        // and just show the button state.
         setIsGeneratingAll(false);
     };
 
@@ -69,7 +56,6 @@ export function AnalysisDisplay({ analysisResult, onReset }: AnalysisDisplayProp
                             <TabsTrigger value="structure">Estructura</TabsTrigger>
                             <TabsTrigger value="assessments">Evaluaciones</TabsTrigger>
                             <TabsTrigger value="bibliography">Bibliografía</TabsTrigger>
-                            <TabsTrigger value="resources">Recursos</TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="summary">
@@ -98,9 +84,6 @@ export function AnalysisDisplay({ analysisResult, onReset }: AnalysisDisplayProp
                         </TabsContent>
                         <TabsContent value="bibliography">
                             <BibliographyTab analysisResult={analysisResult} />
-                        </TabsContent>
-                        <TabsContent value="resources">
-                           <ResourcesTab analysisResult={analysisResult} />
                         </TabsContent>
                     </Tabs>
                 </CardContent>

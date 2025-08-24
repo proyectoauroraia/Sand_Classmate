@@ -19,19 +19,6 @@ export type AnalysisResult = {
     mentioned: string[];
     recommended: string[];
   };
-
-  enrichedContent?: {
-    externalLinks?: {
-      title: string;
-      url: string;
-      summary: string;
-    }[];
-    youtubeVideos?: {
-      title: string;
-      videoId: string;
-      summary: string;
-    }[];
-  };
 }
 
 export type GeneratedMaterials = {

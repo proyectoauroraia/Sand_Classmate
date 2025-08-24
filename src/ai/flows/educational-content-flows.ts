@@ -7,7 +7,6 @@
  */
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import type { AnalysisResult } from '@/lib/types';
 
 // Schema for analyzing content
 const AnalyzeContentInputSchema = z.object({
@@ -49,18 +48,6 @@ const AnalyzeContentOutputSchema = z.object({
       recommended: z.array(z.string()).describe('A list of relevant, modern external bibliographic recommendations (books, key articles) that are NOT in the original document but are highly relevant to the subject area.'),
   }).optional(),
 
-  enrichedContent: z.object({
-    externalLinks: z.array(z.object({
-      title: z.string().describe("The title of the article or resource."),
-      url: z.string().url().describe("The URL to the resource."),
-      summary: z.string().describe("A brief summary of why this link is relevant.")
-    })).describe("A list of relevant, modern external links (articles, studies, etc.) to enrich the content.").optional(),
-    youtubeVideos: z.array(z.object({
-      title: z.string().describe("The title of the YouTube video."),
-      videoId: z.string().describe("The YouTube video ID."),
-      summary: z.string().describe("A brief summary of what the video covers and why it's relevant.")
-    })).describe("A list of relevant YouTube videos to complement the key concepts.").optional(),
-  }).describe("A collection of modern, high-quality educational resources to enhance the original document.").optional()
 });
 
 export async function analyzeAndEnrichContent(
@@ -80,18 +67,13 @@ export async function analyzeAndEnrichContent(
       2.  **Summarize:** Provide a concise summary of the document's main topics and overall structure.
       3.  **Extract Key Information:**
           *   Identify and list the most critical **keywords and concepts**.
-          *   Determine the total duration in **weeks** if specified. This is the total length, not the number of units.
+          *   Determine the total duration in **weeks** if specified. This is the total length, not the number of units. A course might have 15 weeks but only 4 units.
       4.  **Deconstruct Course Structure:**
-          *   Identify the main **units or modules** based on thematic groupings or explicit titles (e.g., "Unit 1", "Module A"). Do not simply count each week as a unit. A course might have 15 weeks but only 4 units. For each unit, list its specific **learning objectives**.
+          *   Identify the main **units or modules** based on thematic groupings or explicit titles (e.g., "Unit 1", "Module A"). Do not simply count each week as a unit. For each unit, list its specific **learning objectives**.
           *   Identify all **assessments** (exams, quizzes, projects) mentioned in the document.
       5.  **Analyze Bibliography:**
           *   List any **bibliography** or references **mentioned** directly in the document.
-          *   **You must provide** a list of 2-3 additional **recommended bibliographic sources** (influential books, seminal papers) that are highly relevant but *not* mentioned in the document. If no bibliography is present in the source, these recommendations are even more critical.
-      6.  **Enrich with Up-to-Date, High-Quality Resources:**
-          *   Your primary goal is to find resources with **high scientific and pedagogical rigor.**
-          *   **Search for recent content, prioritizing materials from the last 5 years.**
-          *   **External Links:** Find 2-3 relevant academic articles, studies, or web pages from reputable sources (e.g., universities, government agencies, scientific journals, professional organizations). Provide title, URL, and a summary.
-          *   **YouTube Videos:** Find 2-3 relevant videos from high-quality educational channels (e.g., university channels, recognized scientific communicators). Provide title, video ID, and summary.
+          *   **You must provide** a list of 2-3 additional **recommended bibliographic sources** (influential books, seminal papers) that are highly relevant but *not* mentioned in the document. If no bibliography is present in the source, these recommendations are even more critical. Prioritize sources from the last 10 years.
 
       Provide a structured JSON response according to the defined output schema. Ensure all fields are populated accurately and in Spanish.`
   });
@@ -111,7 +93,6 @@ const GenerateMaterialInputSchema = z.object({
         courseStructure: z.array(UnitSchema).optional(),
         assessments: z.array(AssessmentSchema).optional(),
         bibliography: z.any().optional(),
-        enrichedContent: z.any().optional(),
     }),
     materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
 });
