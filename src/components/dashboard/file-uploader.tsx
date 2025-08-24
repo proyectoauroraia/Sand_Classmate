@@ -18,15 +18,9 @@ type FileUploaderProps = {
 };
 
 const PremiumUploadIcon = () => (
-    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-4">
-        <circle cx="32" cy="32" r="32" fill="url(#icon_gradient)" />
-        <path d="M27.5 35.5V44H36.5V35.5H43.5L32 24L20.5 35.5H27.5Z" fill="white" />
-        <defs>
-            <linearGradient id="icon_gradient" x1="32" y1="0" x2="32" y2="64" gradientUnits="userSpaceOnUse">
-                <stop stopColor="hsl(var(--primary))" stopOpacity="0.8"/>
-                <stop offset="1" stopColor="hsl(var(--primary))" />
-            </linearGradient>
-        </defs>
+    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-4 text-primary">
+        <circle cx="32" cy="32" r="30.5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="4 8"/>
+        <path d="M32 22V42M32 22L26 28M32 22L38 28" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );
 
