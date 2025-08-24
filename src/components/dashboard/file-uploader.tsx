@@ -60,7 +60,7 @@ export function FileUploader() {
                 setGenerationState('idle');
                 toast({
                   title: "¡Análisis Completo!",
-                  description: `Hemos analizado tu documento sobre ${response.data.subjectArea}.`,
+                  description: `Tu documento sobre "${response.data.subjectArea}" ha sido analizado.`,
                 });
             };
             reader.onerror = () => {
