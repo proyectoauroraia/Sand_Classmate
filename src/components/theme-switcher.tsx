@@ -14,7 +14,7 @@ import { Palette, Check, Sun, Moon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 
 const themes = [
-  { name: 'Default', theme: 'theme-default', color: 'hsl(76 34% 50%)' },
+  { name: 'Default', theme: 'theme-default', color: 'hsl(15 82% 56%)' },
   { name: 'Navy', theme: 'theme-navy', color: 'hsl(215 41% 45%)' },
   { name: 'Forest', theme: 'theme-forest', color: 'hsl(120 39% 40%)' },
   { name: 'Dusk', theme: 'theme-dusk', color: 'hsl(250 50% 60%)' },
@@ -22,24 +22,37 @@ const themes = [
 ];
 
 export function ThemeSwitcher() {
-  const { theme, resolvedTheme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleDarkModeToggle = (checked: boolean) => {
-    setTheme(checked ? 'dark' : 'light');
+  const { baseTheme, colorMode } = React.useMemo(() => {
+    const parts = theme?.split('-') || ['light', 'theme', 'default'];
+    if (parts[0] === 'light' || parts[0] === 'dark') {
+      return {
+        colorMode: parts[0],
+        baseTheme: parts.slice(1).join('-'),
+      };
+    }
+    // Default case if theme is not in expected format
+    return {
+      colorMode: 'light',
+      baseTheme: theme || 'theme-default',
+    };
+  }, [theme]);
+  
+  const handleDarkModeToggle = (isDark: boolean) => {
+    setTheme(`${isDark ? 'dark' : 'light'}-${baseTheme}`);
   };
 
-  // The current color palette is the theme name that doesn't include "light" or "dark".
-  // This logic correctly separates the color palette from the light/dark mode.
-  const currentPalette = themes.find(t => t.theme === theme)?.theme || theme?.replace(/light-|dark-/, '') || 'theme-default';
-  const isDarkMode = resolvedTheme === 'dark';
+  const handlePaletteChange = (newBaseTheme: string) => {
+     setTheme(`${colorMode}-${newBaseTheme}`);
+  };
 
   if (!mounted) {
-    // Avoid rendering UI that depends on the theme until the client is mounted
     return <div className="w-24 h-10" />;
   }
 
@@ -55,7 +68,7 @@ export function ThemeSwitcher() {
           {themes.map((themeOption) => (
             <DropdownMenuItem
               key={themeOption.name}
-              onClick={() => setTheme(themeOption.theme)}
+              onClick={() => handlePaletteChange(themeOption.theme)}
               className="flex items-center justify-between"
             >
               <div className="flex items-center gap-2">
@@ -65,7 +78,7 @@ export function ThemeSwitcher() {
                 />
                 <span>{themeOption.name}</span>
               </div>
-              {currentPalette === themeOption.theme && <Check className="h-4 w-4" />}
+              {baseTheme === themeOption.theme && <Check className="h-4 w-4" />}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
@@ -75,7 +88,7 @@ export function ThemeSwitcher() {
         <Sun className="h-5 w-5" />
         <Switch
             id="dark-mode"
-            checked={isDarkMode}
+            checked={colorMode === 'dark'}
             onCheckedChange={handleDarkModeToggle}
             aria-label="Cambiar entre modo claro y oscuro"
         />
