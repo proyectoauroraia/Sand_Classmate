@@ -251,7 +251,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                             </div>
                             )}
                             
-                             {analysisResult.enrichedContent && analysisResult.enrichedContent.externalLinks.length > 0 && (
+                             {analysisResult.enrichedContent && analysisResult.enrichedContent.externalLinks && analysisResult.enrichedContent.externalLinks.length > 0 && (
                              <div>
                                 <h3 className="font-semibold text-xl mb-3">Recursos Externos Sugeridos</h3>
                                  <div className="space-y-3">
@@ -265,7 +265,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                             </div>
                              )}
 
-                             {analysisResult.enrichedContent && analysisResult.enrichedContent.youtubeVideos.length > 0 && (
+                             {analysisResult.enrichedContent && analysisResult.enrichedContent.youtubeVideos && analysisResult.enrichedContent.youtubeVideos.length > 0 && (
                              <div>
                                 <h3 className="font-semibold text-xl mb-3">Videos de YouTube Recomendados</h3>
                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -360,7 +360,5 @@ function MaterialButton({ icon: Icon, title, onClick, disabled }: { icon: React.
         </Button>
     );
 }
-
-    
 
     
