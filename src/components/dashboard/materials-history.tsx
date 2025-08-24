@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,13 @@ const mockHistory: HistoryItem[] = [
     { id: '2', fileName: 'Programa de Kinesiología 2024', date: '2024-07-25', status: 'Completado' },
     { id: '3', fileName: 'Apuntes de Filosofía Antigua', date: '2024-07-22', status: 'Completado' },
     { id: '4', fileName: 'Syllabus de Historia del Arte', date: '2024-07-20', status: 'Completado' },
+    { id: '5', fileName: 'Plan de Estudios de Psicología', date: '2024-07-18', status: 'Completado' },
+    { id: '6', fileName: 'Material de Nutrición I', date: '2024-07-15', status: 'Completado' },
+    { id: '7', fileName: 'Guía de Laboratorio de Química', date: '2024-07-12', status: 'Completado' },
+    { id: '8', fileName: 'Curso de Cálculo Avanzado', date: '2024-07-10', status: 'Completado' },
 ];
+
+const ITEMS_PER_PAGE = 4;
 
 const buttonColors = [
     'bg-gradient-to-br from-green-400 to-green-600 text-white hover:from-green-500 hover:to-green-700', // Green
@@ -27,10 +34,16 @@ const buttonColors = [
 
 export function MaterialsHistory() {
     const router = useRouter();
+    const [currentPage, setCurrentPage] = useState(0);
+
+    const pageCount = Math.ceil(mockHistory.length / ITEMS_PER_PAGE);
+    const paginatedHistory = mockHistory.slice(
+        currentPage * ITEMS_PER_PAGE,
+        (currentPage + 1) * ITEMS_PER_PAGE
+    );
 
     const handleViewAnalysis = (id: string) => {
         // TODO: Implement logic to fetch and display the analysis for the given ID.
-        // For now, it can log to the console.
         console.log(`Navigating to analysis for ID: ${id}`);
         // Example navigation: router.push(`/dashboard/analysis/${id}`);
     };
@@ -47,14 +60,14 @@ export function MaterialsHistory() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockHistory.length === 0 ? (
+                  {paginatedHistory.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={2} className="h-24 text-center">
                         Aún no se han analizado cursos.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    mockHistory.map((item, index) => (
+                    paginatedHistory.map((item, index) => (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium py-4">
                             {item.fileName}
@@ -63,7 +76,7 @@ export function MaterialsHistory() {
                           <Button 
                             size="sm" 
                             onClick={() => handleViewAnalysis(item.id)}
-                            className={cn('shadow-md hover:shadow-lg transition-shadow',buttonColors[(index % buttonColors.length)])}
+                            className={cn('shadow-md hover:shadow-lg transition-shadow',buttonColors[((currentPage * ITEMS_PER_PAGE) + index) % buttonColors.length])}
                           >
                             Ver
                           </Button>
@@ -76,9 +89,19 @@ export function MaterialsHistory() {
             </ScrollArea>
         </CardContent>
          <CardFooter className="justify-center pt-4">
-            <Button variant="secondary" asChild>
-                <Link href="/dashboard/history">Ver más...</Link>
-            </Button>
+            <div className="flex items-center gap-3">
+              {Array.from({ length: pageCount }).map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPage(index)}
+                  className={cn(
+                    'h-2 w-2 rounded-full bg-muted transition-all duration-300 ease-in-out hover:bg-muted-foreground/50',
+                    currentPage === index && 'w-4 bg-primary'
+                  )}
+                  aria-label={`Ir a la página ${index + 1}`}
+                />
+              ))}
+            </div>
         </CardFooter>
       </Card>
     );
