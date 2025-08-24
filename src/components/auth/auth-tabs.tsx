@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,9 +12,8 @@ import { GoogleIcon } from '@/components/icons/google-icon';
 export function AuthTabs() {
   const router = useRouter();
 
+  // This function can still be used for other auth providers like Google
   const handleAuthAction = () => {
-    // Here you would typically handle real authentication logic.
-    // For this prototype, we'll just navigate to the dashboard.
     router.push('/dashboard');
   };
 
@@ -33,9 +33,11 @@ export function AuthTabs() {
             <Label htmlFor="password-login">Password</Label>
             <Input id="password-login" type="password" required />
           </div>
-          <Button onClick={handleAuthAction} type="button" className="w-full">
-            Login
-          </Button>
+          <Link href="/dashboard" passHref legacyBehavior>
+            <Button asChild className="w-full">
+              <a>Login</a>
+            </Button>
+          </Link>
           <div className="relative my-2">
             <Separator />
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">OR</span>
@@ -56,9 +58,11 @@ export function AuthTabs() {
             <Label htmlFor="password-signup">Password</Label>
             <Input id="password-signup" type="password" required />
           </div>
-           <Button onClick={handleAuthAction} type="button" className="w-full">
-              Create Account
-           </Button>
+           <Link href="/dashboard" passHref legacyBehavior>
+            <Button asChild className="w-full">
+              <a>Create Account</a>
+            </Button>
+          </Link>
           <div className="relative my-2">
             <Separator />
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">OR</span>
