@@ -8,7 +8,7 @@ body {
 
 @layer base {
   :root {
-    /* Modern Dark Theme based on reference */
+    /* Modern Dark Theme with subtle gradients */
     --background: 224 71% 4%;    /* Almost black blue */
     --foreground: 210 40% 98%;   /* Almost white text */
     
@@ -89,7 +89,9 @@ body {
   }
   body {
     @apply text-foreground;
+    /* Applying a subtle radial gradient for depth */
     background-color: hsl(var(--background));
+    background-image: radial-gradient(circle at top, hsl(var(--secondary) / 0.3), hsl(var(--background)) 70%);
     min-height: 100vh;
   }
 }
