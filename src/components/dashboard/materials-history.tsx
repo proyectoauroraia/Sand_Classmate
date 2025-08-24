@@ -50,9 +50,9 @@ export function MaterialsHistory() {
             <ScrollArea className="h-full">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-sm text-foreground">Nombre del Curso</TableHead>
-                    <TableHead className="text-right text-sm text-foreground">Ver Análisis</TableHead>
+                  <TableRow className="bg-primary/10 rounded-lg">
+                    <TableHead className="text-sm text-foreground font-bold">Nombre del Curso</TableHead>
+                    <TableHead className="text-right text-sm text-foreground font-bold">Ver Análisis</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
