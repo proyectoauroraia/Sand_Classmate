@@ -47,37 +47,37 @@ export function FileUploader() {
         setAnalysisResult(null);
 
         try {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = async () => {
-                const dataUri = reader.result as string;
-                const response = await analyzeContentAction(dataUri);
+            const dataUri = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = (error) => reject(error);
+                reader.readAsDataURL(file);
+            });
 
-                if (response.error || !response.data) {
-                    throw new Error(response.error || 'Falló el análisis del contenido.');
-                }
+            const response = await analyzeContentAction(dataUri);
 
-                setAnalysisResult(response.data);
-                setGenerationState('idle');
-                toast({
-                  title: "¡Análisis Completo!",
-                  description: `Hemos analizado tu documento sobre "${response.data.subjectArea}".`,
-                });
-            };
-            reader.onerror = () => {
-                throw new Error('No se pudo leer el archivo.');
-            };
+            if (response.error || !response.data) {
+                throw new Error(response.error || 'Falló el análisis del contenido.');
+            }
+
+            setAnalysisResult(response.data);
+            toast({
+                title: "¡Análisis Completo!",
+                description: `Hemos analizado tu documento sobre "${response.data.subjectArea}".`,
+            });
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error inesperado.';
             setError(errorMessage);
             toast({
-              variant: "destructive",
-              title: "Falló el Análisis",
-              description: errorMessage,
+                variant: "destructive",
+                title: "Falló el Análisis",
+                description: errorMessage,
             });
+        } finally {
             setGenerationState('idle');
         }
     };
+
 
     const handleGenerationSubmit = async (materialType: keyof GeneratedMaterials) => {
         if (!analysisResult) return;
@@ -336,5 +336,4 @@ function MaterialButton({ icon: Icon, title, onClick, disabled }: { icon: React.
     );
 }
 
-    
     
