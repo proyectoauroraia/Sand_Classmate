@@ -23,12 +23,12 @@ export type GenerateEducationalMaterialsInput = z.infer<typeof GenerateEducation
 const GenerateEducationalMaterialsOutputSchema = z.object({
   powerpointPresentation: z
     .string()
-    .describe('The generated PowerPoint presentation content as a markdown string. Each H2 heading will be a new slide.'),
-  workGuide: z.string().describe('The generated work guide content as a structured text string.'),
-  exampleTests: z.string().describe('The generated example tests content as a structured text string.'),
+    .describe("The generated PowerPoint presentation content as a markdown string. The first H1 (#) is the title slide. Each subsequent H2 (##) is a new slide title. Bullet points (*) are slide content."),
+  workGuide: z.string().describe('The generated work guide content as a markdown string with titles (##), subtitles (###), and bullet points (*).'),
+  exampleTests: z.string().describe('The generated example tests content as a markdown string with questions (##) and options/answers (*).'),
   interactiveReviewPdf: z
     .string()
-    .describe('The generated interactive review content as a structured text string.'),
+    .describe('The generated interactive review content as a markdown string with questions (##) and key concepts (*).'),
 });
 export type GenerateEducationalMaterialsOutput = z.infer<typeof GenerateEducationalMaterialsOutputSchema>;
 
@@ -44,16 +44,19 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateEducationalMaterialsOutputSchema},
   prompt: `You are an AI assistant designed to help university professors generate educational materials from their syllabus.
 
-You will take a syllabus file as input and generate the content for the following materials:
+You will take a syllabus file as input and generate the content for the following materials in **well-structured markdown format**.
 
-1.  **PowerPoint presentation content**: As a markdown string. Use H2 headings (##) to delineate each new slide. Create approximately 15 slides per class session found in the syllabus.
-2.  **Work guide content**: As a well-structured text. Include sections, bullet points, and clear instructions.
-3.  **Example tests content**: As a well-structured text. Include multiple-choice questions, true/false, and open-ended questions with an answer key at the end.
-4.  **Interactive review content**: As a well-structured text. Include questions, key concepts, and topics for discussion.
+1.  **PowerPoint presentation content**: Start with a main title for the presentation using an H1 (#). Then, for each class session in the syllabus, create a slide title using an H2 (##). Under each H2, create about 4-5 bullet points (*) summarizing the key topics for that session.
+
+2.  **Work guide content**: Create a comprehensive work guide. Use H2 (##) for main sections (like "Unit 1: Introduction"), H3 (###) for subsections (like "Objectives" or "Activities"), and bullet points (*) for details within each subsection.
+
+3.  **Example tests content**: Create a test with a mix of question types. Use H2 (##) for each question. For multiple-choice questions, list the options using bullet points (*), and indicate the correct answer with "(Correct)".
+
+4.  **Interactive review content**: Create a review guide. Use H2 (##) for questions or discussion prompts, and use bullet points (*) to list key concepts or terms for review under each prompt.
 
 Syllabus File: {{media url=syllabusFile}}
 
-Ensure that the generated content is engaging, comprehensive, and appropriate for university students. Do not generate file data, only the text content for each item.
+Ensure the markdown is clean and well-organized. Do not generate any other text or explanations, only the markdown content for each item.
 `,
 });
 
