@@ -6,21 +6,11 @@ import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Home, History, Settings, LogOut, Languages, ChevronDown } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
+import { Home, History, Settings, LogOut } from 'lucide-react';
+
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-    const [language, setLanguage] = useState("es");
 
     return (
         <TooltipProvider delayDuration={0}>
@@ -83,32 +73,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
                 </div>
                 <div className="flex flex-col bg-background">
-                    <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-card px-6">
-                        <div className="flex items-center gap-2 lg:hidden">
-                            <Logo />
-                        </div>
-                        <div className="w-full flex-1">
-                            {/* This is dynamically updated by the page */}
-                        </div>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="flex items-center gap-2">
-                                    <Languages className="h-4 w-4" />
-                                    <span>{language === 'es' ? 'Español' : 'English'}</span>
-                                    <ChevronDown className="h-4 w-4" />
-                            </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuLabel>Seleccionar idioma</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuRadioGroup value={language} onValueChange={setLanguage}>
-                                    <DropdownMenuRadioItem value="es">Español</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="en">English</DropdownMenuRadioItem>
-                                </DropdownMenuRadioGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </header>
-                    <main className="flex-1 p-4 md:p-6">
+                     <main className="flex-1 p-4 md:p-6 lg:p-8">
                         {children}
                     </main>
                 </div>

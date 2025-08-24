@@ -17,7 +17,12 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 
 type GenerationState = 'idle' | 'analyzing' | 'generating' | 'success';
 
-export function FileUploader() {
+type FileUploaderProps = {
+    onAnalysisComplete: (result: AnalysisResult | null) => void;
+};
+
+
+export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     const [generationState, setGenerationState] = useState<GenerationState>('idle');
     const [error, setError] = useState<string | null>(null);
     const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -61,6 +66,7 @@ export function FileUploader() {
             }
 
             setAnalysisResult(response.data);
+            onAnalysisComplete(response.data);
             toast({
                 title: "¡Análisis Completo!",
                 description: `Hemos analizado tu documento sobre "${response.data.subjectArea}".`,
@@ -142,6 +148,7 @@ export function FileUploader() {
         if(fileInputRef.current) {
             fileInputRef.current.value = '';
         }
+        onAnalysisComplete(null);
     }
 
     if (generationState === 'analyzing' || generationState === 'generating') {
@@ -306,7 +313,7 @@ export function FileUploader() {
     }
 
     return (
-        <Card>
+        <Card className="bg-card/80 backdrop-blur-sm">
             <CardContent className="p-6">
                 <form onSubmit={handleAnalysisSubmit} className="space-y-6">
                     {error && (
@@ -317,7 +324,7 @@ export function FileUploader() {
                         </Alert>
                     )}
                     <div 
-                        className="flex flex-col items-center justify-center p-10 rounded-lg cursor-pointer transition-colors bg-secondary/50 hover:bg-accent/40 border-2 border-dashed border-border"
+                        className="flex flex-col items-center justify-center p-10 rounded-lg cursor-pointer transition-colors bg-secondary/30 hover:bg-accent/30 border-2 border-dashed border-border"
                         onClick={() => fileInputRef.current?.click()}
                     >
                         <UploadCloud className="h-16 w-16 text-muted-foreground mb-4" />
