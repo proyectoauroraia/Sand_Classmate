@@ -45,7 +45,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                          <Link 
                             key={link.href} 
                             href={link.href} 
-                            className={`flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary ${isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
+                            className={`flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary ${isActive ? 'bg-primary/20 text-primary' : 'hover:bg-accent'}`}
                          >
                             <link.icon className="h-5 w-5" />
                             {link.label}

@@ -8,78 +8,71 @@ body {
 
 @layer base {
   :root {
-    /* Modern Dark Theme with subtle gradients */
-    --background: 224 71% 4%;    /* Almost black blue */
-    --foreground: 210 40% 98%;   /* Almost white text */
-    
-    --card: 222 47% 11%;      /* Dark slate blue for cards */
-    --card-foreground: 210 40% 98%;
-    
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
+    --background: 39 67% 98%; /* #FDFBF6 - Light Cream */
+    --foreground: 28 40% 39%; /* #8B5E3C - Warm Terracotta Brown */
 
-    /* Bright blue for actions */
-    --primary: 217 91% 60%;    /* #3B82F6 */
-    --primary-foreground: 210 40% 98%;
+    --card: 40 100% 99%; /* #FFFDF9 - Off-white for cards */
+    --card-foreground: 28 40% 39%;
+
+    --popover: 40 100% 99%;
+    --popover-foreground: 28 40% 39%;
+
+    --primary: 26 83% 63%;  /* #E89B64 - Main Sand Orange */
+    --primary-foreground: 28 40% 39%;
+
+    --secondary: 35 73% 91%; /* #F5EADD - Light sandy beige for secondary elements */
+    --secondary-foreground: 28 40% 39%;
     
-    --secondary: 217 33% 17%;    /* Darker muted blue */
-    --secondary-foreground: 210 40% 98%;
-    
-    --muted: 217 33% 17%;
-    --muted-foreground: 220 15% 65%;
-    
-    --accent: 217 33% 25%;     /* Hover state for nav links */
-    --accent-foreground: 210 40% 98%;
-    
+    --muted: 35 73% 91%;
+    --muted-foreground: 28 25% 55%;
+
+    --accent: 35 73% 88%; /* Slightly darker for hover */
+    --accent-foreground: 28 40% 39%;
+
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 217 33% 25%;
-    --input: 217 28% 15%;
-    --ring: 217 91% 60%;
+    --border: 35 73% 88%;
+    --input: 35 73% 94%; /* Lighter input background */
+    --ring: 26 83% 63%; /* Primary color for focus rings */
     
-    --chart-1: 217 91% 60%; /* primary */
-    --chart-2: 120 25% 65%;
-    --chart-3: 15 80% 65%;
-    --chart-4: 25 70% 55%;
-    --chart-5: 0 70% 65%;
+    --chart-1: 26 83% 63%;
+    --chart-2: 30 50% 75%;
+    --chart-3: 25 60% 80%;
+    --chart-4: 35 73% 91%;
+    --chart-5: 28 40% 39%;
     --radius: 0.5rem;
   }
   
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
-    
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
-    
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
+    --background: 28 10% 12%; /* Dark brown */
+    --foreground: 40 30% 90%; /* Light cream text */
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 210 40% 98%;
-    
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    
-    --muted: 217 33% 17%;
-    --muted-foreground: 220 15% 65%;
-    
-    --accent: 217 33% 25%;
-    --accent-foreground: 210 40% 98%;
+    --card: 28 10% 15%;
+    --card-foreground: 40 30% 90%;
+
+    --popover: 28 10% 15%;
+    --popover-foreground: 40 30% 90%;
+
+    --primary: 26 83% 63%; /* #E89B64 - Main Sand Orange */
+    --primary-foreground: 28 10% 12%;
+
+    --secondary: 28 10% 20%;
+    --secondary-foreground: 40 30% 90%;
+
+    --muted: 28 10% 20%;
+    --muted-foreground: 40 30% 70%;
+
+    --accent: 28 10% 25%;
+    --accent-foreground: 40 30% 90%;
     
     --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-    
-    --border: 217 33% 25%;
-    --input: 217 28% 15%;
-    --ring: 217 91% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --chart-1: 217 91% 60%;
-    --chart-2: 120 25% 65%;
-    --chart-3: 30 85% 70%;
-    --chart-4: 25 70% 55%;
-    --chart-5: 0 70% 65%;
+    --border: 28 10% 25%;
+    --input: 28 10% 22%;
+    --ring: 26 83% 63%;
+    --radius: 0.5rem;
   }
 }
 
@@ -88,9 +81,7 @@ body {
     @apply border-border;
   }
   body {
-    @apply text-foreground;
-    /* Applying a subtle radial gradient for depth */
-    background-color: hsl(var(--background));
+    @apply bg-background text-foreground;
     background-image: radial-gradient(circle at top, hsl(var(--secondary) / 0.3), hsl(var(--background)) 70%);
     min-height: 100vh;
   }
