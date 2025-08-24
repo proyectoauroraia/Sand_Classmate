@@ -3,8 +3,12 @@ export type AnalysisResult = {
   summary?: string;
   keyConcepts?: string[];
   subjectArea: string;
-  weeks?: number | string;
   
+  coherenceAnalysis?: string;
+  strengths?: string[];
+  weaknesses?: string[];
+  recommendations?: string[];
+
   courseStructure?: {
     title: string;
     learningObjectives: string[];
@@ -35,3 +39,5 @@ export type HistoryItem = {
     date: string;
     status: 'Completado' | 'Procesando' | 'Fallido';
 };
+
+    
