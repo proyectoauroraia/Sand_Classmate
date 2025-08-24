@@ -72,7 +72,7 @@ export default function PricingPage() {
                         <CardDescription>Para instituciones y equipos que buscan una solución integral.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-6">
-                       <p className="text-5xl font-bold">Personalizado</p>
+                       <p className="text-4xl font-bold pt-4">Personalizado</p>
                          <ul className="space-y-4">
                             <CheckListItem>Precio especial por volumen de perfiles</CheckListItem>
                             <CheckListItem>Todas las funciones Premium</CheckListItem>
