@@ -54,13 +54,13 @@ const AnalyzeContentOutputSchema = z.object({
       title: z.string().describe("The title of the article or resource."),
       url: z.string().url().describe("The URL to the resource."),
       summary: z.string().describe("A brief summary of why this link is relevant.")
-    })).describe("A list of relevant, modern external links (articles, studies, etc.) to enrich the content."),
+    })).describe("A list of relevant, modern external links (articles, studies, etc.) to enrich the content.").optional(),
     youtubeVideos: z.array(z.object({
       title: z.string().describe("The title of the YouTube video."),
       videoId: z.string().describe("The YouTube video ID."),
       summary: z.string().describe("A brief summary of what the video covers and why it's relevant.")
-    })).describe("A list of relevant YouTube videos to complement the key concepts."),
-  }).describe("A collection of modern, high-quality educational resources to enhance the original document.")
+    })).describe("A list of relevant YouTube videos to complement the key concepts.").optional(),
+  }).describe("A collection of modern, high-quality educational resources to enhance the original document.").optional()
 });
 
 export async function analyzeAndEnrichContent(
