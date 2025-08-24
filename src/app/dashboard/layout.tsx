@@ -16,15 +16,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
                     <div className="flex-1 overflow-auto py-4">
                         <nav className="grid items-start px-4 text-sm font-medium">
-                            <Link href="/dashboard" className="flex items-center gap-4 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary hover:bg-accent">
+                            <Link href="/dashboard" className="flex items-center gap-4 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary hover:bg-accent/60">
                                 <Home className="h-5 w-5" />
                                 Dashboard
                             </Link>
-                            <Link href="/dashboard/history" className="flex items-center gap-4 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary hover:bg-accent">
+                            <Link href="/dashboard/history" className="flex items-center gap-4 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary hover:bg-accent/60">
                                 <History className="h-5 w-5" />
                                 My History
                             </Link>
-                            <Link href="/dashboard/settings" className="flex items-center gap-4 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary hover:bg-accent">
+                            <Link href="/dashboard/settings" className="flex items-center gap-4 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary hover:bg-accent/60">
                                 <Settings className="h-5 w-5" />
                                 Settings
                             </Link>

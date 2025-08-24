@@ -94,7 +94,6 @@ export function FileUploader() {
                 throw new Error(response.error || `No se pudo generar el material: ${materialType}`);
             }
 
-            // Create a temporary link to trigger the download
             const link = document.createElement('a');
             link.href = response.data;
             
@@ -143,63 +142,63 @@ export function FileUploader() {
 
     if (generationState === 'analyzing' || generationState === 'generating') {
         return (
-            <Card className="flex flex-col items-center justify-center text-center p-10 h-80">
-                <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-                <p className="text-lg font-semibold">
+            <Card className="flex flex-col items-center justify-center text-center p-10 h-96">
+                <Loader2 className="h-16 w-16 animate-spin text-primary mb-6" />
+                <p className="text-xl font-semibold">
                     {generationState === 'analyzing' ? 'Analizando tu documento...' : 'Generando tu material...'}
                 </p>
-                <p className="text-sm text-muted-foreground">Esto puede tardar unos momentos. No cierres esta página.</p>
+                <p className="text-muted-foreground mt-2">Esto puede tardar unos momentos. No cierres esta página.</p>
             </Card>
         );
     }
     
     if(analysisResult) {
         return (
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <Card className="col-span-1">
+             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <Card className="col-span-1 lg:col-span-2">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                           <BookOpen className="h-6 w-6 text-primary"/>
-                           Análisis y Conceptos Clave
+                        <CardTitle className="flex items-center gap-3">
+                           <BookOpen className="h-7 w-7 text-primary"/>
+                           <span className="text-2xl">Análisis y Conceptos Clave</span>
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className='space-y-1'>
-                            <h3 className="font-semibold text-lg">Resumen del Contenido</h3>
-                            <p className="text-sm text-muted-foreground bg-secondary/50 p-3 rounded-md">{analysisResult.summary}</p>
+                    <CardContent className="space-y-6">
+                        <div>
+                            <h3 className="font-semibold text-lg mb-2">Resumen del Contenido</h3>
+                            <p className="text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg">{analysisResult.summary}</p>
                         </div>
-                         <div className='space-y-1'>
-                            <h3 className="font-semibold text-lg">Conceptos Clave Identificados</h3>
+                         <div>
+                            <h3 className="font-semibold text-lg mb-2">Conceptos Clave Identificados</h3>
                              <div className="flex flex-wrap gap-2">
                                 {analysisResult.keyConcepts.map((concept, i) => (
-                                    <span key={i} className="bg-primary/10 text-primary text-xs font-medium px-2.5 py-1 rounded-full">{concept}</span>
+                                    <span key={i} className="bg-primary/10 text-primary-foreground font-medium px-3 py-1 rounded-full text-xs bg-primary">{concept}</span>
                                 ))}
                             </div>
                         </div>
-                         <div className='space-y-1'>
-                            <h3 className="font-semibold text-lg">Enriquecimiento Científico</h3>
-                            <p className="text-sm text-muted-foreground bg-secondary/50 p-3 rounded-md">{analysisResult.scientificContext}</p>
+                         <div>
+                            <h3 className="font-semibold text-lg mb-2">Enriquecimiento Científico</h3>
+                            <p className="text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg">{analysisResult.scientificContext}</p>
                         </div>
                     </CardContent>
                 </Card>
                  <div className="col-span-1 space-y-6">
                     <Card>
                          <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                               <GraduationCap className="h-6 w-6 text-primary"/>
-                               Generar Materiales
+                            <CardTitle className="flex items-center gap-3">
+                               <GraduationCap className="h-7 w-7 text-primary"/>
+                               <span className="text-2xl">Generar</span>
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <CardContent className="grid grid-cols-1 gap-4">
                             <MaterialButton icon={Presentation} title="Presentación" onClick={() => handleGenerationSubmit('powerpointPresentation')} disabled={generationState === 'generating'} />
                             <MaterialButton icon={FileText} title="Guía de Trabajo" onClick={() => handleGenerationSubmit('workGuide')} disabled={generationState === 'generating'}/>
                             <MaterialButton icon={ClipboardCheck} title="Examen de Ejemplo" onClick={() => handleGenerationSubmit('exampleTests')} disabled={generationState === 'generating'}/>
                             <MaterialButton icon={Lightbulb} title="Repaso Interactivo" onClick={() => handleGenerationSubmit('interactiveReviewPdf')} disabled={generationState === 'generating'}/>
                         </CardContent>
                     </Card>
-                    <Button onClick={resetState} variant="outline" className="w-full">
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Empezar de Nuevo
+                    <Button onClick={resetState} variant="outline" className="w-full py-6 text-base">
+                        <RefreshCw className="mr-2 h-5 w-5" />
+                        Analizar Otro Documento
                     </Button>
                  </div>
              </div>
@@ -218,23 +217,24 @@ export function FileUploader() {
                         </Alert>
                     )}
                      <div className="space-y-2">
-                        <Label htmlFor="subjectArea">Área de Estudio</Label>
+                        <Label htmlFor="subjectArea" className="text-base">Área de Estudio</Label>
                         <Input 
                             id="subjectArea" 
                             value={subjectArea} 
                             onChange={(e) => setSubjectArea(e.target.value)}
-                            placeholder="Ej: Kinesiología, Nutrición, Electricidad..."
+                            placeholder="Ej: Kinesiología, Nutrición, Ingeniería Eléctrica..."
+                            className="py-6 text-base"
                         />
                     </div>
                     <div 
-                        className="flex flex-col items-center justify-center p-10 rounded-lg cursor-pointer transition-colors bg-secondary/50 hover:bg-secondary/80 border-2 border-dashed border-border"
+                        className="flex flex-col items-center justify-center p-10 rounded-lg cursor-pointer transition-colors bg-secondary/50 hover:bg-accent/40 border-2 border-dashed border-border"
                         onClick={() => fileInputRef.current?.click()}
                     >
-                        <UploadCloud className="h-12 w-12 text-muted-foreground mb-4" />
+                        <UploadCloud className="h-16 w-16 text-muted-foreground mb-4" />
                         <p className="text-lg font-semibold text-foreground">
-                            {fileName ? fileName : 'Haz clic o arrastra un archivo para subirlo'}
+                            {fileName ? fileName : 'Haz clic o arrastra un archivo para subir'}
                         </p>
-                        <p className="text-sm text-muted-foreground">Solo se admiten documentos PDF.</p>
+                        <p className="text-sm text-muted-foreground mt-1">Solo se admiten documentos PDF (máx. 10MB)</p>
                         <Input 
                             ref={fileInputRef} 
                             id="syllabusFile" 
@@ -245,8 +245,8 @@ export function FileUploader() {
                             onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
                         />
                     </div>
-                    <Button type="submit" disabled={generationState !== 'idle' || !fileName || !subjectArea} size="lg" className="w-full">
-                        {generationState === 'analyzing' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <BookOpen className="mr-2 h-4 w-4" />}
+                    <Button type="submit" disabled={generationState !== 'idle' || !fileName || !subjectArea} size="lg" className="w-full py-7 text-lg">
+                        {generationState === 'analyzing' ? <Loader2 className="mr-2 h-6 w-6 animate-spin" /> : <BookOpen className="mr-3 h-6 w-6" />}
                         Analizar Contenido
                     </Button>
                 </form>
@@ -257,9 +257,9 @@ export function FileUploader() {
 
 function MaterialButton({ icon: Icon, title, onClick, disabled }: { icon: React.ElementType, title: string, onClick: () => void, disabled: boolean }) {
     return (
-        <Button onClick={onClick} disabled={disabled} variant="outline" className="flex-col h-28 gap-2">
-            <Icon className="h-8 w-8 text-primary" />
-            <span className="text-center">{title}</span>
+        <Button onClick={onClick} disabled={disabled} variant="outline" className="w-full justify-start h-auto p-4 gap-4 text-left">
+            <Icon className="h-10 w-10 text-primary" />
+            <span className="text-base font-medium">{title}</span>
         </Button>
     );
 }
