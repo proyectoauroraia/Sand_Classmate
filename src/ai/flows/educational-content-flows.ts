@@ -112,6 +112,11 @@ const GenerateMaterialInputSchema = z.object({
     materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
 });
 
+const GenerateMaterialOutputSchema = z.object({
+  markdownContent: z.string().describe("The full content for the requested educational material, formatted in Markdown."),
+});
+
+
 const MaterialPrompts = {
     powerpointPresentation: `
         Generate the content for a PowerPoint presentation based on the provided analysis.
@@ -148,26 +153,31 @@ export async function generateMaterialFromAnalysis(
 
     const generationPrompt = ai.definePrompt({
         name: `generate${materialType}Prompt`,
+        input: { schema: z.any() },
+        output: { schema: GenerateMaterialOutputSchema },
         prompt: `You are an expert curriculum developer for the field of ${analysisResult.subjectArea}.
         
-        You have been provided with a detailed analysis of a course document.
-        
-        **Analysis Summary:**
-        ${analysisResult.summary}
-        
-        **Key Concepts:**
-        ${analysisResult.keyConcepts?.join(', ')}
+        You have been provided with a detailed analysis of a course document. Use all the information below to generate the requested material.
 
+        **Subject Area:** ${analysisResult.subjectArea}
+        **Course Summary:** ${analysisResult.summary}
+        **Key Concepts:** ${analysisResult.keyConcepts?.join(', ')}
+        **Course Duration:** ${analysisResult.weeks} weeks
         **Course Structure:**
-        ${analysisResult.courseStructure?.map(u => `- ${u.title}: ${u.learningObjectives.join(', ')}`).join('\n')}
+        ${analysisResult.courseStructure?.map(u => `  - Unit: ${u.title}\n    - Objectives: ${u.learningObjectives.join(', ')}`).join('\n')}
         
-        **Your Task:**
+        **Assessments:**
+        ${analysisResult.assessments?.map(a => `  - ${a.type}: ${a.description}`).join('\n')}
+
+        **Your Specific Task:**
+        Based on all the data above, generate content for the following material: **${materialType}**.
+        Follow these instructions precisely:
         ${MaterialPrompts[materialType]}
         
-        Generate only the markdown content for the requested material. Do not include any other explanations or introductory text.
+        Generate the content in Markdown and place it in the 'markdownContent' field of the JSON output.
         `,
     });
 
-    const { output } = await generationPrompt();
-    return output as string;
+    const { output } = await generationPrompt(input);
+    return output?.markdownContent || '';
 }
