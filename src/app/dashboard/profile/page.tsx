@@ -52,7 +52,7 @@ export default function ProfilePage() {
     };
     
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 p-4 md:p-6 lg:p-12">
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">Mi Perfil y Configuración</h1>
                 <p className="text-muted-foreground mt-1">

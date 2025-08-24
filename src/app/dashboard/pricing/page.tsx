@@ -12,7 +12,7 @@ const CheckListItem = ({ children }: { children: React.ReactNode }) => (
 
 export default function PricingPage() {
     return (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center p-4 md:p-6 lg:p-12">
             <div className="text-center max-w-2xl mx-auto">
                 <h1 className="text-4xl lg:text-5xl font-bold tracking-tight">Encuentra el Plan Perfecto</h1>
                 <p className="text-muted-foreground mt-4 text-lg">

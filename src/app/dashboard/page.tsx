@@ -19,15 +19,17 @@ export default function DashboardPage() {
 
     if (analysisResult) {
         return (
-            <AnalysisDisplay 
-                analysisResult={analysisResult}
-                onReset={handleReset}
-            />
+            <div className="p-4 md:p-6 lg:p-12">
+                <AnalysisDisplay 
+                    analysisResult={analysisResult}
+                    onReset={handleReset}
+                />
+            </div>
         )
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 p-4 md:p-6 lg:p-12">
             <div className="text-left">
                 <h1 className="text-3xl md:text-4xl font-bold tracking-tight">¿Qué vamos a crear hoy?</h1>
                 <p className="text-muted-foreground mt-2 text-lg">
