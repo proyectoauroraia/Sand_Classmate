@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { UploadCloud, Presentation, FileText, ClipboardCheck, Loader2, Download, RefreshCw, AlertCircle, Copy, BookOpen, Lightbulb, GraduationCap, Sparkles, Youtube, Link as LinkIcon, Target, BookCopy, Calendar, ListChecks, PencilRuler, CheckCircle2 } from 'lucide-react';
-import { analyzeAndEnrichContent, generateMaterialsActionFromAnalysis } from '@/lib/actions';
+import { analyzeAndEnrichContent, generateMaterialFromAnalysis } from '@/lib/actions';
 import type { AnalysisResult, GeneratedMaterials } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -70,7 +70,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                 reader.readAsDataURL(file);
             });
 
-            const response = await analyzeContentAction(dataUri);
+            const response = await analyzeAndEnrichContent(dataUri);
 
             if (response.error || !response.data) {
                 throw new Error(response.error || 'Falló el análisis del contenido.');
@@ -103,7 +103,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
         setError(null);
 
         try {
-            const response = await generateMaterialsActionFromAnalysis(analysisResult, materialType);
+            const response = await generateMaterialFromAnalysis(analysisResult, materialType);
             if(response.error || !response.data) {
                 throw new Error(response.error || `No se pudo generar el material: ${materialType}`);
             }
@@ -353,7 +353,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     return (
         <Card className="bg-card/80 backdrop-blur-sm">
             <CardContent className="p-6">
-                <form onSubmit={handleAnalysisSubmit} className="space-y-6">
+                <form id="analysis-form" onSubmit={handleAnalysisSubmit} className="space-y-6">
                     {error && (
                         <Alert variant="destructive">
                             <AlertCircle className="h-4 w-4" />
@@ -380,7 +380,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                             onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
                         />
                     </div>
-                    <Button type="submit" disabled={analysisState !== 'idle' || !fileName} size="lg" className="w-full py-7 text-lg">
+                    <Button type="submit" form="analysis-form" disabled={analysisState !== 'idle' || !fileName} size="lg" className="w-full py-7 text-lg">
                         {analysisState === 'analyzing' ? <Loader2 className="mr-2 h-6 w-6 animate-spin" /> : <BookOpen className="mr-3 h-6 w-6" />}
                         Analizar Contenido
                     </Button>
@@ -410,9 +410,5 @@ function MaterialButton({ icon: Icon, title, onClick, disabled, status }: { icon
         </Button>
     );
 }
-
-    
-
-    
 
     
