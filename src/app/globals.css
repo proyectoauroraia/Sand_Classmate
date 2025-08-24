@@ -29,7 +29,7 @@ body {
     --muted-foreground: 25 25% 55%;
     
     /* Analogous Green for Accent */
-    --accent: 120 25% 65%; /* #8FBC8F - Subtle Green */
+    --accent: 120 25% 90%; /* A very subtle green/gray for hover, closer to sand */
     --accent-foreground: 120 25% 15%;
     
     --destructive: 0 84% 60%;
@@ -90,6 +90,9 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background-color: hsl(var(--background));
+    background-image: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%);
+    min-height: 100vh;
   }
 }
