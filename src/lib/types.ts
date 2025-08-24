@@ -1,3 +1,9 @@
+export type AnalysisResult = {
+  summary: string;
+  keyConcepts: string[];
+  scientificContext: string;
+}
+
 export type GeneratedMaterials = {
   powerpointPresentation: string;
   workGuide: string;
