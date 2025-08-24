@@ -4,7 +4,7 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { UploadCloud, Loader2, RefreshCw, AlertCircle, BookOpen } from 'lucide-react';
 import { analyzeContentAction } from '@/lib/actions';
 import type { AnalysisResult } from '@/lib/types';
@@ -99,9 +99,9 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     }
 
     return (
-        <Card className="h-full">
-            <CardContent className="p-6 h-full flex flex-col">
-                <form id="analysis-form" onSubmit={handleAnalysisSubmit} className="space-y-6 flex-grow flex flex-col">
+        <Card className="h-full flex flex-col">
+            <form id="analysis-form" onSubmit={handleAnalysisSubmit} className="flex-grow flex flex-col">
+                <CardContent className="p-6 flex-grow flex flex-col">
                     {error && (
                         <Alert variant="destructive">
                             <AlertCircle className="h-4 w-4" />
@@ -133,12 +133,14 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                             onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
                         />
                     </div>
+                </CardContent>
+                <CardFooter>
                     <Button type="submit" form="analysis-form" disabled={analysisState !== 'idle' || !fileName} size="lg" className="w-full py-7 text-base">
                        <BookOpen className="mr-3 h-5 w-5" />
                         Analizar Contenido
                     </Button>
-                </form>
-            </CardContent>
+                </CardFooter>
+            </form>
         </Card>
     );
 }

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
@@ -26,8 +26,8 @@ export function MaterialsHistory() {
     };
 
     return (
-      <Card className="h-full">
-        <CardContent className="pt-6">
+      <Card className="h-full flex flex-col">
+        <CardContent className="pt-6 flex-grow">
           <Table>
             <TableHeader>
               <TableRow>
@@ -62,6 +62,9 @@ export function MaterialsHistory() {
             </TableBody>
           </Table>
         </CardContent>
+         <CardFooter>
+            {/* Footer can be used for pagination or other actions in the future */}
+        </CardFooter>
       </Card>
     );
 }
