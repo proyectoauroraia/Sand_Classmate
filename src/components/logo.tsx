@@ -38,7 +38,7 @@ export function Logo({ className }: { className?: string }) {
       </svg>
       <span
         style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
-        className="text-2xl font-medium"
+        className="text-xl font-medium"
         >
         Sand Classmate
       </span>

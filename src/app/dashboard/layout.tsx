@@ -84,7 +84,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
 
     return (
-        <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
+        <div className="grid min-h-screen w-full lg:grid-cols-[220px_1fr]">
             <div className="hidden border-r border-border/50 bg-secondary/30 lg:block">
                 {sidebarContent}
             </div>
