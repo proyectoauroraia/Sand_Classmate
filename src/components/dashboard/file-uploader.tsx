@@ -306,14 +306,14 @@ export function FileUploader() {
                         <p className="text-lg font-semibold text-foreground">
                             {fileName ? fileName : 'Haz clic o arrastra un archivo para subir'}
                         </p>
-                        <p className="text-sm text-muted-foreground mt-1">Se admiten documentos PDF y Word (máx. 10MB)</p>
+                        <p className="text-sm text-muted-foreground mt-1">Se admiten documentos PDF (máx. 10MB)</p>
                         <Input 
                             ref={fileInputRef} 
                             id="syllabusFile" 
                             name="syllabusFile" 
                             type="file" 
                             className="hidden" 
-                            accept=".pdf,.docx"
+                            accept=".pdf"
                             onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
                         />
                     </div>

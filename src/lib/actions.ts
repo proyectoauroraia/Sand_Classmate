@@ -1,3 +1,4 @@
+
 'use server';
 
 import { analyzeAndEnrichContent, generateMaterialFromAnalysis } from '@/ai/flows/educational-content-flows';
@@ -10,8 +11,8 @@ import type { GeneratedMaterials } from '@/lib/types';
 
 const AnalyzeInputSchema = z.object({
   documentDataUri: z.string().refine(
-    (uri) => uri.startsWith('data:application/pdf;base64,') || uri.startsWith('data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,'),
-    'Solo se admiten documentos PDF o Word.'
+    (uri) => uri.startsWith('data:application/pdf;base64,'),
+    'Solo se admiten documentos PDF.'
   ),
 });
 
@@ -248,3 +249,5 @@ export async function generateMaterialsActionFromAnalysis(
         return { data: null, error: `Falló la generación del material: ${errorMessage}` };
     }
 }
+
+    
