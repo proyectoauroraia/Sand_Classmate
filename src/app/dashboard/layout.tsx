@@ -1,97 +1,87 @@
 
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Home, Library, Settings, LogOut, Gem } from 'lucide-react';
+import { Home, History, Settings, LogOut, Gem } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Menu } from 'lucide-react';
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const navLinks = [
+        { href: "/dashboard", icon: Home, label: "Inicio" },
+        { href: "/dashboard/history", icon: History, label: "Mi Biblioteca" },
+        { href: "/dashboard/pricing", icon: Gem, label: "Planes" },
+        { href: "/dashboard/settings", icon: Settings, label: "Configuración" },
+    ];
 
-    return (
-        <TooltipProvider delayDuration={0}>
-            <div className="grid min-h-screen w-full lg:grid-cols-[80px_1fr]">
-                <div className="hidden border-r bg-card lg:flex lg:flex-col lg:items-center">
-                    <div className="flex h-[60px] w-full items-center justify-center border-b">
-                        <Link href="/dashboard" className="flex items-center justify-center gap-2 font-semibold">
-                           <Logo />
+    const sidebarContent = (
+        <div className="flex h-full max-h-screen flex-col gap-2">
+            <div className="flex h-[60px] items-center border-b px-6">
+                <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-primary">
+                    <Logo />
+                    <span className="text-lg">Sand Classmate</span>
+                </Link>
+            </div>
+            <div className="flex-1 overflow-auto py-4">
+                <nav className="grid items-start px-4 text-sm font-medium">
+                    {navLinks.map((link) => (
+                         <Link key={link.href} href={link.href} className="flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary hover:bg-accent/60">
+                            <link.icon className="h-5 w-5" />
+                            {link.label}
                         </Link>
+                    ))}
+                </nav>
+            </div>
+            <div className="mt-auto p-4 border-t">
+                <div className="flex items-center gap-4">
+                     <Avatar className="h-10 w-10">
+                        <AvatarImage src="https://placehold.co/40x40.png" alt="@prof" data-ai-hint="person face" />
+                        <AvatarFallback>PD</AvatarFallback>
+                    </Avatar>
+                    <div>
+                        <p className="text-sm font-semibold">Professor Doe</p>
+                        <p className="text-xs text-muted-foreground">Plan Premium</p>
                     </div>
-                    <nav className="flex flex-col items-center gap-4 px-2 py-4 flex-1">
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Link href="/dashboard" className="flex h-12 w-12 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-primary hover:bg-accent/60">
-                                    <Home className="h-6 w-6" />
-                                    <span className="sr-only">Inicio</span>
-                                </Link>
-                            </TooltipTrigger>
-                            <TooltipContent side="right">Inicio</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Link href="/dashboard/history" className="flex h-12 w-12 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-primary hover:bg-accent/60">
-                                    <Library className="h-6 w-6" />
-                                    <span className="sr-only">Mi Biblioteca</span>
-                                </Link>
-                            </TooltipTrigger>
-                            <TooltipContent side="right">Mi Biblioteca</TooltipContent>
-                        </Tooltip>
-                         <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Link href="/dashboard/pricing" className="flex h-12 w-12 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-primary hover:bg-accent/60">
-                                    <Gem className="h-6 w-6" />
-                                    <span className="sr-only">Planes</span>
-                                </Link>
-                            </TooltipTrigger>
-                            <TooltipContent side="right">Planes</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Link href="/dashboard/settings" className="flex h-12 w-12 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-primary hover:bg-accent/60">
-                                    <Settings className="h-6 w-6" />
-                                    <span className="sr-only">Configuración</span>
-                                </Link>
-                            </TooltipTrigger>
-                            <TooltipContent side="right">Configuración</TooltipContent>
-                        </Tooltip>
-                    </nav>
-                    <div className="mt-auto flex flex-col items-center gap-4 p-4 border-t">
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                 <Avatar className="h-10 w-10">
-                                    <AvatarImage src="https://placehold.co/40x40.png" alt="@prof" data-ai-hint="person face" />
-                                    <AvatarFallback>PD</AvatarFallback>
-                                </Avatar>
-                            </TooltipTrigger>
-                            <TooltipContent side="right">
-                                <div>
-                                    <p className="font-semibold">Professor Doe</p>
-                                    <p className="text-muted-foreground">Plan Premium</p>
-                                </div>
-                            </TooltipContent>
-                        </Tooltip>
-                         <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" asChild>
-                                    <Link href="/">
-                                        <LogOut className="h-6 w-6" />
-                                    </Link>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent side="right">Cerrar Sesión</TooltipContent>
-                        </Tooltip>
-                    </div>
-                </div>
-                <div className="flex flex-col bg-background">
-                     <main className="flex-1 p-4 md:p-6 lg:p-8">
-                        {children}
-                    </main>
+                    <Button variant="ghost" size="icon" className="ml-auto" asChild>
+                        <Link href="/">
+                            <LogOut className="h-5 w-5" />
+                        </Link>
+                    </Button>
                 </div>
             </div>
-        </TooltipProvider>
+        </div>
+    );
+
+    return (
+        <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
+            <div className="hidden border-r bg-card lg:block">
+                {sidebarContent}
+            </div>
+            <div className="flex flex-col bg-background">
+                <header className="flex h-14 items-center gap-4 border-b bg-card px-6 lg:h-[60px]">
+                    <Sheet>
+                        <SheetTrigger asChild>
+                            <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
+                                <Menu className="h-5 w-5" />
+                                <span className="sr-only">Toggle navigation menu</span>
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="left" className="flex flex-col p-0">
+                            {sidebarContent}
+                        </SheetContent>
+                    </Sheet>
+                     <div className="w-full flex-1">
+                        {/* Header content can go here, e.g. search bar */}
+                    </div>
+                </header>
+                 <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+                    {children}
+                </main>
+            </div>
+        </div>
     );
 }

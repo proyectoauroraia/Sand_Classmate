@@ -12,6 +12,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <div className="flex h-[60px] items-center border-b px-6">
                         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
                             <Logo />
+                            <span className="text-lg">Sand Classmate</span>
                         </Link>
                     </div>
                     <div className="flex-1 overflow-auto py-4">
@@ -53,9 +54,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-card px-6">
                     <div className="flex items-center gap-2 lg:hidden">
                         <Logo />
+                        <span className="font-semibold">Sand Classmate</span>
                     </div>
                     <div className="w-full flex-1">
-                        {/* This is dynamically updated by the page */}
+                        {/* This can be a search bar or other controls */}
                     </div>
                 </header>
                 <main className="flex-1 p-4 md:p-6">

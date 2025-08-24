@@ -4,8 +4,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Check } from 'lucide-react';
 
 const CheckListItem = ({ children }: { children: React.ReactNode }) => (
-    <li className="flex items-center gap-3">
-        <Check className="h-5 w-5 text-primary" />
+    <li className="flex items-start gap-3">
+        <Check className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
         <span className="text-muted-foreground">{children}</span>
     </li>
 );
@@ -22,38 +22,38 @@ export default function PricingPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-6xl">
                 {/* Free Plan */}
-                <Card className="flex flex-col">
-                    <CardHeader>
+                <Card className="flex flex-col rounded-xl shadow-lg shadow-primary/5">
+                    <CardHeader className="pb-4">
                         <CardTitle className="text-2xl">Gratis</CardTitle>
                         <CardDescription>Para empezar a explorar el poder de la IA en la educación.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-6">
-                        <p className="text-4xl font-bold">$0 <span className="text-xl font-normal text-muted-foreground">/mes</span></p>
-                        <ul className="space-y-3">
+                        <p className="text-5xl font-bold">$0 <span className="text-xl font-normal text-muted-foreground">/mes</span></p>
+                        <ul className="space-y-4">
                             <CheckListItem>Análisis de 1 curso</CheckListItem>
                             <CheckListItem>Generación de todos los materiales</CheckListItem>
                             <CheckListItem>Soporte por comunidad</CheckListItem>
                         </ul>
                     </CardContent>
                     <CardFooter>
-                        <Button variant="outline" className="w-full">Tu Plan Actual</Button>
+                        <Button variant="outline" className="w-full text-base py-6">Tu Plan Actual</Button>
                     </CardFooter>
                 </Card>
 
                 {/* Premium Plan */}
-                <Card className="flex flex-col border-2 border-primary shadow-lg relative">
+                <Card className="flex flex-col rounded-xl border-2 border-primary shadow-2xl shadow-primary/20 relative">
                      <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
                         <div className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
                             Más Popular
                         </div>
                     </div>
-                    <CardHeader>
+                    <CardHeader className="pb-4">
                         <CardTitle className="text-2xl">Premium</CardTitle>
                         <CardDescription>Para educadores que quieren llevar sus clases al siguiente nivel.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-6">
-                        <p className="text-4xl font-bold">$12.000 <span className="text-xl font-normal text-muted-foreground">CLP/mes</span></p>
-                         <ul className="space-y-3">
+                        <p className="text-5xl font-bold">$12.000 <span className="text-xl font-normal text-muted-foreground">CLP/mes</span></p>
+                         <ul className="space-y-4">
                             <CheckListItem>Análisis de cursos ilimitados</CheckListItem>
                             <CheckListItem>Guardado y edición de análisis</CheckListItem>
                             <CheckListItem>Generación de materiales mejorada</CheckListItem>
@@ -61,19 +61,19 @@ export default function PricingPage() {
                         </ul>
                     </CardContent>
                     <CardFooter>
-                        <Button className="w-full">Actualizar a Premium</Button>
+                        <Button className="w-full text-base py-6">Actualizar a Premium</Button>
                     </CardFooter>
                 </Card>
 
                 {/* Enterprise Plan */}
-                <Card className="flex flex-col">
-                    <CardHeader>
+                <Card className="flex flex-col rounded-xl shadow-lg shadow-primary/5">
+                    <CardHeader className="pb-4">
                         <CardTitle className="text-2xl">Empresas</CardTitle>
                         <CardDescription>Para instituciones y equipos que buscan una solución integral.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-6">
-                       <p className="text-4xl font-bold">Personalizado</p>
-                         <ul className="space-y-3">
+                       <p className="text-5xl font-bold">Personalizado</p>
+                         <ul className="space-y-4">
                             <CheckListItem>Precio especial por volumen de perfiles</CheckListItem>
                             <CheckListItem>Todas las funciones Premium</CheckListItem>
                             <CheckListItem>Manager de cuenta dedicado</CheckListItem>
@@ -81,7 +81,7 @@ export default function PricingPage() {
                         </ul>
                     </CardContent>
                     <CardFooter>
-                        <Button variant="secondary" className="w-full">Contactar a Ventas</Button>
+                        <Button variant="secondary" className="w-full text-base py-6">Contactar a Ventas</Button>
                     </CardFooter>
                 </Card>
             </div>
