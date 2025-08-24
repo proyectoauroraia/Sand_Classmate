@@ -27,23 +27,27 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-16 items-stretch">
            
             {/* Columna Principal (Ocupa 3/5 del espacio) */}
-            <div className="lg:col-span-3 space-y-6">
+            <div className="lg:col-span-3 space-y-6 flex flex-col">
                  <div className="text-left">
                      <h1 className="text-3xl font-bold tracking-tight">¿Qué vamos a crear hoy?</h1>
                      <p className="text-muted-foreground mt-2 max-w-2xl text-lg">
                         Sube tu programa de estudios o apuntes (PDF) y deja que la IA genere presentaciones, guías y más para tus clases.
                     </p>
                 </div>
-                <FileUploader onAnalysisComplete={handleAnalysisComplete} />
+                <div className="flex-grow">
+                    <FileUploader onAnalysisComplete={handleAnalysisComplete} />
+                </div>
             </div>
 
             {/* Columna Secundaria (Ocupa 2/5 del espacio) */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-6 flex flex-col">
                 <h2 className="text-3xl font-bold tracking-tight">Cursos Recientes</h2>
-                <MaterialsHistory />
+                <div className="flex-grow">
+                    <MaterialsHistory />
+                </div>
             </div>
             
         </div>

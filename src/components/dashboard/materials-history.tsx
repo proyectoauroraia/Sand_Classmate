@@ -26,13 +26,13 @@ export function MaterialsHistory() {
     };
 
     return (
-      <Card>
+      <Card className="h-full">
         <CardContent className="pt-6">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Nombre del Curso</TableHead>
-                <TableHead>Ver Análisis</TableHead>
+                <TableHead className="text-left">Ver Análisis</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

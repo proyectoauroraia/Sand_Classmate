@@ -88,7 +88,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     
     if (analysisState === 'analyzing') {
         return (
-            <Card className="flex flex-col items-center justify-center text-center p-10 h-96">
+            <Card className="flex flex-col items-center justify-center text-center p-10 h-full">
                 <Loader2 className="h-16 w-16 animate-spin text-primary mb-6" />
                 <h2 className="text-xl font-semibold">
                     Analizando tu documento...
@@ -99,9 +99,9 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     }
 
     return (
-        <Card>
-            <CardContent className="p-6">
-                <form id="analysis-form" onSubmit={handleAnalysisSubmit} className="space-y-6">
+        <Card className="h-full">
+            <CardContent className="p-6 h-full flex flex-col">
+                <form id="analysis-form" onSubmit={handleAnalysisSubmit} className="space-y-6 flex-grow flex flex-col">
                     {error && (
                         <Alert variant="destructive">
                             <AlertCircle className="h-4 w-4" />
@@ -110,7 +110,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                         </Alert>
                     )}
                     <div 
-                        className="flex flex-col items-center justify-center py-10 px-6 rounded-lg cursor-pointer transition-colors bg-secondary/30 hover:bg-accent/50 border-2 border-dashed border-border/80"
+                        className="flex flex-col items-center justify-center py-10 px-6 rounded-lg cursor-pointer transition-colors bg-secondary/30 hover:bg-accent/50 border-2 border-dashed border-border/80 flex-grow"
                         onClick={() => fileInputRef.current?.click()}
                         onDrop={(e) => {
                             e.preventDefault();
