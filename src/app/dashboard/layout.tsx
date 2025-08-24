@@ -2,9 +2,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Logo } from '@/components/logo';
 import { Home, History, Settings, LogOut, Gem } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
@@ -22,8 +22,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex h-full max-h-screen flex-col gap-2">
             <div className="flex h-[60px] items-center border-b px-6">
                 <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-foreground">
-                    <Logo />
-                    <span className="text-lg">Sand Classmate</span>
+                     <Image 
+                        src="https://i.imgur.com/T0bC0fk.png" 
+                        alt="Sand Classmate Logo"
+                        width={180}
+                        height={42}
+                        priority
+                    />
                 </Link>
             </div>
             <div className="flex-1 overflow-auto py-4">
