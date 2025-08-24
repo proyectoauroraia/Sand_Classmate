@@ -23,12 +23,12 @@ export type GenerateEducationalMaterialsInput = z.infer<typeof GenerateEducation
 const GenerateEducationalMaterialsOutputSchema = z.object({
   powerpointPresentation: z
     .string()
-    .describe('The generated PowerPoint presentation content as a markdown string.'),
-  workGuide: z.string().describe('The generated work guide in PDF format as a data URI.'),
-  exampleTests: z.string().describe('The generated example tests as a data URI.'),
+    .describe('The generated PowerPoint presentation content as a markdown string. Each H2 heading will be a new slide.'),
+  workGuide: z.string().describe('The generated work guide content as a structured text string.'),
+  exampleTests: z.string().describe('The generated example tests content as a structured text string.'),
   interactiveReviewPdf: z
     .string()
-    .describe('The generated interactive review PDF as a data URI.'),
+    .describe('The generated interactive review content as a structured text string.'),
 });
 export type GenerateEducationalMaterialsOutput = z.infer<typeof GenerateEducationalMaterialsOutputSchema>;
 
@@ -44,18 +44,16 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateEducationalMaterialsOutputSchema},
   prompt: `You are an AI assistant designed to help university professors generate educational materials from their syllabus.
 
-You will take a syllabus file as input and generate the following materials:
+You will take a syllabus file as input and generate the content for the following materials:
 
-1.  PowerPoint presentation content as a markdown string (approximately 15 slides per class).
-2.  Work guide in PDF format
-3.  Example tests
-4.  Interactive review PDF
+1.  **PowerPoint presentation content**: As a markdown string. Use H2 headings (##) to delineate each new slide. Create approximately 15 slides per class session found in the syllabus.
+2.  **Work guide content**: As a well-structured text. Include sections, bullet points, and clear instructions.
+3.  **Example tests content**: As a well-structured text. Include multiple-choice questions, true/false, and open-ended questions with an answer key at the end.
+4.  **Interactive review content**: As a well-structured text. Include questions, key concepts, and topics for discussion.
 
 Syllabus File: {{media url=syllabusFile}}
 
-Ensure that the generated materials are engaging and appropriate for university students.
-
-Return the work guide, example tests, and interactive review as data URIs. Return the presentation as a markdown string.
+Ensure that the generated content is engaging, comprehensive, and appropriate for university students. Do not generate file data, only the text content for each item.
 `,
 });
 
