@@ -179,7 +179,7 @@ export function FileUploader() {
                                 <div className="flex items-center gap-3 text-lg font-semibold"><BookCopy className="h-6 w-6" /> Conceptos Clave</div>
                                 <div className="flex flex-wrap gap-2 justify-start mt-2">
                                     {analysisResult.keyConcepts.map((concept, i) => (
-                                        <span key={i} className="bg-primary/10 text-primary-foreground font-medium px-3 py-1 rounded-full text-xs bg-primary">{concept}</span>
+                                        <span key={i} className="bg-primary text-primary-foreground font-medium px-3 py-1 rounded-full text-xs">{concept}</span>
                                     ))}
                                 </div>
                             </div>
@@ -335,5 +335,3 @@ function MaterialButton({ icon: Icon, title, onClick, disabled }: { icon: React.
         </Button>
     );
 }
-
-    
