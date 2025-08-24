@@ -45,7 +45,7 @@ const AnalyzeContentOutputSchema = z.object({
   assessments: z.array(AssessmentSchema).describe("A list of the course assessments, including type and description.").optional(),
   
   bibliography: z.object({
-      mentioned: z.array(z.string()).describe('A list of bibliographic references or source materials mentioned directly in the document.'),
+      mentioned: z.array(z.string()).describe('A list of bibliographic references or source materials mentioned directly in the document.').optional(),
       recommended: z.array(z.string()).describe('A list of relevant, modern external bibliographic recommendations (books, key articles) that are NOT in the original document but are highly relevant to the subject area.'),
   }).optional(),
 
@@ -78,13 +78,13 @@ export async function analyzeAndEnrichContent(
       2.  **Summarize:** Provide a concise summary of the document's main topics and overall structure.
       3.  **Extract Key Information:**
           *   Identify and list the most critical **keywords and concepts**.
-          *   Determine the total duration in **weeks** if specified.
+          *   Determine the total duration in **weeks** if specified. This is the total length, not the number of units.
       4.  **Deconstruct Course Structure:**
-          *   Identify the main **units, modules, or weekly topics**. For each one, list its specific **learning objectives**.
+          *   Identify the main **units or modules** based on thematic groupings or explicit titles (e.g., "Unit 1", "Module A"). Do not simply count each week as a unit. A course might have 15 weeks but only 4 units. For each unit, list its specific **learning objectives**.
           *   Identify all **assessments** (exams, quizzes, projects) mentioned in the document.
       5.  **Analyze Bibliography:**
           *   List any **bibliography** or references **mentioned** directly in the document.
-          *   Provide a list of 2-3 additional **recommended bibliographic sources** (influential books, seminal papers) that are highly relevant but *not* mentioned in the document.
+          *   **You must provide** a list of 2-3 additional **recommended bibliographic sources** (influential books, seminal papers) that are highly relevant but *not* mentioned in the document. If no bibliography is present in the source, these recommendations are even more critical.
       6.  **Enrich with Modern Resources:** Based on the key concepts, find and provide a list of high-quality, modern educational resources. For each resource, provide a title, a URL (or video ID for YouTube), and a brief summary of its relevance.
           *   Find 2-3 relevant **academic articles or web pages**.
           *   Find 2-3 relevant **YouTube videos** that explain the concepts visually or practically.
