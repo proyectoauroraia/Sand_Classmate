@@ -5,6 +5,8 @@ import type { AnalysisResult } from '@/lib/types';
 import { z } from 'zod';
 import PptxGenJS from 'pptxgenjs';
 import { PDFDocument, rgb, StandardFonts, PageSizes } from 'pdf-lib';
+import type { GeneratedMaterials } from '@/lib/types';
+
 
 const AnalyzeInputSchema = z.object({
   documentDataUri: z.string().refine(
@@ -160,7 +162,7 @@ async function createStyledPptx(markdownContent: string): Promise<string> {
 
             if (content.length > 0) {
                 slide.addText(content.join('\n'), {
-                    x: 0.75, y: 1.5, w: '85%', h: 3.75', fontSize: 20, color: '475569', bullet: true,
+                    x: 0.75, y: 1.5, w: '85%', h: 3.75, fontSize: 20, color: '475569', bullet: true,
                 });
             }
         });
