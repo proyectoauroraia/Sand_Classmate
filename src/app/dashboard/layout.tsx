@@ -21,6 +21,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const navLinks = [
         { href: "/dashboard", icon: Home, label: "Inicio" },
         { href: "/dashboard/history", icon: BookOpen, label: "Mi Biblioteca" },
+        { href: "/dashboard/profile", icon: UserCircle2, label: "Mi Perfil" },
+        { href: "/dashboard/pricing", icon: Gem, label: "Planes" },
     ];
     
     const handleSignOut = async () => {
@@ -55,12 +57,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </nav>
             </div>
             <div className="mt-auto p-4 border-t space-y-4">
-                 <nav className="grid items-start px-0 text-sm font-medium">
-                     <Link href="/dashboard/pricing" className={`flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary ${pathname === '/dashboard/pricing' ? 'bg-accent text-accent-foreground font-semibold' : ''}`}>
-                        <Gem className="h-5 w-5" />
-                        Planes
-                    </Link>
-                </nav>
                 <div className="flex items-center gap-4">
                      <Avatar className="h-10 w-10">
                         <AvatarImage src="https://placehold.co/40x40.png" alt="@prof" data-ai-hint="person face" />
