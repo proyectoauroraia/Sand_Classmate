@@ -3,8 +3,22 @@ export type AnalysisResult = {
   keyConcepts: string[];
   subjectArea: string;
   weeks?: number | string;
-  learningObjectives: string[];
-  bibliography: string[];
+  
+  courseStructure: {
+    title: string;
+    learningObjectives: string[];
+  }[];
+  
+  assessments: {
+    type: string;
+    description: string;
+  }[];
+
+  bibliography: {
+    mentioned: string[];
+    recommended: string[];
+  };
+
   enrichedContent: {
     externalLinks: {
       title: string;

@@ -5,7 +5,7 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { UploadCloud, Presentation, FileText, ClipboardCheck, Loader2, Download, RefreshCw, AlertCircle, Copy, BookOpen, Lightbulb, GraduationCap, Sparkles, Youtube, Link as LinkIcon, Target, BookCopy, Calendar } from 'lucide-react';
+import { UploadCloud, Presentation, FileText, ClipboardCheck, Loader2, Download, RefreshCw, AlertCircle, Copy, BookOpen, Lightbulb, GraduationCap, Sparkles, Youtube, Link as LinkIcon, Target, BookCopy, Calendar, ListChecks, PencilRuler } from 'lucide-react';
 import { analyzeContentAction, generateMaterialsActionFromAnalysis } from '@/lib/actions';
 import type { AnalysisResult, GeneratedMaterials } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '../ui/label';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 type GenerationState = 'idle' | 'analyzing' | 'generating' | 'success';
 
@@ -60,7 +61,7 @@ export function FileUploader() {
                 setGenerationState('idle');
                 toast({
                   title: "¡Análisis Completo!",
-                  description: `Tu documento sobre "${response.data.subjectArea}" ha sido analizado.`,
+                  description: `Hemos analizado tu documento sobre "${response.data.subjectArea}".`,
                 });
             };
             reader.onerror = () => {
@@ -148,7 +149,7 @@ export function FileUploader() {
             <Card className="flex flex-col items-center justify-center text-center p-10 h-96">
                 <Loader2 className="h-16 w-16 animate-spin text-primary mb-6" />
                 <p className="text-xl font-semibold">
-                    {generationState === 'analyzing' ? 'Analizando tu documento...' : 'Generando tu material...'}
+                    {generationState === 'analyzing' ? 'Analizando tu documento...' : 'Generando tus materiales...'}
                 </p>
                 <p className="text-muted-foreground mt-2">Esto puede tardar unos momentos. No cierres esta página.</p>
             </Card>
@@ -157,26 +158,26 @@ export function FileUploader() {
     
     if(analysisResult) {
         return (
-             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Card className="col-span-1 lg:col-span-2">
+             <div className="space-y-8">
+                <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-3">
                            <BookOpen className="h-7 w-7 text-primary"/>
-                           <span className="text-2xl">Análisis de "{analysisResult.subjectArea}"</span>
+                           <span className="text-2xl">Análisis del Curso: "{analysisResult.subjectArea}"</span>
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-8">
                         
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {analysisResult.weeks && (
-                                <div className="bg-secondary/30 p-3 rounded-lg">
-                                    <div className="flex items-center justify-center gap-2 text-lg font-semibold"><Calendar className="h-5 w-5" /> Duración</div>
-                                    <p className="text-primary text-2xl font-bold">{analysisResult.weeks} {typeof analysisResult.weeks === 'number' && analysisResult.weeks > 1 ? 'Semanas' : 'Semana'}</p>
+                                <div className="bg-secondary/30 p-4 rounded-lg">
+                                    <div className="flex items-center gap-3 text-lg font-semibold"><Calendar className="h-6 w-6" /> Duración Estimada</div>
+                                    <p className="text-primary text-3xl font-bold mt-2">{analysisResult.weeks} {typeof analysisResult.weeks === 'number' && analysisResult.weeks > 1 ? 'Semanas' : 'Semana'}</p>
                                 </div>
                             )}
-                             <div className="bg-secondary/30 p-3 rounded-lg md:col-span-2">
-                                <div className="flex items-center justify-center gap-2 text-lg font-semibold"><BookCopy className="h-5 w-5" /> Conceptos Clave</div>
-                                <div className="flex flex-wrap gap-2 justify-center mt-2">
+                             <div className="bg-secondary/30 p-4 rounded-lg">
+                                <div className="flex items-center gap-3 text-lg font-semibold"><BookCopy className="h-6 w-6" /> Conceptos Clave</div>
+                                <div className="flex flex-wrap gap-2 justify-start mt-2">
                                     {analysisResult.keyConcepts.map((concept, i) => (
                                         <span key={i} className="bg-primary/10 text-primary-foreground font-medium px-3 py-1 rounded-full text-xs bg-primary">{concept}</span>
                                     ))}
@@ -185,19 +186,53 @@ export function FileUploader() {
                         </div>
 
                         <div>
-                            <h3 className="font-semibold text-lg mb-2 flex items-center gap-2"><Target className="h-5 w-5"/> Objetivos de Aprendizaje</h3>
-                            <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2">
-                                {analysisResult.learningObjectives.map((obj, i) => <li key={i}>{obj}</li>)}
-                            </ul>
+                            <h3 className="font-semibold text-xl mb-3 flex items-center gap-2"><ListChecks className="h-6 w-6 text-primary"/> Estructura del Curso y Objetivos</h3>
+                             <Accordion type="single" collapsible className="w-full">
+                                {analysisResult.courseStructure.map((unit, i) => (
+                                    <AccordionItem value={`item-${i}`} key={i}>
+                                        <AccordionTrigger className="text-base font-medium hover:no-underline">{unit.title}</AccordionTrigger>
+                                        <AccordionContent>
+                                            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2 pl-4">
+                                                {unit.learningObjectives.map((obj, j) => <li key={j}>{obj}</li>)}
+                                            </ul>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                ))}
+                            </Accordion>
                         </div>
                         
                          <div>
-                            <h3 className="font-semibold text-lg mb-2">Resumen General</h3>
-                            <p className="text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg">{analysisResult.summary}</p>
+                            <h3 className="font-semibold text-xl mb-3 flex items-center gap-2"><PencilRuler className="h-6 w-6 text-primary"/> Evaluaciones</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {analysisResult.assessments.map((assessment, i) => (
+                                    <div key={i} className="p-4 rounded-lg bg-secondary/30">
+                                        <div className="font-semibold">{assessment.type}</div>
+                                        <p className="text-sm text-muted-foreground mt-1">{assessment.description}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 className="font-semibold text-xl mb-3">Bibliografía</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 className="font-semibold mb-2">Mencionada en el Documento</h4>
+                                    <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2">
+                                        {analysisResult.bibliography.mentioned.map((item, i) => <li key={i}>{item}</li>)}
+                                    </ul>
+                                </div>
+                                 <div>
+                                    <h4 className="font-semibold mb-2">Recomendada</h4>
+                                    <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2">
+                                        {analysisResult.bibliography.recommended.map((item, i) => <li key={i}>{item}</li>)}
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                         
                          <div>
-                            <h3 className="font-semibold text-lg mb-2">Recursos Externos Sugeridos</h3>
+                            <h3 className="font-semibold text-xl mb-3">Recursos Externos Sugeridos</h3>
                              <div className="space-y-3">
                                 {analysisResult.enrichedContent.externalLinks.map((link, i) => (
                                     <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors">
@@ -209,7 +244,7 @@ export function FileUploader() {
                         </div>
 
                          <div>
-                            <h3 className="font-semibold text-lg mb-2">Videos de YouTube Recomendados</h3>
+                            <h3 className="font-semibold text-xl mb-3">Videos de YouTube Recomendados</h3>
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {analysisResult.enrichedContent.youtubeVideos.map((video, i) => (
                                     <a key={i} href={`https://www.youtube.com/watch?v=${video.videoId}`} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors">
@@ -219,24 +254,15 @@ export function FileUploader() {
                                 ))}
                             </div>
                         </div>
-                        
-                        {analysisResult.bibliography.length > 0 && (
-                             <div>
-                                <h3 className="font-semibold text-lg mb-2">Bibliografía Mencionada</h3>
-                                <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2">
-                                    {analysisResult.bibliography.map((item, i) => <li key={i}>{item}</li>)}
-                                </ul>
-                            </div>
-                        )}
-
                     </CardContent>
                 </Card>
-                 <div className="col-span-1 space-y-6">
+
+                 <div className="space-y-6">
                     <Card>
                          <CardHeader>
                             <CardTitle className="flex items-center gap-3">
                                <GraduationCap className="h-7 w-7 text-primary"/>
-                               <span className="text-2xl">Generar Material</span>
+                               <span className="text-2xl">Generar Material Didáctico</span>
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -244,7 +270,7 @@ export function FileUploader() {
                                 <Sparkles className="mr-3 h-6 w-6"/>
                                 Generar Todo
                             </Button>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                                 <MaterialButton icon={Presentation} title="Presentación" onClick={() => handleGenerationSubmit('powerpointPresentation')} disabled={generationState === 'generating'} />
                                 <MaterialButton icon={FileText} title="Guía de Trabajo" onClick={() => handleGenerationSubmit('workGuide')} disabled={generationState === 'generating'}/>
                                 <MaterialButton icon={ClipboardCheck} title="Examen" onClick={() => handleGenerationSubmit('exampleTests')} disabled={generationState === 'generating'}/>
@@ -280,14 +306,14 @@ export function FileUploader() {
                         <p className="text-lg font-semibold text-foreground">
                             {fileName ? fileName : 'Haz clic o arrastra un archivo para subir'}
                         </p>
-                        <p className="text-sm text-muted-foreground mt-1">Solo se admiten documentos PDF (máx. 10MB)</p>
+                        <p className="text-sm text-muted-foreground mt-1">Se admiten documentos PDF y Word (máx. 10MB)</p>
                         <Input 
                             ref={fileInputRef} 
                             id="syllabusFile" 
                             name="syllabusFile" 
                             type="file" 
                             className="hidden" 
-                            accept=".pdf"
+                            accept=".pdf,.docx"
                             onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
                         />
                     </div>

@@ -10,8 +10,8 @@ import type { GeneratedMaterials } from '@/lib/types';
 
 const AnalyzeInputSchema = z.object({
   documentDataUri: z.string().refine(
-    (uri) => uri.startsWith('data:application/pdf;base64,'),
-    'Solo se admiten documentos PDF.'
+    (uri) => uri.startsWith('data:application/pdf;base64,') || uri.startsWith('data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,'),
+    'Solo se admiten documentos PDF o Word.'
   ),
 });
 
@@ -21,8 +21,15 @@ const GenerateMaterialInputSchema = z.object({
         keyConcepts: z.array(z.string()),
         subjectArea: z.string(),
         weeks: z.union([z.number(), z.string()]).optional(),
-        learningObjectives: z.array(z.string()),
-        bibliography: z.array(z.string()),
+        courseStructure: z.array(z.object({
+          title: z.string(),
+          learningObjectives: z.array(z.string()),
+        })),
+        assessments: z.array(z.object({
+          type: z.string(),
+          description: z.string(),
+        })),
+        bibliography: z.any(),
         enrichedContent: z.any(),
     }),
     materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
