@@ -12,8 +12,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Palette, Check, Sun, Moon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-
 
 const themes = [
   { name: 'Default', theme: 'theme-default', color: 'hsl(76 34% 50%)' },
@@ -24,7 +22,7 @@ const themes = [
 ];
 
 export function ThemeSwitcher() {
-  const { theme: activeTheme, resolvedTheme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -34,8 +32,10 @@ export function ThemeSwitcher() {
   const handleDarkModeToggle = (checked: boolean) => {
     setTheme(checked ? 'dark' : 'light');
   };
-  
-  const currentPalette = themes.find(t => t.theme === activeTheme)?.theme || activeTheme;
+
+  // The current color palette is the theme name that doesn't include "light" or "dark".
+  // This logic correctly separates the color palette from the light/dark mode.
+  const currentPalette = themes.find(t => t.theme === theme)?.theme || theme?.replace(/light-|dark-/, '') || 'theme-default';
   const isDarkMode = resolvedTheme === 'dark';
 
   if (!mounted) {
@@ -52,20 +52,20 @@ export function ThemeSwitcher() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          {themes.map((theme) => (
+          {themes.map((themeOption) => (
             <DropdownMenuItem
-              key={theme.name}
-              onClick={() => setTheme(theme.theme)}
+              key={themeOption.name}
+              onClick={() => setTheme(themeOption.theme)}
               className="flex items-center justify-between"
             >
               <div className="flex items-center gap-2">
                 <div
                   className="w-4 h-4 rounded-full border"
-                  style={{ backgroundColor: theme.color }}
+                  style={{ backgroundColor: themeOption.color }}
                 />
-                <span>{theme.name}</span>
+                <span>{themeOption.name}</span>
               </div>
-              {currentPalette === theme.theme && <Check className="h-4 w-4" />}
+              {currentPalette === themeOption.theme && <Check className="h-4 w-4" />}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
