@@ -23,13 +23,13 @@ export function MaterialsHistory() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">Mis Cursos Analizados</CardTitle>
+          <CardTitle>Mis Cursos Analizados</CardTitle>
           <CardDescription>Aquí encontrarás todos los cursos que has analizado. Puedes editarlos o descargar los materiales generados.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="border-border">
                 <TableHead>Nombre del Curso/Archivo</TableHead>
                 <TableHead className="hidden sm:table-cell">Fecha de Análisis</TableHead>
                 <TableHead className="hidden sm:table-cell">Estado</TableHead>
@@ -45,11 +45,11 @@ export function MaterialsHistory() {
                 </TableRow>
               ) : (
                 mockHistory.map((item) => (
-                  <TableRow key={item.id}>
+                  <TableRow key={item.id} className="border-border">
                     <TableCell className="font-medium">{item.fileName}</TableCell>
-                    <TableCell className="hidden sm:table-cell">{item.date}</TableCell>
+                    <TableCell className="hidden sm:table-cell text-muted-foreground">{item.date}</TableCell>
                     <TableCell className="hidden sm:table-cell">
-                      <Badge variant="outline" className="text-green-700 border-green-300 bg-green-50">{item.status}</Badge>
+                      <Badge variant="outline" className="text-green-400 border-green-400/50 bg-green-900/20">{item.status}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                        <DropdownMenu>
@@ -69,7 +69,7 @@ export function MaterialsHistory() {
                             Descargar Todo
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                           <DropdownMenuItem className="text-red-600">
+                           <DropdownMenuItem className="text-red-500 focus:text-red-400 focus:bg-red-900/50">
                             <Trash2 className="mr-2 h-4 w-4" />
                             Eliminar
                           </DropdownMenuItem>

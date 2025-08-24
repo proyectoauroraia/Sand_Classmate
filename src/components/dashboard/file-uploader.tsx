@@ -79,7 +79,6 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
             toast({
                 title: "¡Análisis Completo!",
                 description: `Hemos analizado tu documento sobre "${response.data.subjectArea}".`,
-                className: "bg-green-100 border-green-300 text-green-800"
             });
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error inesperado.';
@@ -126,7 +125,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     }
 
     return (
-        <Card className="bg-card/80 backdrop-blur-sm">
+        <Card>
             <CardContent className="p-6">
                 <form id="analysis-form" onSubmit={handleAnalysisSubmit} className="space-y-6">
                     {error && (

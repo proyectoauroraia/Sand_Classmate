@@ -35,7 +35,6 @@ export default function ProfilePage() {
         toast({
             title: "¡Perfil Actualizado!",
             description: "Tus cambios han sido guardados exitosamente.",
-            className: "bg-green-100 border-green-300 text-green-800"
         });
     };
     

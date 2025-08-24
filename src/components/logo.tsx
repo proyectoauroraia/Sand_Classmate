@@ -15,20 +15,12 @@ export function Logo({ className }: { className?: string }) {
           </clipPath>
         </defs>
         <g clipPath="url(#squircle)">
-          <rect width="100" height="100" fill="#F0DDBF" />
-          <path
-            d="M -5,65 
-               C 30,50 70,80 105,60 
-               L 105,105 -5,105 Z"
-            fill="#D9A16B"
-          />
-          <path
-            d="M -5,55 
-               C 25,35 75,65 105,45 
-               L 105,60 
-               C 70,80 30,50 -5,65 Z"
-            fill="#BA7C46"
-          />
+          {/* Use a gradient for a more modern look */}
+          <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: 'hsl(217, 91%, 70%)', stopOpacity: 1 }} />
+          </linearGradient>
+          <rect width="100" height="100" fill="url(#logoGradient)" />
         </g>
       </svg>
       <span

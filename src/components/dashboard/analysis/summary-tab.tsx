@@ -26,11 +26,11 @@ export const SummaryTab: React.FC<SummaryTabProps> = React.memo(({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 <div className="bg-secondary/30 p-4 rounded-lg flex-1 break-words">
-                    <div className="flex items-center gap-3 text-lg font-semibold text-secondary-foreground mb-4"><BookCopy className="h-6 w-6 text-primary" /> Conceptos Clave</div>
+                    <div className="flex items-center gap-3 text-lg font-semibold text-card-foreground mb-4"><BookCopy className="h-6 w-6 text-primary" /> Conceptos Clave</div>
                     {analysisResult.keyConcepts && (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <div className="flex flex-wrap gap-2">
                             {analysisResult.keyConcepts.map((concept, i) => (
-                                <div key={i} className="bg-primary/10 border border-primary/20 text-primary font-medium px-2 py-2 rounded-lg text-xs text-center flex items-center justify-center">
+                                <div key={i} className="bg-primary/10 border border-primary/20 text-primary-foreground font-medium px-3 py-1.5 rounded-full text-xs text-center flex items-center justify-center">
                                     {concept}
                                 </div>
                             ))}
@@ -39,7 +39,7 @@ export const SummaryTab: React.FC<SummaryTabProps> = React.memo(({
                 </div>
                  {analysisResult.strengths && (
                     <div className="bg-secondary/30 p-4 rounded-lg flex-1">
-                        <div className="flex items-center gap-3 text-lg font-semibold text-secondary-foreground mb-3"> Fortalezas Detectadas</div>
+                        <div className="flex items-center gap-3 text-lg font-semibold text-card-foreground mb-3"> Fortalezas Detectadas</div>
                         <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                             {analysisResult.strengths.map((item, i) => <li key={i}>{item}</li>)}
                         </ul>
@@ -47,7 +47,7 @@ export const SummaryTab: React.FC<SummaryTabProps> = React.memo(({
                 )}
                  {analysisResult.weaknesses && (
                     <div className="bg-secondary/30 p-4 rounded-lg flex-1">
-                        <div className="flex items-center gap-3 text-lg font-semibold text-secondary-foreground mb-3"> Debilidades Identificadas</div>
+                        <div className="flex items-center gap-3 text-lg font-semibold text-card-foreground mb-3"> Debilidades Identificadas</div>
                          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                             {analysisResult.weaknesses.map((item, i) => <li key={i}>{item}</li>)}
                         </ul>
@@ -55,7 +55,7 @@ export const SummaryTab: React.FC<SummaryTabProps> = React.memo(({
                 )}
                  {analysisResult.recommendations && (
                     <div className="bg-secondary/30 p-4 rounded-lg flex-1">
-                        <div className="flex items-center gap-3 text-lg font-semibold text-secondary-foreground mb-3"> Recomendaciones de Mejora</div>
+                        <div className="flex items-center gap-3 text-lg font-semibold text-card-foreground mb-3"> Recomendaciones de Mejora</div>
                          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                             {analysisResult.recommendations.map((item, i) => <li key={i}>{item}</li>)}
                         </ul>

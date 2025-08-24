@@ -11,7 +11,7 @@ export default function Home() {
           <h2 className="mt-6 text-2xl font-semibold tracking-tight text-foreground">Bienvenido de vuelta, Educador</h2>
           <p className="text-muted-foreground">Inicia sesión para generar los materiales de tu curso en segundos.</p>
         </div>
-        <Card className="shadow-2xl shadow-primary/10">
+        <Card className="shadow-2xl shadow-primary/10 bg-card">
           <CardContent className="p-6">
             <AuthTabs />
           </CardContent>

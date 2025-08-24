@@ -9,10 +9,13 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const router = useRouter();
+    const pathname = usePathname();
+
     const navLinks = [
         { href: "/dashboard", icon: Home, label: "Inicio" },
         { href: "/dashboard/history", icon: History, label: "Mi Biblioteca" },
@@ -20,8 +23,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { href: "/dashboard/pricing", icon: Gem, label: "Planes" },
     ];
     
-    const router = useRouter();
-
     const handleSignOut = async () => {
         const supabase = createClient();
         await supabase.auth.signOut();
@@ -30,23 +31,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     const sidebarContent = (
-        <div className="flex h-full max-h-screen flex-col gap-2">
-            <div className="flex h-[60px] items-center border-b px-6">
+        <div className="flex h-full max-h-screen flex-col gap-2 bg-card text-card-foreground">
+            <div className="flex h-[60px] items-center border-b border-border px-6">
                  <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-foreground">
                     <Logo />
                 </Link>
             </div>
             <div className="flex-1 overflow-auto py-4">
                 <nav className="grid items-start px-4 text-sm font-medium">
-                    {navLinks.map((link) => (
-                         <Link key={link.href} href={link.href} className="flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary hover:bg-accent/60">
+                    {navLinks.map((link) => {
+                        const isActive = pathname === link.href;
+                        return (
+                         <Link 
+                            key={link.href} 
+                            href={link.href} 
+                            className={`flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary ${isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
+                         >
                             <link.icon className="h-5 w-5" />
                             {link.label}
                         </Link>
-                    ))}
+                        )
+                    })}
                 </nav>
             </div>
-            <div className="mt-auto p-4 border-t">
+            <div className="mt-auto p-4 border-t border-border">
                 <div className="flex items-center gap-4">
                      <Avatar className="h-10 w-10">
                         <AvatarImage src="https://placehold.co/40x40.png" alt="@prof" data-ai-hint="person face" />
@@ -67,11 +75,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     return (
         <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
-            <div className="hidden border-r bg-card lg:block">
+            <div className="hidden border-r border-border bg-card lg:block">
                 {sidebarContent}
             </div>
             <div className="flex flex-col bg-background">
-                <header className="flex h-14 items-center gap-4 border-b bg-card px-6 lg:h-[60px]">
+                <header className="flex h-14 items-center gap-4 border-b border-border bg-card px-6 lg:h-[60px]">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
@@ -79,7 +87,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 <span className="sr-only">Toggle navigation menu</span>
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="left" className="flex flex-col p-0">
+                        <SheetContent side="left" className="flex flex-col p-0 bg-card border-r-0">
                             {sidebarContent}
                         </SheetContent>
                     </Sheet>

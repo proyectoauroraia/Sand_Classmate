@@ -34,7 +34,7 @@ export const AssessmentsTab: React.FC<AssessmentsTabProps> = React.memo(({
                 </h3>
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {analysisResult.assessments.map((assessment, i) => (
-                       <Card key={i} className="flex flex-col">
+                       <Card key={i} className="flex flex-col bg-secondary/30">
                            <CardHeader>
                                <CardTitle className="flex items-center gap-2">
                                    <FileSignature className="h-5 w-5 text-primary"/>
@@ -44,7 +44,7 @@ export const AssessmentsTab: React.FC<AssessmentsTabProps> = React.memo(({
                            </CardHeader>
                            <CardContent className="flex-grow space-y-3">
                                 <div className="text-sm">
-                                    <p className="font-semibold text-secondary-foreground mb-1">Resultado de Aprendizaje:</p>
+                                    <p className="font-semibold text-card-foreground mb-1">Resultado de Aprendizaje:</p>
                                     <p className="text-muted-foreground text-xs leading-relaxed">{assessment.feedback}</p>
                                 </div>
                            </CardContent>

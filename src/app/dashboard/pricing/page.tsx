@@ -22,7 +22,7 @@ export default function PricingPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-6xl">
                 {/* Free Plan */}
-                <Card className="flex flex-col rounded-xl shadow-lg shadow-primary/5">
+                <Card className="flex flex-col rounded-xl bg-card">
                     <CardHeader className="pb-4">
                         <CardTitle className="text-2xl">Gratis</CardTitle>
                         <CardDescription>Para empezar a explorar el poder de la IA en la educación.</CardDescription>
@@ -36,12 +36,12 @@ export default function PricingPage() {
                         </ul>
                     </CardContent>
                     <CardFooter>
-                        <Button variant="outline" className="w-full text-base py-6">Tu Plan Actual</Button>
+                        <Button variant="secondary" className="w-full text-base py-6">Tu Plan Actual</Button>
                     </CardFooter>
                 </Card>
 
                 {/* Premium Plan */}
-                <Card className="flex flex-col rounded-xl border-2 border-primary shadow-2xl shadow-primary/20 relative">
+                <Card className="flex flex-col rounded-xl border-2 border-primary bg-card relative">
                      <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
                         <div className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
                             Más Popular
@@ -66,7 +66,7 @@ export default function PricingPage() {
                 </Card>
 
                 {/* Enterprise Plan */}
-                <Card className="flex flex-col rounded-xl shadow-lg shadow-primary/5">
+                <Card className="flex flex-col rounded-xl bg-card">
                     <CardHeader className="pb-4">
                         <CardTitle className="text-2xl">Empresas</CardTitle>
                         <CardDescription>Para instituciones y equipos que buscan una solución integral.</CardDescription>

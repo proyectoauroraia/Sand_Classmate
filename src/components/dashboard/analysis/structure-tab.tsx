@@ -34,20 +34,20 @@ export const StructureTab: React.FC<StructureTabProps> = React.memo(({
                 </h3>
                 <Accordion type="single" collapsible className="w-full">
                     {analysisResult.courseStructure.map((unit, i) => (
-                        <AccordionItem value={`item-${i}`} key={i}>
+                        <AccordionItem value={`item-${i}`} key={i} className="border-secondary">
                             <AccordionTrigger className="text-base font-medium hover:no-underline">{unit.title}</AccordionTrigger>
-                            <AccordionContent className="space-y-4">
+                            <AccordionContent className="space-y-4 bg-secondary/30 p-4 rounded-b-md">
                                 <div>
-                                    <h4 className="font-semibold text-sm mb-2 text-secondary-foreground">Resultados de Aprendizaje de la Unidad:</h4>
+                                    <h4 className="font-semibold text-sm mb-2 text-card-foreground">Resultados de Aprendizaje de la Unidad:</h4>
                                     <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2 pl-4">
                                         {unit.learningObjectives.map((obj, j) => <li key={j}>{obj}</li>)}
                                     </ul>
                                 </div>
-                                <div className="border-t pt-4">
-                                    <h4 className="font-semibold text-sm mb-3 text-secondary-foreground">Clases de la Unidad ({unit.classes?.length || 0}):</h4>
+                                <div className="border-t border-border pt-4">
+                                    <h4 className="font-semibold text-sm mb-3 text-card-foreground">Clases de la Unidad ({unit.classes?.length || 0}):</h4>
                                      <div className="space-y-3">
                                         {unit.classes?.map((cls, j) => (
-                                            <div key={j} className="flex items-center justify-between p-3 rounded-md bg-secondary/40">
+                                            <div key={j} className="flex items-center justify-between p-3 rounded-md bg-background/50">
                                                 <div className="flex items-center gap-3">
                                                     <BookCopy className="h-5 w-5 text-primary/80" />
                                                     <p className="font-medium text-sm text-foreground">{cls.topic}</p>
@@ -71,7 +71,7 @@ export const StructureTab: React.FC<StructureTabProps> = React.memo(({
                         </AccordionItem>
                     ))}
                 </Accordion>
-                <div className="border-t pt-6 mt-6">
+                <div className="border-t border-border pt-6 mt-6">
                     <GenerationButton
                         title="Generar Presentación Completa"
                         materialType="powerpointPresentation"
