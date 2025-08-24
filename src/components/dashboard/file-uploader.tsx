@@ -254,7 +254,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                              {analysisResult.enrichedContent && analysisResult.enrichedContent.externalLinks && analysisResult.enrichedContent.externalLinks.length > 0 && (
                              <div>
                                 <h3 className="font-semibold text-xl mb-3">Recursos Externos Sugeridos</h3>
-                                 <div className="space-y-3">
+                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {analysisResult.enrichedContent.externalLinks.map((link, i) => (
                                         <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors">
                                             <div className="font-semibold flex items-center gap-2 text-primary"><LinkIcon className="h-4 w-4"/> {link.title}</div>
