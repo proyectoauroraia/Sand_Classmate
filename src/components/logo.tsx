@@ -1,23 +1,27 @@
 
 export function Logo() {
   return (
-    <div className="flex items-center justify-center bg-primary/20 text-primary p-2 rounded-lg aspect-square h-full w-auto">
+    <div className="flex items-center justify-center p-2 rounded-lg aspect-square h-full w-auto">
         <svg
             width="100"
             height="100"
             viewBox="0 0 100 100"
-            fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
+            className="h-8 w-8"
             >
+            <defs>
+                <linearGradient id="duneGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style={{stopColor: '#D2B48C', stopOpacity: 1}} />
+                <stop offset="100%" style={{stopColor: '#A0522D', stopOpacity: 1}} />
+                </linearGradient>
+            </defs>
             <path
-                d="M-1.5 73.5C22.5 71 42 56 52 40.5C62 25 81.5 -1.5 101.5 1.5V101.5H-1.5V73.5Z"
-                fill="currentColor"
-                fillOpacity="0.6"
+                d="M0,100 C20,80 40,70 60,80 C80,90 100,100 100,100 L100,50 C80,60 60,40 40,50 C20,60 0,80 0,80 Z"
+                fill="#C2A47C"
             />
             <path
-                d="M-1.5 83C21.5 79.8333 45.3 80.5 54 90C62.7 99.5 86.5 102.5 101.5 101.5V1.5C81.5 -1.5 62 25 52 40.5C42 56 22.5 71 -1.5 73.5V83Z"
-                fill="currentColor"
+                d="M0,100 C15,85 30,80 50,85 C70,90 85,95 100,100 L100,70 C85,75 70,65 50,70 C30,75 15,85 0,90 Z"
+                fill="#D2B48C"
             />
         </svg>
     </div>
