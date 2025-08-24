@@ -48,9 +48,9 @@ export default function PricingPage() {
                 </Card>
 
                 {/* Premium Plan */}
-                <Card className="flex flex-col rounded-xl border-2 border-yellow-400 bg-yellow-50/20 backdrop-blur-sm shadow-2xl shadow-yellow-400/20 relative pt-8">
+                <Card className="flex flex-col rounded-xl border-2 border-primary bg-accent/30 backdrop-blur-sm shadow-2xl shadow-primary/20 relative pt-8">
                      <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
-                        <div className="bg-[#8BAA36] text-white px-4 py-1 rounded-full text-sm font-semibold">
+                        <div className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
                             Más Popular
                         </div>
                     </div>
@@ -68,7 +68,7 @@ export default function PricingPage() {
                         </ul>
                     </CardContent>
                     <CardFooter>
-                        <Button className="w-full text-base py-6 bg-[#8BAA36] hover:bg-[#8BAA36]/90 text-white">Actualizar a Premium</Button>
+                        <Button className="w-full text-base py-6">Actualizar a Premium</Button>
                     </CardFooter>
                 </Card>
 
