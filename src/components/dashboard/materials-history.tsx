@@ -22,10 +22,10 @@ const mockHistory: HistoryItem[] = [
 const ITEMS_TO_SHOW = 4;
 
 const buttonColors = [
-    'bg-gradient-to-br from-green-400 to-green-600 text-white hover:from-green-500 hover:to-green-700', // Green
-    'bg-gradient-to-br from-yellow-400 to-amber-500 text-white hover:from-yellow-500 hover:to-amber-600', // Yellow
-    'bg-gradient-to-br from-teal-400 to-cyan-500 text-white hover:from-teal-500 hover:to-cyan-600', // Teal/Cyan
-    'bg-gradient-to-br from-blue-400 to-indigo-500 text-white hover:from-blue-500 hover:to-indigo-600', // Blue
+    'bg-primary/80 hover:bg-primary',
+    'bg-secondary/80 hover:bg-secondary',
+    'bg-accent-foreground/80 hover:bg-accent-foreground',
+    'bg-primary/60 hover:bg-primary/90',
 ];
 
 export function MaterialsHistory() {
@@ -43,7 +43,7 @@ export function MaterialsHistory() {
       <Card className="h-full flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-2xl font-bold tracking-tight">Cursos Recientes</CardTitle>
-             <Button asChild variant="link" className="text-primary font-semibold">
+             <Button asChild variant="ghost" className="text-primary font-semibold hover:underline">
                 <Link href="/dashboard/history">Ver todo</Link>
             </Button>
         </CardHeader>
@@ -72,8 +72,9 @@ export function MaterialsHistory() {
                         <TableCell className="text-center">
                           <Button 
                             size="sm" 
+                            variant="secondary"
                             onClick={() => handleViewAnalysis(item.id)}
-                            className={cn('shadow-md hover:shadow-lg transition-shadow',buttonColors[index % buttonColors.length])}
+                            className={cn('text-secondary-foreground transition-colors',buttonColors[index % buttonColors.length])}
                           >
                             Ver
                           </Button>
