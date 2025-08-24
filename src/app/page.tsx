@@ -8,7 +8,7 @@ export default function Home() {
       <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
           <Image
-            src="https://i.imgur.com/T0bC0fk.png"
+            src="https://i.imgur.com/rS2yvJy.png"
             alt="Logo de Sand Classmate"
             width={300}
             height={70}
