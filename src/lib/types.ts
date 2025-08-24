@@ -20,13 +20,13 @@ export type AnalysisResult = {
     recommended: string[];
   };
 
-  enrichedContent: {
-    externalLinks: {
+  enrichedContent?: {
+    externalLinks?: {
       title: string;
       url: string;
       summary: string;
     }[];
-    youtubeVideos: {
+    youtubeVideos?: {
       title: string;
       videoId: string;
       summary: string;

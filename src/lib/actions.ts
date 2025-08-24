@@ -7,6 +7,7 @@ import { z } from 'zod';
 import PptxGenJS from 'pptxgenjs';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Numbering, Indent, Footer, PageNumber } from 'docx';
 import type { GeneratedMaterials } from '@/lib/types';
+import { PDFDocument, rgb, StandardFonts, PageSizes } from 'pdf-lib';
 
 
 const AnalyzeInputSchema = z.object({
@@ -34,7 +35,103 @@ const GenerateMaterialInputSchema = z.object({
         enrichedContent: z.any().optional(),
     }),
     materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
+    format: z.enum(['docx', 'pdf']),
 });
+
+
+async function createStyledPdf(title: string, markdownContent: string): Promise<string> {
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage(PageSizes.A4);
+    const { width, height } = page.getSize();
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+    const margin = 50;
+    let y = height - margin;
+
+    const drawText = (text: string, x: number, currentY: number, font: any, size: number, color = rgb(0, 0, 0)) => {
+        page.drawText(text, { x, y: currentY, font, size, color });
+        return size + 4; // Line height
+    };
+    
+    const wrapText = (text: string, maxWidth: number, font: any, size: number): string[] => {
+        const words = text.split(' ');
+        const lines = [];
+        let currentLine = '';
+        for(const word of words){
+            const testLine = currentLine.length > 0 ? `${currentLine} ${word}` : word;
+            const testWidth = font.widthOfTextAtSize(testLine, size);
+            if(testWidth > maxWidth){
+                lines.push(currentLine);
+                currentLine = word;
+            } else {
+                currentLine = testLine;
+            }
+        }
+        lines.push(currentLine);
+        return lines;
+    };
+
+
+    y -= drawText(title, margin, y, fontBold, 24);
+    y -= 20;
+
+    const lines = markdownContent.split('\n');
+
+    for (const line of lines) {
+        if (y < margin) {
+            const newPage = pdfDoc.addPage(PageSizes.A4);
+            page.setRotation(newPage.getRotation());
+            y = height - margin;
+        }
+
+        const trimmedLine = line.trim();
+        if (trimmedLine.startsWith('## ')) {
+            y -= 20;
+            const wrappedLines = wrapText(trimmedLine.substring(3), width - 2 * margin, fontBold, 16);
+            for(const wrapped of wrappedLines){
+                y -= drawText(wrapped, margin, y, fontBold, 16);
+            }
+            y -= 10;
+        } else if (trimmedLine.startsWith('### ')) {
+             y -= 15;
+            const wrappedLines = wrapText(trimmedLine.substring(4), width - 2 * margin, fontBold, 14);
+            for(const wrapped of wrappedLines){
+                y -= drawText(wrapped, margin, y, fontBold, 14);
+            }
+            y -= 8;
+        } else if (trimmedLine.startsWith('* ')) {
+            const itemText = trimmedLine.substring(2);
+            const wrappedLines = wrapText(itemText, width - 2 * margin - 20, font, 12);
+            for(const [i, wrapped] of wrappedLines.entries()){
+                const bullet = i === 0 ? '• ' : '  ';
+                y -= drawText(bullet + wrapped, margin + 10, y, font, 12);
+            }
+        } else if (trimmedLine.length > 0) {
+            const wrappedLines = wrapText(trimmedLine, width - 2 * margin, font, 12);
+            for(const wrapped of wrappedLines){
+                y -= drawText(wrapped, margin, y, font, 12);
+            }
+        } else {
+            y -= 12; // Empty line
+        }
+    }
+    
+     // Footer
+    const pages = pdfDoc.getPages();
+    for (let i = 0; i < pages.length; i++) {
+        pages[i].drawText(`Generado por Sand Classmate - Página ${i + 1} de ${pages.length}`, {
+            x: margin,
+            y: margin / 2,
+            size: 8,
+            font: font,
+            color: rgb(0.5, 0.5, 0.5),
+        });
+    }
+
+    const pdfBytes = await pdfDoc.save();
+    return `data:application/pdf;base64,${Buffer.from(pdfBytes).toString('base64')}`;
+}
 
 
 async function createStyledDocx(title: string, markdownContent: string): Promise<string> {
@@ -250,9 +347,10 @@ export async function analyzeContentAction(
 
 export async function generateMaterialsActionFromAnalysis(
   analysisResult: AnalysisResult,
-  materialType: keyof GeneratedMaterials
+  materialType: keyof GeneratedMaterials,
+  format: 'docx' | 'pdf'
 ): Promise<{ data: string | null; error: string | null }> {
-    const validation = GenerateMaterialInputSchema.safeParse({ analysisResult, materialType });
+    const validation = GenerateMaterialInputSchema.safeParse({ analysisResult, materialType, format });
     if (!validation.success) {
         const error = validation.error.errors[0]?.message || 'Datos de entrada inválidos para la generación.';
         return { data: null, error };
@@ -269,21 +367,23 @@ export async function generateMaterialsActionFromAnalysis(
         }
 
         let fileDataUri: string;
-        switch(materialType) {
-            case 'powerpointPresentation':
-                fileDataUri = await createStyledPptx(markdownContent);
-                break;
-            case 'workGuide':
-                fileDataUri = await createStyledDocx('Guía de Trabajo', markdownContent);
-                break;
-            case 'exampleTests':
-                fileDataUri = await createStyledDocx('Examen de Ejemplo', markdownContent);
-                break;
-            case 'interactiveReviewPdf':
-                 fileDataUri = await createStyledDocx('Repaso Interactivo', markdownContent);
-                break;
-            default:
-                throw new Error("Tipo de material no soportado");
+        
+        if (materialType === 'powerpointPresentation') {
+            fileDataUri = await createStyledPptx(markdownContent);
+        } else if (format === 'docx') {
+             const titleMap = {
+                workGuide: 'Guía de Trabajo',
+                exampleTests: 'Examen de Ejemplo',
+                interactiveReviewPdf: 'Repaso Interactivo'
+            };
+            fileDataUri = await createStyledDocx(titleMap[materialType], markdownContent);
+        } else { // pdf
+            const titleMap = {
+                workGuide: 'Guía de Trabajo',
+                exampleTests: 'Examen de Ejemplo',
+                interactiveReviewPdf: 'Repaso Interactivo'
+            };
+            fileDataUri = await createStyledPdf(titleMap[materialType], markdownContent);
         }
         
         return { data: fileDataUri, error: null };

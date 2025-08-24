@@ -8,6 +8,18 @@ import type { GeneratedMaterials, AnalysisResult } from '@/lib/types';
 import { generateMaterialsActionFromAnalysis } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { MaterialStatus } from './analysis-display';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 
 const ICONS: Record<string, React.ElementType> = {
     presentation: Presentation,
@@ -39,14 +51,16 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
 }) => {
     const { toast } = useToast();
     const IconComponent = ICONS[icon];
-    
-    const handleGenerationSubmit = async () => {
-        if (!analysisResult) return;
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
+    
+    const handleGenerationSubmit = async (format: 'docx' | 'pdf') => {
+        if (!analysisResult) return;
+        setIsDialogOpen(false);
         setStatus('generating');
 
         try {
-            const response = await generateMaterialsActionFromAnalysis(analysisResult, materialType);
+            const response = await generateMaterialsActionFromAnalysis(analysisResult, materialType, format);
             if (response.error || !response.data) {
                 throw new Error(response.error || `No se pudo generar el material: ${materialType}`);
             }
@@ -54,21 +68,28 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
             const link = document.createElement('a');
             link.href = response.data;
             
-            const fileNames: Record<MaterialKey, string> = {
-                powerpointPresentation: 'presentacion.pptx',
-                workGuide: 'guia_de_trabajo.docx',
-                exampleTests: 'examen_de_ejemplo.docx',
-                interactiveReviewPdf: 'repaso_interactivo.docx'
+            const fileExtensions = {
+                powerpointPresentation: 'pptx',
+                workGuide: format,
+                exampleTests: format,
+                interactiveReviewPdf: format
             };
 
-            link.download = fileNames[materialType] || 'material.docx';
+            const fileNames: Record<MaterialKey, string> = {
+                powerpointPresentation: 'presentacion.pptx',
+                workGuide: `guia_de_trabajo.${fileExtensions.workGuide}`,
+                exampleTests: `examen_de_ejemplo.${fileExtensions.exampleTests}`,
+                interactiveReviewPdf: `repaso_interactivo.${fileExtensions.interactiveReviewPdf}`
+            };
+
+            link.download = fileNames[materialType] || `material.${fileExtensions[materialType]}`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
 
              toast({
                 title: '¡Material Generado!',
-                description: `Tu ${fileNames[materialType]} se ha descargado.`,
+                description: `Tu ${link.download} se ha descargado.`,
                 className: 'bg-green-100 border-green-300 text-green-800'
             });
             setStatus('success');
@@ -87,9 +108,8 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
     const isGenerating = status === 'generating';
     const isSuccess = status === 'success';
 
-    return (
+    const triggerButton = (
         <Button 
-            onClick={handleGenerationSubmit} 
             disabled={isAnyTaskRunning || isSuccess}
             size="lg"
             className="w-full sm:w-auto"
@@ -99,5 +119,38 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
              IconComponent ? <IconComponent className="mr-2 h-5 w-5" /> : null}
             {isSuccess ? `${title.split(' ')[1]} Generado` : title}
         </Button>
+    );
+
+     if (materialType === 'powerpointPresentation') {
+        return (
+             <div onClick={() => handleGenerationSubmit('docx')}>
+                {triggerButton}
+            </div>
+        );
+    }
+
+    return (
+       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <AlertDialogTrigger asChild>
+                {triggerButton}
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Elige un formato de descarga</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Selecciona si prefieres un archivo Word (.docx) para editar o un PDF (.pdf) para compartir fácilmente.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => handleGenerationSubmit('docx')}>
+                        Descargar como Word (.docx)
+                    </AlertDialogAction>
+                    <AlertDialogAction onClick={() => handleGenerationSubmit('pdf')}>
+                        Descargar como PDF (.pdf)
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     );
 };
