@@ -1,8 +1,14 @@
 
+'use client';
+
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import { DunesBackground } from '@/components/icons/dunes-background';
+import { createCheckoutSessionAction } from '@/lib/actions';
+import { useToast } from '@/hooks/use-toast';
 
 const CheckListItem = ({ children }: { children: React.ReactNode }) => (
     <li className="flex items-start gap-3">
@@ -12,10 +18,36 @@ const CheckListItem = ({ children }: { children: React.ReactNode }) => (
 );
 
 export default function PricingPage() {
+    const router = useRouter();
+    const { toast } = useToast();
+    const [isPremiumLoading, setIsPremiumLoading] = React.useState(false);
+
+    const handlePremiumSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setIsPremiumLoading(true);
+        try {
+            const { data, error } = await createCheckoutSessionAction();
+            if (error || !data?.url) {
+                throw new Error(error || 'No se pudo iniciar el proceso de pago.');
+            }
+            // Redirect to payment gateway
+            router.push(data.url);
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Ocurrió un error inesperado.';
+            toast({
+                variant: 'destructive',
+                title: 'Error de Pago',
+                description: errorMessage,
+            });
+            setIsPremiumLoading(false);
+        }
+    };
+
+
     return (
-        <div className="flex flex-col items-center justify-center min-h-full p-4 md:p-6 lg:p-8 relative overflow-hidden">
+        <div className="flex flex-col items-center justify-center min-h-full relative overflow-hidden">
             <DunesBackground />
-            <div className="text-center max-w-2xl mx-auto mb-12 z-10">
+            <div className="text-center max-w-2xl mx-auto z-10 p-4 md:p-6 lg:p-8">
                 <h1 
                     className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground"
                     style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
@@ -27,7 +59,7 @@ export default function PricingPage() {
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full max-w-6xl z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full max-w-6xl z-10 px-4 md:px-6 lg:px-8 pb-8">
                 {/* Free Plan */}
                 <Card className="flex flex-col rounded-xl bg-card/80 backdrop-blur-sm border-border/20 shadow-lg">
                     <CardHeader className="pb-4">
@@ -43,7 +75,7 @@ export default function PricingPage() {
                         </ul>
                     </CardContent>
                     <CardFooter>
-                        <Button variant="secondary" className="w-full text-base py-6 bg-[#2F5D62] hover:bg-[#2F5D62]/90 text-white">Tu Plan Actual</Button>
+                        <Button variant="secondary" className="w-full text-base py-6 bg-[#2F5D62] hover:bg-[#2F5D62]/90 text-white" disabled>Tu Plan Actual</Button>
                     </CardFooter>
                 </Card>
 
@@ -68,7 +100,12 @@ export default function PricingPage() {
                         </ul>
                     </CardContent>
                     <CardFooter>
-                        <Button className="w-full text-base py-6">Actualizar a Premium</Button>
+                        <form onSubmit={handlePremiumSubmit} className="w-full">
+                            <Button type="submit" className="w-full text-base py-6" disabled={isPremiumLoading}>
+                               {isPremiumLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+                                Actualizar a Premium
+                            </Button>
+                        </form>
                     </CardFooter>
                 </Card>
 

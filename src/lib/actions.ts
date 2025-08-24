@@ -2,7 +2,7 @@
 'use server';
 
 import { analyzeAndEnrichContent, generateMaterialFromAnalysis } from '@/ai/flows/educational-content-flows';
-import type { AnalysisResult } from '@/lib/types';
+import type { AnalysisResult, CheckoutSessionResult } from '@/lib/types';
 import { z } from 'zod';
 import PptxGenJS from 'pptxgenjs';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Numbering } from 'docx';
@@ -386,5 +386,34 @@ export async function generateMaterialsActionFromAnalysis(
         console.error(e);
         const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
         return { data: null, error: `Falló la generación del material: ${errorMessage}` };
+    }
+}
+
+
+export async function createCheckoutSessionAction(
+): Promise<{ data: CheckoutSessionResult | null; error: string | null }> {
+    try {
+        // In a real application, you would:
+        // 1. Get the currently logged-in user.
+        // 2. Define the product/price ID from your payment provider (e.g., Stripe).
+        // 3. Call the payment provider's API to create a checkout session.
+        // 4. Return the session URL.
+        
+        // For now, we'll simulate this process.
+        console.log("Creating checkout session...");
+        
+        // Simulate a delay to mimic a real API call.
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // This is a placeholder URL. In a real app, this would be the URL
+        // provided by WebPay, Stripe, Mercado Pago, etc.
+        const checkoutUrl = 'https://www.webpay.cl/portalpagodirecto/pages/institucion.jsf?idEstablecimiento=597020000';
+
+        return { data: { url: checkoutUrl }, error: null };
+
+    } catch (e) {
+        console.error(e);
+        const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
+        return { data: null, error: `No se pudo crear la sesión de pago: ${errorMessage}` };
     }
 }

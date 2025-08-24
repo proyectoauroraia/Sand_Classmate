@@ -53,3 +53,7 @@ export type UserProfile = {
         url: string;
     }[];
 };
+
+export type CheckoutSessionResult = {
+    url: string;
+};
