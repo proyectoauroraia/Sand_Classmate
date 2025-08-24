@@ -4,12 +4,13 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from '@/components/ui/card';
-import { UploadCloud, Presentation, FileText, ClipboardCheck, MousePointerClick, Loader2, Download, RefreshCw, AlertCircle } from 'lucide-react';
+import { UploadCloud, FileText, ClipboardCheck, MousePointerClick, Loader2, Download, RefreshCw, AlertCircle, Clipboard } from 'lucide-react';
 import { generateMaterialsAction } from '@/lib/actions';
 import type { GeneratedMaterials } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '../ui/textarea';
 
 export function FileUploader() {
     const [isLoading, setIsLoading] = useState(false);
@@ -97,7 +98,7 @@ export function FileUploader() {
             <div>
                 <h3 className="text-lg font-semibold mb-4 font-headline">Your materials for "{fileName}" are ready!</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <MaterialCard icon={Presentation} title="Presentation" description="PowerPoint slides" href={result.powerpointPresentation} fileName="presentation.pptx"/>
+                    <PresentationCard content={result.powerpointPresentation} />
                     <MaterialCard icon={FileText} title="Work Guide" description="PDF document" href={result.workGuide} fileName="work-guide.pdf"/>
                     <MaterialCard icon={ClipboardCheck} title="Example Tests" description="PDF document" href={result.exampleTests} fileName="example-tests.pdf"/>
                     <MaterialCard icon={MousePointerClick} title="Interactive Review" description="Interactive PDF" href={result.interactiveReviewPdf} fileName="interactive-review.pdf"/>
@@ -148,6 +149,41 @@ export function FileUploader() {
         </form>
     );
 }
+
+function PresentationCard({ content }: { content: string }) {
+    const { toast } = useToast();
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(content);
+        toast({
+            title: 'Copied to clipboard!',
+            description: 'You can now paste the presentation content.',
+        });
+    };
+
+    return (
+        <Card className="col-span-1 md:col-span-2 lg:col-span-4">
+            <CardContent className="p-6">
+                <div className="flex items-center mb-4">
+                    <FileText className="h-12 w-12 text-primary mr-4" />
+                    <div>
+                        <h4 className="text-md font-semibold font-headline">Presentation Content</h4>
+                        <p className="text-sm text-muted-foreground mb-2">Markdown for your slides</p>
+                    </div>
+                     <Button onClick={copyToClipboard} variant="outline" size="sm" className="ml-auto">
+                        <Clipboard className="mr-2 h-4 w-4" /> Copy
+                    </Button>
+                </div>
+                <Textarea
+                    readOnly
+                    value={content}
+                    className="w-full h-64 text-xs font-mono"
+                    placeholder="Presentation content will appear here..."
+                />
+            </CardContent>
+        </Card>
+    );
+}
+
 
 function MaterialCard({ icon: Icon, title, description, href, fileName }: { icon: React.ElementType, title: string, description: string, href: string, fileName: string }) {
     return (

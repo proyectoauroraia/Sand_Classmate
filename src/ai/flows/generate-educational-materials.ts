@@ -15,7 +15,7 @@ const GenerateEducationalMaterialsInputSchema = z.object({
   syllabusFile: z
     .string()
     .describe(
-      'The syllabus file (PDF or Word) as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.' // Corrected typo here
+      "The syllabus file (PDF) as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:application/pdf;base64,<encoded_data>'."
     ),
 });
 export type GenerateEducationalMaterialsInput = z.infer<typeof GenerateEducationalMaterialsInputSchema>;
@@ -23,7 +23,7 @@ export type GenerateEducationalMaterialsInput = z.infer<typeof GenerateEducation
 const GenerateEducationalMaterialsOutputSchema = z.object({
   powerpointPresentation: z
     .string()
-    .describe('The generated PowerPoint presentation as a data URI.'),
+    .describe('The generated PowerPoint presentation content as a markdown string.'),
   workGuide: z.string().describe('The generated work guide in PDF format as a data URI.'),
   exampleTests: z.string().describe('The generated example tests as a data URI.'),
   interactiveReviewPdf: z
@@ -46,7 +46,7 @@ const prompt = ai.definePrompt({
 
 You will take a syllabus file as input and generate the following materials:
 
-1.  PowerPoint presentation (approximately 15 slides per class)
+1.  PowerPoint presentation content as a markdown string (approximately 15 slides per class).
 2.  Work guide in PDF format
 3.  Example tests
 4.  Interactive review PDF
@@ -55,7 +55,7 @@ Syllabus File: {{media url=syllabusFile}}
 
 Ensure that the generated materials are engaging and appropriate for university students.
 
-Return all the generated materials as data URIs.
+Return the work guide, example tests, and interactive review as data URIs. Return the presentation as a markdown string.
 `,
 });
 
