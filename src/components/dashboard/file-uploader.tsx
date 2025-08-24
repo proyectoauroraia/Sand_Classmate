@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { UploadCloud, Presentation, FileText, ClipboardCheck, Loader2, Download, RefreshCw, AlertCircle, Copy, BookOpen, Lightbulb, GraduationCap } from 'lucide-react';
+import { UploadCloud, Presentation, FileText, ClipboardCheck, Loader2, Download, RefreshCw, AlertCircle, Copy, BookOpen, Lightbulb, GraduationCap, Sparkles } from 'lucide-react';
 import { analyzeContentAction, generateMaterialsActionFromAnalysis } from '@/lib/actions';
 import type { AnalysisResult, GeneratedMaterials } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -122,6 +123,14 @@ export function FileUploader() {
         }
     }
 
+    const handleGenerateAll = async () => {
+        // This is a simplified version. A real implementation might zip files on the server.
+        await handleGenerationSubmit('powerpointPresentation');
+        await handleGenerationSubmit('workGuide');
+        await handleGenerationSubmit('exampleTests');
+        await handleGenerationSubmit('interactiveReviewPdf');
+    };
+
 
     const resetState = () => {
         setGenerationState('idle');
@@ -183,11 +192,17 @@ export function FileUploader() {
                                <span className="text-2xl">Generar Material</span>
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="grid grid-cols-1 gap-4">
-                            <MaterialButton icon={Presentation} title="Presentación" onClick={() => handleGenerationSubmit('powerpointPresentation')} disabled={generationState === 'generating'} />
-                            <MaterialButton icon={FileText} title="Guía de Trabajo" onClick={() => handleGenerationSubmit('workGuide')} disabled={generationState === 'generating'}/>
-                            <MaterialButton icon={ClipboardCheck} title="Examen de Ejemplo" onClick={() => handleGenerationSubmit('exampleTests')} disabled={generationState === 'generating'}/>
-                            <MaterialButton icon={Lightbulb} title="Repaso Interactivo" onClick={() => handleGenerationSubmit('interactiveReviewPdf')} disabled={generationState === 'generating'}/>
+                        <CardContent className="space-y-4">
+                            <Button size="lg" className="w-full py-7 text-lg" onClick={handleGenerateAll} disabled={generationState === 'generating'}>
+                                <Sparkles className="mr-3 h-6 w-6"/>
+                                Generar Todo
+                            </Button>
+                            <div className="grid grid-cols-2 gap-4">
+                                <MaterialButton icon={Presentation} title="Presentación" onClick={() => handleGenerationSubmit('powerpointPresentation')} disabled={generationState === 'generating'} />
+                                <MaterialButton icon={FileText} title="Guía de Trabajo" onClick={() => handleGenerationSubmit('workGuide')} disabled={generationState === 'generating'}/>
+                                <MaterialButton icon={ClipboardCheck} title="Examen" onClick={() => handleGenerationSubmit('exampleTests')} disabled={generationState === 'generating'}/>
+                                <MaterialButton icon={Lightbulb} title="Repaso" onClick={() => handleGenerationSubmit('interactiveReviewPdf')} disabled={generationState === 'generating'}/>
+                            </div>
                         </CardContent>
                     </Card>
                     <Button onClick={resetState} variant="outline" className="w-full py-6 text-base">
@@ -241,9 +256,11 @@ export function FileUploader() {
 
 function MaterialButton({ icon: Icon, title, onClick, disabled }: { icon: React.ElementType, title: string, onClick: () => void, disabled: boolean }) {
     return (
-        <Button onClick={onClick} disabled={disabled} variant="outline" className="w-full justify-start h-auto p-4 gap-4 text-left">
-            <Icon className="h-10 w-10 text-primary" />
-            <span className="text-base font-medium">{title}</span>
+        <Button onClick={onClick} disabled={disabled} variant="outline" className="w-full justify-center h-auto p-4 gap-2 text-center flex-col aspect-square">
+            <Icon className="h-8 w-8 text-primary" />
+            <span className="text-sm font-medium">{title}</span>
         </Button>
     );
 }
+
+    
