@@ -87,7 +87,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     return (
         <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
-            <div className="hidden border-r bg-muted lg:block">
+            <div className="hidden border-r bg-card lg:block">
                 {sidebarContent}
             </div>
             <div className="flex flex-col">
@@ -99,7 +99,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 <span className="sr-only">Toggle navigation menu</span>
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="left" className="flex flex-col p-0 bg-muted border-r-0">
+                        <SheetContent side="left" className="flex flex-col p-0 bg-card border-r-0">
                             {sidebarContent}
                         </SheetContent>
                     </Sheet>
