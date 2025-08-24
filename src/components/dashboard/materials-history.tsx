@@ -7,14 +7,22 @@ import { Button } from '@/components/ui/button';
 import type { HistoryItem } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 
 const mockHistory: HistoryItem[] = [
-    { id: '1', fileName: 'Programa de Kinesiología 2024', date: '2024-07-28', status: 'Completado' },
-    { id: '2', fileName: 'Apuntes de Filosofía Antigua', date: '2024-07-25', status: 'Completado' },
-    { id: '3', fileName: 'Syllabus de Historia del Arte', date: '2024-07-22', status: 'Completado' },
-    { id: '4', fileName: 'Guía de Nutrición Deportiva', date: '2024-07-20', status: 'Completado' },
+    { id: '1', fileName: 'Programa de Curso', date: '2024-07-28', status: 'Completado' },
+    { id: '2', fileName: 'Programa de Kinesiología 2024', date: '2024-07-25', status: 'Completado' },
+    { id: '3', fileName: 'Apuntes de Filosofía Antigua', date: '2024-07-22', status: 'Completado' },
+    { id: '4', fileName: 'Syllabus de Historia del Arte', date: '2024-07-20', status: 'Completado' },
     { id: '5', fileName: 'Plan de Estudios de Psicología', date: '2024-07-18', status: 'Completado' },
+];
+
+const buttonColors = [
+    'bg-chart-4 text-white hover:bg-chart-4/90', // Green for 'Ver' text
+    'bg-chart-1 text-black hover:bg-chart-1/90', // Yellow
+    'bg-chart-2 text-white hover:bg-chart-2/90', // Teal
+    'bg-chart-3 text-white hover:bg-chart-3/90', // Blue
 ];
 
 export function MaterialsHistory() {
@@ -46,18 +54,29 @@ export function MaterialsHistory() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    mockHistory.map((item) => (
+                    mockHistory.map((item, index) => (
                       <TableRow key={item.id}>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium py-4">
                             {item.fileName}
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button 
-                            size="sm" 
-                            onClick={() => handleViewAnalysis(item.id)}
-                          >
-                            Ver
-                          </Button>
+                          { index === 0 ? (
+                             <Button 
+                                variant="link"
+                                size="sm" 
+                                onClick={() => handleViewAnalysis(item.id)}
+                              >
+                                Ver
+                              </Button>
+                          ) : (
+                            <Button 
+                              size="sm" 
+                              onClick={() => handleViewAnalysis(item.id)}
+                              className={cn(buttonColors[(index % buttonColors.length)])}
+                            >
+                              Ver
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))

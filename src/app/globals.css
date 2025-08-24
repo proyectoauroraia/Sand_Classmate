@@ -8,38 +8,38 @@ body {
 
 @layer base {
   :root {
-    --background: 40 100% 99%; /* #FFFDF9 - Off-white */
-    --foreground: 28 40% 30%; /* #7A4F31 - Dark Terracotta Brown */
+    --background: 30 100% 98%; /* #FEFBF7 - Very light cream */
+    --foreground: 28 40% 25%; /* #664A31 - Dark Brown for text */
 
-    --card: 40 100% 99%; /* #FFFDF9 - Off-white for cards */
-    --card-foreground: 28 40% 30%;
+    --card: 30 100% 98%; /* Same as background for cards */
+    --card-foreground: 28 40% 25%;
 
-    --popover: 40 100% 99%;
-    --popover-foreground: 28 40% 30%;
+    --popover: 30 100% 98%;
+    --popover-foreground: 28 40% 25%;
 
-    --primary: 26 83% 63%;  /* #E89B64 - Main Sand Orange */
-    --primary-foreground: 28 40% 30%;
+    --primary: 142 60% 35%;  /* #248247 - Main dark green from 'Analizar' button */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 35 73% 91%; /* #F5EADD - Light sandy beige for sidebar/secondary elements */
-    --secondary-foreground: 28 40% 30%;
+    --secondary: 175 65% 40%; /* #24A2A2 - Teal from file uploader */
+    --secondary-foreground: 0 0% 100%;
     
     --muted: 35 73% 91%;
     --muted-foreground: 28 25% 55%; /* Lighter brown for muted text */
 
-    --accent: 35 73% 88%; /* Slightly darker beige for hover */
-    --accent-foreground: 28 40% 30%;
+    --accent: 175 65% 45%; /* Slightly darker teal for hover */
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 100%;
     
     --border: 35 73% 88%; /* A bit darker than accent for borders */
     --input: 35 73% 94%; /* Lighter input background */
-    --ring: 26 83% 63%; /* Primary color for focus rings */
+    --ring: 142 60% 35%; /* Primary color for focus rings */
     
-    --chart-1: 26 83% 63%;
-    --chart-2: 30 50% 75%;
-    --chart-3: 25 60% 80%;
-    --chart-4: 35 73% 91%;
+    --chart-1: 45 90% 65%; /* #F5D374 - Yellow Button */
+    --chart-2: 175 65% 40%; /* #24A2A2 - Teal Button */
+    --chart-3: 205 75% 40%; /* #1A73C4 - Blue Button */
+    --chart-4: 142 60% 35%; /* #248247 - Green 'Ver' text */
     --chart-5: 28 40% 39%;
     --radius: 0.5rem;
   }
@@ -54,24 +54,24 @@ body {
     --popover: 28 10% 15%;
     --popover-foreground: 40 30% 90%;
 
-    --primary: 26 83% 63%; /* #E89B64 - Main Sand Orange */
-    --primary-foreground: 28 10% 12%;
+    --primary: 142 60% 45%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 28 10% 20%;
-    --secondary-foreground: 40 30% 90%;
+    --secondary: 175 65% 40%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 28 10% 20%;
     --muted-foreground: 40 30% 70%;
 
-    --accent: 28 10% 25%;
-    --accent-foreground: 40 30% 90%;
+    --accent: 175 65% 45%;
+    --accent-foreground: 0 0% 100%;
     
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 28 10% 25%;
     --input: 28 10% 22%;
-    --ring: 26 83% 63%;
+    --ring: 142 60% 45%;
     --radius: 0.5rem;
   }
 }
