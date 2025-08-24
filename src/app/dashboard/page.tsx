@@ -9,7 +9,7 @@ export default function DashboardPage() {
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline">Generate New Course Materials</CardTitle>
-                    <CardDescription>Upload your syllabus or class notes (PDF or Word) to get started.</CardDescription>
+                    <CardDescription>Upload your syllabus or class notes (PDF) to get started.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <FileUploader />

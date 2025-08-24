@@ -130,14 +130,14 @@ export function FileUploader() {
                 <p className="text-lg font-semibold">
                     {fileName ? fileName : 'Click or drag file to this area to upload'}
                 </p>
-                <p className="text-sm text-muted-foreground">Supports PDF and Word documents up to 10MB.</p>
+                <p className="text-sm text-muted-foreground">Supports PDF documents up to 10MB.</p>
                 <Input 
                     ref={fileInputRef} 
                     id="syllabusFile" 
                     name="syllabusFile" 
                     type="file" 
                     className="hidden" 
-                    accept=".pdf,.doc,.docx"
+                    accept=".pdf"
                     onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
                 />
             </div>
