@@ -258,7 +258,7 @@ export async function generateMaterialFromAnalysis(
     **Course Summary:** ${analysisResult.summary}
     **Key Concepts:** ${analysisResult.keyConcepts?.join(', ')}
     **Coherence Analysis:** ${analysisResult.coherenceAnalysis}
-    **Identified Weaknesses:** ${analysis.result.weaknesses?.join(', ')}
+    **Identified Weaknesses:** ${analysisResult.weaknesses?.join(', ')}
     **Improvement Recommendations:** ${analysisResult.recommendations?.join(', ')}
     
     **Your Specific Task:**
