@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Flows for analyzing and generating educational content.
@@ -31,23 +32,22 @@ const AssessmentSchema = z.object({
 const AnalyzeContentOutputSchema = z.object({
   summary: z
     .string()
-    .describe('A concise summary of the document\'s key topics and structure.'),
+    .describe('A concise summary of the document\'s key topics and structure.').optional(),
   keyConcepts: z
     .array(z.string())
-    .describe('A list of the most important terms and concepts found in the document.'),
+    .describe('A list of the most important terms and concepts found in the document.').optional(),
   subjectArea: z
     .string()
     .describe('The subject area or field of study identified from the document.'),
   weeks: z.union([z.number(), z.string()]).describe('The total number of weeks the course or syllabus covers.').optional(),
   
-  // New structured content
-  courseStructure: z.array(UnitSchema).describe("A list of the course units or modules, each with its own title and learning objectives."),
-  assessments: z.array(AssessmentSchema).describe("A list of the course assessments, including type and description."),
+  courseStructure: z.array(UnitSchema).describe("A list of the course units or modules, each with its own title and learning objectives.").optional(),
+  assessments: z.array(AssessmentSchema).describe("A list of the course assessments, including type and description.").optional(),
   
   bibliography: z.object({
       mentioned: z.array(z.string()).describe('A list of bibliographic references or source materials mentioned directly in the document.'),
       recommended: z.array(z.string()).describe('A list of relevant, modern external bibliographic recommendations (books, key articles) that are NOT in the original document but are highly relevant to the subject area.'),
-  }),
+  }).optional(),
 
   enrichedContent: z.object({
     externalLinks: z.array(z.object({
@@ -100,14 +100,14 @@ export async function analyzeAndEnrichContent(
 // Schema for generating a specific material from analysis
 const GenerateMaterialInputSchema = z.object({
     analysisResult: z.object({
-        summary: z.string(),
-        keyConcepts: z.array(z.string()),
+        summary: z.string().optional(),
+        keyConcepts: z.array(z.string()).optional(),
         subjectArea: z.string(),
         weeks: z.union([z.number(), z.string()]).optional(),
-        courseStructure: z.array(UnitSchema),
-        assessments: z.array(AssessmentSchema),
-        bibliography: z.any(),
-        enrichedContent: z.any(),
+        courseStructure: z.array(UnitSchema).optional(),
+        assessments: z.array(AssessmentSchema).optional(),
+        bibliography: z.any().optional(),
+        enrichedContent: z.any().optional(),
     }),
     materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
 });
@@ -156,10 +156,10 @@ export async function generateMaterialFromAnalysis(
         ${analysisResult.summary}
         
         **Key Concepts:**
-        ${analysisResult.keyConcepts.join(', ')}
+        ${analysisResult.keyConcepts?.join(', ')}
 
         **Course Structure:**
-        ${analysisResult.courseStructure.map(u => `- ${u.title}: ${u.learningObjectives.join(', ')}`).join('\n')}
+        ${analysisResult.courseStructure?.map(u => `- ${u.title}: ${u.learningObjectives.join(', ')}`).join('\n')}
         
         **Your Task:**
         ${MaterialPrompts[materialType]}

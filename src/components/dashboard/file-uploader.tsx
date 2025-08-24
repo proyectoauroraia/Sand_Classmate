@@ -175,16 +175,19 @@ export function FileUploader() {
                                     <p className="text-primary text-3xl font-bold mt-2">{analysisResult.weeks} {typeof analysisResult.weeks === 'number' && analysisResult.weeks > 1 ? 'Semanas' : 'Semana'}</p>
                                 </div>
                             )}
-                             <div className="bg-secondary/30 p-4 rounded-lg">
-                                <div className="flex items-center gap-3 text-lg font-semibold"><BookCopy className="h-6 w-6" /> Conceptos Clave</div>
-                                <div className="flex flex-wrap gap-2 justify-start mt-2">
-                                    {analysisResult.keyConcepts.map((concept, i) => (
-                                        <span key={i} className="bg-primary text-primary-foreground font-medium px-3 py-1 rounded-full text-xs">{concept}</span>
-                                    ))}
+                             {analysisResult.keyConcepts && (
+                                <div className="bg-secondary/30 p-4 rounded-lg">
+                                    <div className="flex items-center gap-3 text-lg font-semibold"><BookCopy className="h-6 w-6" /> Conceptos Clave</div>
+                                    <div className="flex flex-wrap gap-2 justify-start mt-2">
+                                        {analysisResult.keyConcepts.map((concept, i) => (
+                                            <span key={i} className="bg-primary text-primary-foreground font-medium px-3 py-1 rounded-full text-xs">{concept}</span>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                             )}
                         </div>
 
+                        {analysisResult.courseStructure && (
                         <div>
                             <h3 className="font-semibold text-xl mb-3 flex items-center gap-2"><ListChecks className="h-6 w-6 text-primary"/> Estructura del Curso y Objetivos</h3>
                              <Accordion type="single" collapsible className="w-full">
@@ -200,7 +203,9 @@ export function FileUploader() {
                                 ))}
                             </Accordion>
                         </div>
+                        )}
                         
+                         {analysisResult.assessments && (
                          <div>
                             <h3 className="font-semibold text-xl mb-3 flex items-center gap-2"><PencilRuler className="h-6 w-6 text-primary"/> Evaluaciones</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -212,25 +217,33 @@ export function FileUploader() {
                                 ))}
                             </div>
                         </div>
+                        )}
 
+                        {analysisResult.bibliography && (
                         <div>
                             <h3 className="font-semibold text-xl mb-3">Bibliografía</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {analysisResult.bibliography.mentioned && analysisResult.bibliography.mentioned.length > 0 && (
                                 <div>
                                     <h4 className="font-semibold mb-2">Mencionada en el Documento</h4>
                                     <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2">
                                         {analysisResult.bibliography.mentioned.map((item, i) => <li key={i}>{item}</li>)}
                                     </ul>
                                 </div>
+                                )}
+                                 {analysisResult.bibliography.recommended && analysisResult.bibliography.recommended.length > 0 && (
                                  <div>
                                     <h4 className="font-semibold mb-2">Recomendada</h4>
                                     <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2">
                                         {analysisResult.bibliography.recommended.map((item, i) => <li key={i}>{item}</li>)}
                                     </ul>
                                 </div>
+                                 )}
                             </div>
                         </div>
+                        )}
                         
+                         {analysisResult.enrichedContent && analysisResult.enrichedContent.externalLinks.length > 0 && (
                          <div>
                             <h3 className="font-semibold text-xl mb-3">Recursos Externos Sugeridos</h3>
                              <div className="space-y-3">
@@ -242,7 +255,9 @@ export function FileUploader() {
                                 ))}
                             </div>
                         </div>
+                         )}
 
+                         {analysisResult.enrichedContent && analysisResult.enrichedContent.youtubeVideos.length > 0 && (
                          <div>
                             <h3 className="font-semibold text-xl mb-3">Videos de YouTube Recomendados</h3>
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -254,6 +269,7 @@ export function FileUploader() {
                                 ))}
                             </div>
                         </div>
+                         )}
                     </CardContent>
                 </Card>
 

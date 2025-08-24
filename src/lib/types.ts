@@ -1,20 +1,21 @@
+
 export type AnalysisResult = {
-  summary: string;
-  keyConcepts: string[];
+  summary?: string;
+  keyConcepts?: string[];
   subjectArea: string;
   weeks?: number | string;
   
-  courseStructure: {
+  courseStructure?: {
     title: string;
     learningObjectives: string[];
   }[];
   
-  assessments: {
+  assessments?: {
     type: string;
     description: string;
   }[];
 
-  bibliography: {
+  bibliography?: {
     mentioned: string[];
     recommended: string[];
   };
