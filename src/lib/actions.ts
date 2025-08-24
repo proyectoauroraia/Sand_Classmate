@@ -156,7 +156,7 @@ async function createStyledPptx(markdownContent: string): Promise<string> {
     titleSlide.addText(titleText, {
         x: 0.5, y: 1.5, w: 9, h: 1.5, fontSize: 48, bold: true, align: 'center', color: '5A3D2B' // Dark brown/terracotta
     });
-     titleSlide.addText('Material de curso generado por IA', {
+     titleSlide.addText('Material de curso generado por Sand Classmate', {
         x: 0.5, y: 2.8, w: 9, h: 1, fontSize: 20, align: 'center', color: '6B4F3A' // Muted brown
     });
 
@@ -224,7 +224,7 @@ export async function generateMaterialsActionFromAnalysis(
         });
 
         if (!markdownContent) {
-            throw new Error('La IA no pudo generar contenido para este material. Por favor, inténtalo de nuevo o con un documento diferente.');
+            throw new Error('Sand Classmate no pudo generar contenido para este material. Por favor, inténtalo de nuevo o con un documento diferente.');
         }
 
         let fileDataUri: string;

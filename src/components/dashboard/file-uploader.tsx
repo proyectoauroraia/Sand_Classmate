@@ -4,20 +4,17 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { UploadCloud, Presentation, FileText, ClipboardCheck, Loader2, Download, RefreshCw, AlertCircle, Copy, BookOpen, Lightbulb, GraduationCap, Sparkles, Youtube, Link as LinkIcon, Target, BookCopy, Calendar, ListChecks, PencilRuler, CheckCircle2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { UploadCloud, Presentation, FileText, ClipboardCheck, Loader2, RefreshCw, AlertCircle, BookOpen, Lightbulb, Youtube, Link as LinkIcon, BookCopy, Calendar, ListChecks, PencilRuler, CheckCircle2, Sparkles, Download } from 'lucide-react';
 import { analyzeContentAction, generateMaterialsActionFromAnalysis } from '@/lib/actions';
 import type { AnalysisResult, GeneratedMaterials } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '../ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
-type GenerationState = 'idle' | 'analyzing' | 'generating' | 'success';
+type GenerationState = 'idle' | 'analyzing';
 type MaterialKey = keyof GeneratedMaterials;
 type MaterialStatus = 'idle' | 'generating' | 'success';
 
@@ -145,7 +142,9 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
         setIsGeneratingAll(true);
         const materialsToGenerate: MaterialKey[] = ['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf'];
         for (const materialType of materialsToGenerate) {
-            await handleGenerationSubmit(materialType);
+            if (materialStatuses[materialType] === 'idle') {
+                await handleGenerationSubmit(materialType);
+            }
         }
         setIsGeneratingAll(false);
     };
@@ -184,171 +183,182 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     
     if(analysisResult) {
         return (
-             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                <div className="lg:col-span-2 space-y-6">
-                    <Card>
-                        <CardHeader className="p-4 pb-0">
-                            <CardTitle className="flex items-center gap-3">
-                               <BookOpen className="h-6 w-6 text-primary"/>
-                               <span className="text-xl">Análisis del Curso: "{analysisResult.subjectArea}"</span>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-4 pt-0">
-                             <Tabs defaultValue="summary" className="w-full">
-                                <TabsList className="relative w-full overflow-x-auto flex justify-start mb-4 border-b">
-                                    <TabsTrigger value="summary">Resumen</TabsTrigger>
-                                    <TabsTrigger value="structure">Estructura</TabsTrigger>
-                                    <TabsTrigger value="assessments">Evaluaciones</TabsTrigger>
-                                    <TabsTrigger value="bibliography">Bibliografía</TabsTrigger>
-                                    <TabsTrigger value="resources">Recursos</TabsTrigger>
-                                </TabsList>
+             <div className="space-y-6">
+                <Card>
+                    <CardHeader className="p-4 pb-0">
+                        <CardTitle className="flex items-center gap-3">
+                            <BookOpen className="h-6 w-6 text-primary"/>
+                            <span className="text-xl">Análisis del Curso: "{analysisResult.subjectArea}"</span>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 pt-2">
+                        <Tabs defaultValue="summary" className="w-full">
+                            <TabsList className="relative w-full overflow-x-auto flex justify-start mb-4 border-b">
+                                <TabsTrigger value="summary">Resumen</TabsTrigger>
+                                <TabsTrigger value="structure">Estructura</TabsTrigger>
+                                <TabsTrigger value="assessments">Evaluaciones</TabsTrigger>
+                                <TabsTrigger value="bibliography">Bibliografía</TabsTrigger>
+                                <TabsTrigger value="resources">Recursos</TabsTrigger>
+                            </TabsList>
 
-                                <TabsContent value="summary" className="space-y-6">
-                                    <p>{analysisResult.summary}</p>
-                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        {analysisResult.weeks && (
-                                            <div className="bg-secondary/30 p-4 rounded-lg flex-1">
-                                                <div className="flex items-center gap-3 text-lg font-semibold"><Calendar className="h-6 w-6" /> Duración Estimada</div>
-                                                <p className="text-primary text-3xl font-bold mt-2">{analysisResult.weeks} {typeof analysisResult.weeks === 'number' && analysisResult.weeks > 1 ? 'Semanas' : 'Semana'}</p>
+                            <TabsContent value="summary" className="space-y-6">
+                                <p>{analysisResult.summary}</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {analysisResult.weeks && (
+                                        <div className="bg-secondary/30 p-4 rounded-lg flex-1">
+                                            <div className="flex items-center gap-3 text-lg font-semibold"><Calendar className="h-6 w-6" /> Duración Estimada</div>
+                                            <p className="text-primary text-3xl font-bold mt-2">{analysisResult.weeks} {typeof analysisResult.weeks === 'number' && analysisResult.weeks > 1 ? 'Semanas' : 'Semana'}</p>
+                                        </div>
+                                    )}
+                                    {analysisResult.keyConcepts && (
+                                        <div className="bg-secondary/30 p-4 rounded-lg flex-1 break-words">
+                                            <div className="flex items-center gap-3 text-lg font-semibold"><BookCopy className="h-6 w-6" /> Conceptos Clave</div>
+                                            <div className="flex flex-wrap gap-2 justify-start mt-2">
+                                                {analysisResult.keyConcepts.map((concept, i) => (
+                                                    <span key={i} className="bg-primary text-primary-foreground font-medium px-3 py-1 rounded-full text-xs">{concept}</span>
+                                                ))}
                                             </div>
-                                        )}
-                                        {analysisResult.keyConcepts && (
-                                            <div className="bg-secondary/30 p-4 rounded-lg flex-1 break-words">
-                                                <div className="flex items-center gap-3 text-lg font-semibold"><BookCopy className="h-6 w-6" /> Conceptos Clave</div>
-                                                <div className="flex flex-wrap gap-2 justify-start mt-2">
-                                                    {analysisResult.keyConcepts.map((concept, i) => (
-                                                        <span key={i} className="bg-primary text-primary-foreground font-medium px-3 py-1 rounded-full text-xs">{concept}</span>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="border-t pt-6 flex flex-wrap gap-4">
+                                     <GenerationButton title="Generar Guía de Trabajo" materialType="workGuide" icon={FileText} />
+                                     <GenerationButton title="Generar Repaso Interactivo" materialType="interactiveReviewPdf" icon={Lightbulb} />
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="structure" className="space-y-6">
+                                {analysisResult.courseStructure && (
+                                    <div>
+                                        <h3 className="font-semibold text-xl mb-3 flex items-center gap-2"><ListChecks className="h-6 w-6 text-primary"/> Estructura del Curso y Objetivos</h3>
+                                        <Accordion type="single" collapsible className="w-full">
+                                            {analysisResult.courseStructure.map((unit, i) => (
+                                                <AccordionItem value={`item-${i}`} key={i}>
+                                                    <AccordionTrigger className="text-base font-medium hover:no-underline">{unit.title}</AccordionTrigger>
+                                                    <AccordionContent>
+                                                        <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2 pl-4">
+                                                            {unit.learningObjectives.map((obj, j) => <li key={j}>{obj}</li>)}
+                                                        </ul>
+                                                    </AccordionContent>
+                                                </AccordionItem>
+                                            ))}
+                                        </Accordion>
+                                        <div className="border-t pt-6 mt-6">
+                                            <GenerationButton title="Generar Presentación" materialType="powerpointPresentation" icon={Presentation} />
+                                        </div>
                                     </div>
-                                </TabsContent>
+                                )}
+                            </TabsContent>
 
-                                <TabsContent value="structure">
-                                     {analysisResult.courseStructure && (
-                                        <div>
-                                            <h3 className="font-semibold text-xl mb-3 flex items-center gap-2"><ListChecks className="h-6 w-6 text-primary"/> Estructura del Curso y Objetivos</h3>
-                                            <Accordion type="single" collapsible className="w-full">
-                                                {analysisResult.courseStructure.map((unit, i) => (
-                                                    <AccordionItem value={`item-${i}`} key={i}>
-                                                        <AccordionTrigger className="text-base font-medium hover:no-underline">{unit.title}</AccordionTrigger>
-                                                        <AccordionContent>
-                                                            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2 pl-4">
-                                                                {unit.learningObjectives.map((obj, j) => <li key={j}>{obj}</li>)}
-                                                            </ul>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                ))}
-                                            </Accordion>
-                                        </div>
-                                    )}
-                                </TabsContent>
-
-                                <TabsContent value="assessments">
-                                    {analysisResult.assessments && (
-                                        <div>
-                                            <h3 className="font-semibold text-xl mb-3 flex items-center gap-2"><PencilRuler className="h-6 w-6 text-primary"/> Evaluaciones Planificadas</h3>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                {analysisResult.assessments.map((assessment, i) => (
-                                                    <div key={i} className="p-4 rounded-lg bg-secondary/30 break-words">
-                                                        <div className="font-semibold">{assessment.type}</div>
-                                                        <p className="text-sm text-muted-foreground mt-1">{assessment.description}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </TabsContent>
-                                
-                                <TabsContent value="bibliography">
-                                    {analysisResult.bibliography && (
-                                        <div>
-                                            <h3 className="font-semibold text-xl mb-3">Bibliografía</h3>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                {analysisResult.bibliography.mentioned && analysisResult.bibliography.mentioned.length > 0 && (
-                                                <div>
-                                                    <h4 className="font-semibold mb-2">Mencionada en el Documento</h4>
-                                                    <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2 break-words">
-                                                        {analysisResult.bibliography.mentioned.map((item, i) => <li key={i}>{item}</li>)}
-                                                    </ul>
+                            <TabsContent value="assessments" className="space-y-6">
+                                {analysisResult.assessments && (
+                                    <div>
+                                        <h3 className="font-semibold text-xl mb-3 flex items-center gap-2"><PencilRuler className="h-6 w-6 text-primary"/> Evaluaciones Planificadas</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {analysisResult.assessments.map((assessment, i) => (
+                                                <div key={i} className="p-4 rounded-lg bg-secondary/30 break-words">
+                                                    <div className="font-semibold">{assessment.type}</div>
+                                                    <p className="text-sm text-muted-foreground mt-1">{assessment.description}</p>
                                                 </div>
-                                                )}
-                                                {analysisResult.bibliography.recommended && analysisResult.bibliography.recommended.length > 0 && (
-                                                <div>
-                                                    <h4 className="font-semibold mb-2">Recomendada por IA</h4>
-                                                    <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2 break-words">
-                                                        {analysisResult.bibliography.recommended.map((item, i) => <li key={i}>{item}</li>)}
-                                                    </ul>
-                                                </div>
-                                                )}
-                                            </div>
+                                            ))}
                                         </div>
-                                    )}
-                                </TabsContent>
+                                        <div className="border-t pt-6 mt-6">
+                                             <GenerationButton title="Generar Examen de Ejemplo" materialType="exampleTests" icon={ClipboardCheck} />
+                                        </div>
+                                    </div>
+                                )}
+                            </TabsContent>
+                            
+                            <TabsContent value="bibliography" className="space-y-6">
+                                {analysisResult.bibliography && (
+                                    <div>
+                                        <h3 className="font-semibold text-xl mb-3">Bibliografía</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            {analysisResult.bibliography.mentioned && analysisResult.bibliography.mentioned.length > 0 && (
+                                            <div>
+                                                <h4 className="font-semibold mb-2">Mencionada en el Documento</h4>
+                                                <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2 break-words">
+                                                    {analysisResult.bibliography.mentioned.map((item, i) => <li key={i}>{item}</li>)}
+                                                </ul>
+                                            </div>
+                                            )}
+                                            {analysisResult.bibliography.recommended && analysisResult.bibliography.recommended.length > 0 && (
+                                            <div>
+                                                <h4 className="font-semibold mb-2">Recomendada por Sand Classmate</h4>
+                                                <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2 break-words">
+                                                    {analysisResult.bibliography.recommended.map((item, i) => <li key={i}>{item}</li>)}
+                                                </ul>
+                                            </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </TabsContent>
 
-                                <TabsContent value="resources" className="space-y-6">
-                                    {analysisResult.enrichedContent?.externalLinks && analysisResult.enrichedContent.externalLinks.length > 0 && (
-                                        <div>
-                                            <h3 className="font-semibold text-xl mb-3">Recursos Externos Sugeridos</h3>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                {analysisResult.enrichedContent.externalLinks.map((link, i) => (
-                                                    <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors break-words">
-                                                        <div className="font-semibold flex items-center gap-2 text-primary"><LinkIcon className="h-4 w-4"/> {link.title}</div>
-                                                        <p className="text-xs text-muted-foreground mt-1">{link.summary}</p>
-                                                    </a>
-                                                ))}
-                                            </div>
+                            <TabsContent value="resources" className="space-y-6">
+                                {analysisResult.enrichedContent?.externalLinks && analysisResult.enrichedContent.externalLinks.length > 0 && (
+                                    <div>
+                                        <h3 className="font-semibold text-xl mb-3">Recursos Externos Sugeridos</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {analysisResult.enrichedContent.externalLinks.map((link, i) => (
+                                                <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors break-words">
+                                                    <div className="font-semibold flex items-center gap-2 text-primary"><LinkIcon className="h-4 w-4"/> {link.title}</div>
+                                                    <p className="text-xs text-muted-foreground mt-1">{link.summary}</p>
+                                                </a>
+                                            ))}
                                         </div>
+                                    </div>
+                                )}
+                                    {analysisResult.enrichedContent?.youtubeVideos && analysisResult.enrichedContent.youtubeVideos.length > 0 && (
+                                    <div>
+                                        <h3 className="font-semibold text-xl mb-3">Videos de YouTube Recomendados</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {analysisResult.enrichedContent.youtubeVideos.map((video, i) => (
+                                                <a key={i} href={`https://www.youtube.com/watch?v=${video.videoId}`} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors break-words">
+                                                    <div className="font-semibold flex items-center gap-2 text-red-600"><Youtube className="h-5 w-5"/> {video.title}</div>
+                                                    <p className="text-xs text-muted-foreground mt-1">{video.summary}</p>
+                                                </a>
+                                            ))}
+                                        </div>
+                                    </div>
                                     )}
-                                     {analysisResult.enrichedContent?.youtubeVideos && analysisResult.enrichedContent.youtubeVideos.length > 0 && (
-                                        <div>
-                                            <h3 className="font-semibold text-xl mb-3">Videos de YouTube Recomendados</h3>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                {analysisResult.enrichedContent.youtubeVideos.map((video, i) => (
-                                                    <a key={i} href={`https://www.youtube.com/watch?v=${video.videoId}`} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors break-words">
-                                                        <div className="font-semibold flex items-center gap-2 text-red-600"><Youtube className="h-5 w-5"/> {video.title}</div>
-                                                        <p className="text-xs text-muted-foreground mt-1">{video.summary}</p>
-                                                    </a>
-                                                ))}
-                                            </div>
-                                        </div>
-                                     )}
-                                </TabsContent>
-                            </Tabs>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                 <div className="lg:col-span-1 space-y-6">
-                    <Card className="sticky top-6">
-                         <CardHeader>
-                            <CardTitle className="flex items-center gap-3">
-                               <GraduationCap className="h-7 w-7 text-primary"/>
-                               <span className="text-2xl">Generar Material</span>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <Button size="lg" className="w-full py-7 text-lg" onClick={handleGenerateAll} disabled={isAnyTaskRunning}>
-                                {isGeneratingAll ? <Loader2 className="mr-3 h-6 w-6 animate-spin"/> : <Sparkles className="mr-3 h-6 w-6"/>}
-                                Generar Todo
-                            </Button>
-                            <div className="grid grid-cols-2 gap-4">
-                                <MaterialButton icon={Presentation} title="Presentación" status={materialStatuses.powerpointPresentation} onClick={() => handleGenerationSubmit('powerpointPresentation')} disabled={isAnyTaskRunning} />
-                                <MaterialButton icon={FileText} title="Guía de Trabajo" status={materialStatuses.workGuide} onClick={() => handleGenerationSubmit('workGuide')} disabled={isAnyTaskRunning}/>
-                                <MaterialButton icon={ClipboardCheck} title="Examen" status={materialStatuses.exampleTests} onClick={() => handleGenerationSubmit('exampleTests')} disabled={isAnyTaskRunning}/>
-                                <MaterialButton icon={Lightbulb} title="Repaso" status={materialStatuses.interactiveReviewPdf} onClick={() => handleGenerationSubmit('interactiveReviewPdf')} disabled={isAnyTaskRunning}/>
-                            </div>
-                        </CardContent>
-                    </Card>
-                     <Button onClick={resetState} variant="outline" className="w-full py-6 text-base" disabled={isAnyTaskRunning}>
+                            </TabsContent>
+                        </Tabs>
+                    </CardContent>
+                </Card>
+                <div className="flex flex-col sm:flex-row gap-4">
+                     <Button size="lg" className="w-full sm:w-auto flex-grow" onClick={handleGenerateAll} disabled={isAnyTaskRunning}>
+                        {isGeneratingAll ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : <Download className="mr-2 h-5 w-5"/>}
+                        Descargar Todo
+                    </Button>
+                    <Button onClick={resetState} variant="outline" size="lg" className="w-full sm:w-auto flex-grow" disabled={isAnyTaskRunning}>
                         <RefreshCw className="mr-2 h-5 w-5" />
                         Analizar Otro Documento
                     </Button>
-                 </div>
+                </div>
              </div>
         );
     }
+
+    const GenerationButton = ({title, materialType, icon: Icon}: {title: string, materialType: MaterialKey, icon: React.ElementType}) => {
+        const status = materialStatuses[materialType];
+        const isGenerating = status === 'generating';
+        const isSuccess = status === 'success';
+
+        return (
+             <Button 
+                onClick={() => handleGenerationSubmit(materialType)} 
+                disabled={isAnyTaskRunning || isSuccess}
+                size="lg"
+                className="w-full sm:w-auto"
+            >
+                {isGenerating ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : 
+                 isSuccess ? <CheckCircle2 className="mr-2 h-5 w-5" /> : 
+                 <Icon className="mr-2 h-5 w-5" />}
+                {isSuccess ? `${title.split(' ')[1]} Generado` : title}
+            </Button>
+        )
+    };
 
     return (
         <Card className="bg-card/80 backdrop-blur-sm">
@@ -389,28 +399,3 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
         </Card>
     );
 }
-
-function MaterialButton({ icon: Icon, title, onClick, disabled, status }: { icon: React.ElementType, title: string, onClick: () => void, disabled: boolean, status: MaterialStatus }) {
-    const getIcon = () => {
-        switch (status) {
-            case 'generating':
-                return <Loader2 className="h-8 w-8 animate-spin text-primary" />;
-            case 'success':
-                return <CheckCircle2 className="h-8 w-8 text-green-500" />;
-            case 'idle':
-            default:
-                return <Icon className="h-8 w-8 text-primary" />;
-        }
-    };
-
-    return (
-        <Button onClick={onClick} disabled={disabled || status === 'generating' || status === 'success'} variant="outline" className="w-full justify-center h-24 p-4 gap-2 text-center flex-col">
-            {getIcon()}
-            <span className="text-sm font-medium">{title}</span>
-        </Button>
-    );
-}
-
-    
-
-    
