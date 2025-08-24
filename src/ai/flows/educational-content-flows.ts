@@ -25,6 +25,7 @@ const UnitSchema = z.object({
 const AssessmentSchema = z.object({
   type: z.string().describe("The type of assessment (e.g., Midterm Exam, Final Project, Quiz)."),
   description: z.string().describe("A brief description of the assessment."),
+  feedback: z.string().describe("The feedback or learning outcome associated with the assessment. What should the student demonstrate?"),
 });
 
 
@@ -41,11 +42,11 @@ const AnalyzeContentOutputSchema = z.object({
   weeks: z.union([z.number(), z.string()]).describe('The total number of weeks the course or syllabus covers.').optional(),
   
   courseStructure: z.array(UnitSchema).describe("A list of the course units or modules, each with its own title and learning objectives.").optional(),
-  assessments: z.array(AssessmentSchema).describe("A list of the course assessments, including type and description.").optional(),
+  assessments: z.array(AssessmentSchema).describe("A list of the course assessments, including type, description, and feedback/learning outcome.").optional(),
   
   bibliography: z.object({
       mentioned: z.array(z.string()).describe('A list of bibliographic references or source materials mentioned directly in the document.').optional(),
-      recommended: z.array(z.string()).describe('A list of relevant, modern external bibliographic recommendations (books, key articles) that are NOT in the original document but are highly relevant to the subject area.'),
+      recommended: z.array(z.string()).describe('A list of relevant, modern external bibliographic recommendations (books, key articles) that are NOT in the original document but are highly relevant to the subject area. Prioritize resources from the last 5 years from reliable sources like .edu, .gov domains, or academic journals.'),
   }).optional(),
 
 });
@@ -70,10 +71,10 @@ export async function analyzeAndEnrichContent(
           *   Determine the total duration in **weeks** if specified. This is the total length, not the number of units. A course might have 15 weeks but only 4 units.
       4.  **Deconstruct Course Structure:**
           *   Identify the main **units or modules** based on thematic groupings or explicit titles (e.g., "Unit 1", "Module A"). Do not simply count each week as a unit. For each unit, list its specific **learning objectives**.
-          *   Identify all **assessments** (exams, quizzes, projects) mentioned in the document.
+          *   Identify all **assessments** (exams, quizzes, projects) mentioned in the document. For each one, provide a brief **feedback or learning outcome statement** explaining what the assessment measures.
       5.  **Analyze Bibliography:**
           *   List any **bibliography** or references **mentioned** directly in the document.
-          *   **You must provide** a list of 2-3 additional **recommended bibliographic sources** (influential books, seminal papers) that are highly relevant but *not* mentioned in the document. If no bibliography is present in the source, these recommendations are even more critical. Prioritize sources from the last 10 years.
+          *   **You must provide** a list of 2-3 additional **recommended bibliographic sources** (influential books, seminal papers) that are highly relevant but *not* mentioned in the document. Prioritize sources from the last 10 years, focusing on academic rigor.
 
       Provide a structured JSON response according to the defined output schema. Ensure all fields are populated accurately and in Spanish.`
   });

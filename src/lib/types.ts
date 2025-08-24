@@ -13,6 +13,7 @@ export type AnalysisResult = {
   assessments?: {
     type: string;
     description: string;
+    feedback: string;
   }[];
 
   bibliography?: {
