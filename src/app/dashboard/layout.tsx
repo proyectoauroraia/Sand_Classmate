@@ -4,13 +4,14 @@
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Home, BookOpen, UserCircle2, Gem, Power } from 'lucide-react';
+import { Home, BookOpen, UserCircle2, Gem, Power, Settings } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, usePathname } from 'next/navigation';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -20,8 +21,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const navLinks = [
         { href: "/dashboard", icon: Home, label: "Inicio" },
         { href: "/dashboard/history", icon: BookOpen, label: "Mi Biblioteca" },
-        { href: "/dashboard/profile", icon: UserCircle2, label: "Mi Perfil" },
-        { href: "/dashboard/pricing", icon: Gem, label: "Planes" },
     ];
     
     const handleSignOut = async () => {
@@ -55,7 +54,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     })}
                 </nav>
             </div>
-            <div className="mt-auto p-4 border-t">
+            <div className="mt-auto p-4 border-t space-y-4">
+                 <nav className="grid items-start px-0 text-sm font-medium">
+                     <Link href="/dashboard/pricing" className={`flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary ${pathname === '/dashboard/pricing' ? 'bg-accent text-accent-foreground font-semibold' : ''}`}>
+                        <Gem className="h-5 w-5" />
+                        Planes
+                    </Link>
+                </nav>
                 <div className="flex items-center gap-4">
                      <Avatar className="h-10 w-10">
                         <AvatarImage src="https://placehold.co/40x40.png" alt="@prof" data-ai-hint="person face" />
@@ -89,7 +94,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {sidebarContent}
             </div>
             <div className="flex flex-col">
-                 <header className="flex h-14 items-center justify-between gap-4 border-b bg-card px-6 lg:h-[60px]">
+                 <header className="flex h-14 items-center justify-between gap-4 border-b bg-card px-6 lg:h-[60px] lg:justify-end">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
@@ -104,6 +109,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                      <div className="w-full flex-1">
                         {/* Header content can go here, e.g. search bar */}
                     </div>
+
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="rounded-full">
+                                <Avatar className="h-8 w-8">
+                                    <AvatarImage src="https://placehold.co/40x40.png" alt="@prof" data-ai-hint="person face" />
+                                    <AvatarFallback>PD</AvatarFallback>
+                                </Avatar>
+                                <span className="sr-only">Toggle user menu</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
+                                <UserCircle2 className="mr-2 h-4 w-4" />
+                                Mi Perfil
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+                                <Settings className="mr-2 h-4 w-4" />
+                                Configuración
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                             <DropdownMenuItem onClick={handleSignOut}>
+                                <Power className="mr-2 h-4 w-4" />
+                                Cerrar Sesión
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
                 </header>
                  <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-12 bg-background">
                     {children}
