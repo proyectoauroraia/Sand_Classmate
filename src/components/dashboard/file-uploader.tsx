@@ -88,18 +88,18 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     
     if (analysisState === 'analyzing') {
         return (
-            <Card className="flex flex-col items-center justify-center text-center p-10 h-full bg-secondary">
-                <Loader2 className="h-16 w-16 animate-spin text-white mb-6" />
-                <h2 className="text-xl font-semibold text-white">
+            <Card className="flex flex-col items-center justify-center text-center p-10 h-full bg-primary/10">
+                <Loader2 className="h-16 w-16 animate-spin text-primary mb-6" />
+                <h2 className="text-xl font-semibold text-primary/80">
                     Analizando tu documento...
                 </h2>
-                <p className="text-secondary-foreground/80 mt-2">Esto puede tardar unos momentos. No cierres esta página.</p>
+                <p className="text-primary/70 mt-2">Esto puede tardar unos momentos. No cierres esta página.</p>
             </Card>
         );
     }
 
     return (
-        <Card className="h-full flex flex-col bg-secondary">
+        <Card className="h-full flex flex-col bg-primary/5 border-primary/20">
             <form id="analysis-form" onSubmit={handleAnalysisSubmit} className="flex-grow flex flex-col">
                 <CardContent className="p-6 flex-grow flex flex-col">
                     {error && (
@@ -110,7 +110,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                         </Alert>
                     )}
                     <div 
-                        className="flex flex-col items-center justify-center py-10 px-6 rounded-lg cursor-pointer transition-colors border-2 border-dashed border-white/30 flex-grow"
+                        className="flex flex-col items-center justify-center py-10 px-6 rounded-lg cursor-pointer transition-colors border-2 border-dashed border-primary/20 hover:bg-primary/10 flex-grow"
                         onClick={() => fileInputRef.current?.click()}
                         onDrop={(e) => {
                             e.preventDefault();
@@ -118,11 +118,11 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                         }}
                         onDragOver={(e) => e.preventDefault()}
                     >
-                        <UploadCloud className="h-12 w-12 text-yellow-400 mb-4" />
-                        <p className="text-base font-semibold text-white">
+                        <UploadCloud className="h-12 w-12 text-primary/70 mb-4" />
+                        <p className="text-base font-semibold text-primary/90">
                             {fileName ? fileName : 'Haz clic o arrastra un archivo para subir'}
                         </p>
-                        <p className="text-sm text-white/70 mt-1">Se admiten documentos PDF (máx. 10MB)</p>
+                        <p className="text-sm text-primary/60 mt-1">Se admiten documentos PDF (máx. 10MB)</p>
                         <Input 
                             ref={fileInputRef} 
                             id="syllabusFile" 
