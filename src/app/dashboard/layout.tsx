@@ -42,11 +42,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <AvatarImage src="https://placehold.co/40x40.png" alt="@prof" data-ai-hint="person face" />
                         <AvatarFallback>PD</AvatarFallback>
                     </Avatar>
-                    <div>
+                    <div className="flex-grow">
                         <p className="text-sm font-semibold">Professor Doe</p>
-                        <p className="text-xs text-muted-foreground">Plan Premium</p>
+                        <p className="text-xs text-muted-foreground">Académico, Universidad de Chile</p>
+                         <p className="text-xs text-muted-foreground">Santiago, Chile</p>
                     </div>
-                    <Button variant="ghost" size="icon" className="ml-auto" asChild>
+                    <Button variant="ghost" size="icon" className="ml-auto flex-shrink-0" asChild>
                         <Link href="/">
                             <LogOut className="h-5 w-5" />
                         </Link>
