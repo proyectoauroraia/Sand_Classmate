@@ -6,13 +6,14 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { UploadCloud } from 'lucide-react';
+import { UploadCloud, UserCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function ProfilePage() {
     const { toast } = useToast();
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     // State for user profile data
     const [fullName, setFullName] = React.useState("Professor Doe");
@@ -20,16 +21,27 @@ export default function ProfilePage() {
     const [city, setCity] = React.useState("Santiago, Chile");
     const [bio, setBio] = React.useState("");
     const [cvFile, setCvFile] = React.useState<File | null>(null);
+    const [profileImage, setProfileImage] = React.useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
+    const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] || null;
+        if (file) {
+            setProfileImage(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+    
     const handleSaveChanges = () => {
         // In a real app, you would handle the form submission to your backend here.
-        // This includes updating the user profile data and uploading the CV file.
+        // This includes updating the user profile data and uploading the CV and profile image files.
         console.log({
             fullName,
             role,
             city,
             bio,
             cvFile,
+            profileImage,
         });
 
         toast({
@@ -46,13 +58,31 @@ export default function ProfilePage() {
                     Gestiona tu información y personaliza cómo la IA interactúa contigo.
                 </p>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 {/* Left Column: General Info */}
                 <div className="lg:col-span-1 space-y-6">
-                     <Card>
-                        <CardHeader>
-                            <CardTitle>Información Personal</CardTitle>
-                            <CardDescription>Tus datos básicos.</CardDescription>
+                    <Card>
+                        <CardHeader className="items-center text-center">
+                            <div className="relative group">
+                                <Avatar className="h-32 w-32 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                                    <AvatarImage src={previewUrl ?? undefined} alt="Foto de Perfil" />
+                                    <AvatarFallback className="bg-secondary/50">
+                                        <UserCircle2 className="h-20 w-20 text-muted-foreground" />
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span className="text-white text-xs font-semibold">Cambiar Foto</span>
+                                </div>
+                            </div>
+                             <Input 
+                                ref={fileInputRef} 
+                                type="file" 
+                                className="hidden" 
+                                accept="image/png, image/jpeg, image/webp"
+                                onChange={handleProfileImageChange}
+                            />
+                            <CardTitle className="pt-2">{fullName}</CardTitle>
+                            <CardDescription>{role}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                              <div className="space-y-2">
@@ -73,24 +103,9 @@ export default function ProfilePage() {
                             </div>
                         </CardContent>
                     </Card>
-                     <Card>
-                        <CardHeader>
-                            <CardTitle>Cambiar Contraseña</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                             <div className="space-y-2">
-                                <Label htmlFor="current-password">Contraseña Actual</Label>
-                                <Input id="current-password" type="password" />
-                            </div>
-                             <div className="space-y-2">
-                                <Label htmlFor="new-password">Nueva Contraseña</Label>
-                                <Input id="new-password" type="password" />
-                            </div>
-                        </CardContent>
-                    </Card>
                 </div>
 
-                {/* Right Column: AI Personalization */}
+                {/* Right Column: AI Personalization & Password */}
                 <div className="lg:col-span-2 space-y-6">
                     <Card>
                         <CardHeader>
@@ -118,10 +133,25 @@ export default function ProfilePage() {
                                 <Textarea
                                     id="bio"
                                     placeholder="Describe tu enfoque pedagógico (ej: constructivista, basado en proyectos), tus áreas de especialización y los hitos más importantes de tu carrera..."
-                                    rows={12}
+                                    rows={8}
                                     value={bio}
                                     onChange={(e) => setBio(e.target.value)}
                                 />
+                            </div>
+                        </CardContent>
+                    </Card>
+                     <Card>
+                        <CardHeader>
+                            <CardTitle>Cambiar Contraseña</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                             <div className="space-y-2">
+                                <Label htmlFor="current-password">Contraseña Actual</Label>
+                                <Input id="current-password" type="password" />
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="new-password">Nueva Contraseña</Label>
+                                <Input id="new-password" type="password" />
                             </div>
                         </CardContent>
                     </Card>
