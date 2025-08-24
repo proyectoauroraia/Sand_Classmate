@@ -18,20 +18,20 @@ const AnalyzeInputSchema = z.object({
 
 const GenerateMaterialInputSchema = z.object({
     analysisResult: z.object({
-        summary: z.string(),
-        keyConcepts: z.array(z.string()),
+        summary: z.string().optional(),
+        keyConcepts: z.array(z.string()).optional(),
         subjectArea: z.string(),
         weeks: z.union([z.number(), z.string()]).optional(),
         courseStructure: z.array(z.object({
           title: z.string(),
           learningObjectives: z.array(z.string()),
-        })),
+        })).optional(),
         assessments: z.array(z.object({
           type: z.string(),
           description: z.string(),
-        })),
-        bibliography: z.any(),
-        enrichedContent: z.any(),
+        })).optional(),
+        bibliography: z.any().optional(),
+        enrichedContent: z.any().optional(),
     }),
     materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
 });
@@ -223,6 +223,10 @@ export async function generateMaterialsActionFromAnalysis(
             materialType,
         });
 
+        if (!markdownContent) {
+            throw new Error('La IA no pudo generar contenido para este material. Por favor, inténtalo de nuevo o con un documento diferente.');
+        }
+
         let fileDataUri: string;
         switch(materialType) {
             case 'powerpointPresentation':
@@ -249,5 +253,5 @@ export async function generateMaterialsActionFromAnalysis(
         return { data: null, error: `Falló la generación del material: ${errorMessage}` };
     }
 }
-
+    
     
