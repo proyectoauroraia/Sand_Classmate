@@ -187,7 +187,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-2 space-y-6">
                     <Card>
-                        <CardHeader className="p-4">
+                        <CardHeader className="p-4 pb-0">
                             <CardTitle className="flex items-center gap-3">
                                <BookOpen className="h-6 w-6 text-primary"/>
                                <span className="text-xl">Análisis del Curso: "{analysisResult.subjectArea}"</span>
@@ -195,7 +195,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                         </CardHeader>
                         <CardContent className="p-4 pt-0">
                              <Tabs defaultValue="summary" className="w-full">
-                                <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 mb-4">
+                                <TabsList className="relative w-full overflow-x-auto flex justify-start mb-4 border-b">
                                     <TabsTrigger value="summary">Resumen</TabsTrigger>
                                     <TabsTrigger value="structure">Estructura</TabsTrigger>
                                     <TabsTrigger value="assessments">Evaluaciones</TabsTrigger>
