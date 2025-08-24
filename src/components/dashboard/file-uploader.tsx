@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { UploadCloud, Presentation, FileText, ClipboardCheck, Loader2, Download, RefreshCw, AlertCircle, Copy, BookOpen, Lightbulb, GraduationCap, Sparkles, Youtube, Link as LinkIcon, Target, BookCopy, Calendar, ListChecks, PencilRuler, CheckCircle2 } from 'lucide-react';
-import { analyzeContentAction, generateMaterialsActionFromAnalysis } from '@/lib/actions';
+import { analyzeAndEnrichContent, generateMaterialsActionFromAnalysis } from '@/lib/actions';
 import type { AnalysisResult, GeneratedMaterials } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -187,18 +187,15 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-2 space-y-6">
                     <Card>
-                        <CardHeader>
+                        <CardHeader className="p-4">
                             <CardTitle className="flex items-center gap-3">
-                               <BookOpen className="h-7 w-7 text-primary"/>
-                               <span className="text-2xl">Análisis del Curso: "{analysisResult.subjectArea}"</span>
+                               <BookOpen className="h-6 w-6 text-primary"/>
+                               <span className="text-xl">Análisis del Curso: "{analysisResult.subjectArea}"</span>
                             </CardTitle>
-                             <CardDescription>
-                                A continuación se desglosa el contenido de tu documento. Usa las pestañas para navegar entre las diferentes secciones del análisis.
-                            </CardDescription>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="p-4 pt-0">
                              <Tabs defaultValue="summary" className="w-full">
-                                <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 mb-6">
+                                <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 mb-4">
                                     <TabsTrigger value="summary">Resumen</TabsTrigger>
                                     <TabsTrigger value="structure">Estructura</TabsTrigger>
                                     <TabsTrigger value="assessments">Evaluaciones</TabsTrigger>
@@ -413,6 +410,8 @@ function MaterialButton({ icon: Icon, title, onClick, disabled, status }: { icon
         </Button>
     );
 }
+
+    
 
     
 
