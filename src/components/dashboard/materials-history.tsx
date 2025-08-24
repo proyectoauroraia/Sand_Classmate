@@ -29,7 +29,7 @@ export function MaterialsHistory() {
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow className="border-border">
+              <TableRow className="border-border/80">
                 <TableHead>Nombre del Curso/Archivo</TableHead>
                 <TableHead className="hidden sm:table-cell">Fecha de Análisis</TableHead>
                 <TableHead className="hidden sm:table-cell">Estado</TableHead>
@@ -45,11 +45,11 @@ export function MaterialsHistory() {
                 </TableRow>
               ) : (
                 mockHistory.map((item) => (
-                  <TableRow key={item.id} className="border-border">
+                  <TableRow key={item.id} className="border-border/80">
                     <TableCell className="font-medium">{item.fileName}</TableCell>
                     <TableCell className="hidden sm:table-cell text-muted-foreground">{item.date}</TableCell>
                     <TableCell className="hidden sm:table-cell">
-                      <Badge variant="outline" className="text-green-400 border-green-400/50 bg-green-900/20">{item.status}</Badge>
+                      <Badge variant="outline" className="text-green-600 border-green-400/50 bg-green-500/10">{item.status}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                        <DropdownMenu>

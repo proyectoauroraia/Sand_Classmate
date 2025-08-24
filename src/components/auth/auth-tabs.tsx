@@ -83,7 +83,7 @@ export function AuthTabs() {
 
   return (
     <Tabs defaultValue="login" className="w-full">
-      <TabsList className="grid w-full grid-cols-2 bg-secondary/30">
+      <TabsList className="grid w-full grid-cols-2 bg-secondary/50">
         <TabsTrigger value="login">Login</TabsTrigger>
         <TabsTrigger value="signup">Sign Up</TabsTrigger>
       </TabsList>

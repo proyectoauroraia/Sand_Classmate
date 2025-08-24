@@ -8,31 +8,31 @@ body {
 
 @layer base {
   :root {
-    --background: 39 67% 98%; /* #FDFBF6 - Light Cream */
-    --foreground: 28 40% 39%; /* #8B5E3C - Warm Terracotta Brown */
+    --background: 40 100% 99%; /* #FFFDF9 - Off-white */
+    --foreground: 28 40% 30%; /* #7A4F31 - Dark Terracotta Brown */
 
     --card: 40 100% 99%; /* #FFFDF9 - Off-white for cards */
-    --card-foreground: 28 40% 39%;
+    --card-foreground: 28 40% 30%;
 
     --popover: 40 100% 99%;
-    --popover-foreground: 28 40% 39%;
+    --popover-foreground: 28 40% 30%;
 
     --primary: 26 83% 63%;  /* #E89B64 - Main Sand Orange */
-    --primary-foreground: 28 40% 39%;
+    --primary-foreground: 28 40% 30%;
 
-    --secondary: 35 73% 91%; /* #F5EADD - Light sandy beige for secondary elements */
-    --secondary-foreground: 28 40% 39%;
+    --secondary: 35 73% 91%; /* #F5EADD - Light sandy beige for sidebar/secondary elements */
+    --secondary-foreground: 28 40% 30%;
     
     --muted: 35 73% 91%;
-    --muted-foreground: 28 25% 55%;
+    --muted-foreground: 28 25% 55%; /* Lighter brown for muted text */
 
-    --accent: 35 73% 88%; /* Slightly darker for hover */
-    --accent-foreground: 28 40% 39%;
+    --accent: 35 73% 88%; /* Slightly darker beige for hover */
+    --accent-foreground: 28 40% 30%;
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 35 73% 88%;
+    --border: 35 73% 88%; /* A bit darker than accent for borders */
     --input: 35 73% 94%; /* Lighter input background */
     --ring: 26 83% 63%; /* Primary color for focus rings */
     
@@ -82,7 +82,5 @@ body {
   }
   body {
     @apply bg-background text-foreground;
-    background-image: radial-gradient(circle at top, hsl(var(--secondary) / 0.3), hsl(var(--background)) 70%);
-    min-height: 100vh;
   }
 }

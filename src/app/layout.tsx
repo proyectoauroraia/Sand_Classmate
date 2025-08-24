@@ -6,6 +6,7 @@ import { PT_Sans } from 'next/font/google';
 const ptSans = PT_Sans({
   subsets: ['latin'],
   weight: ['400', '700'],
+  display: 'swap',
   variable: '--font-sans',
 });
 
@@ -22,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
-      <body className={`font-sans antialiased ${ptSans.variable}`}>
+      <body className={`${ptSans.variable} font-sans antialiased`}>
         {children}
         <Toaster />
       </body>

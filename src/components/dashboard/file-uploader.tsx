@@ -136,7 +136,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                         </Alert>
                     )}
                     <div 
-                        className="flex flex-col items-center justify-center p-10 rounded-lg cursor-pointer transition-colors bg-secondary/30 hover:bg-accent/30 border-2 border-dashed border-border"
+                        className="flex flex-col items-center justify-center py-10 px-6 rounded-lg cursor-pointer transition-colors bg-secondary/30 hover:bg-accent/50 border-2 border-dashed border-border/80"
                         onClick={() => fileInputRef.current?.click()}
                         onDrop={(e) => {
                             e.preventDefault();
@@ -144,8 +144,8 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                         }}
                         onDragOver={(e) => e.preventDefault()}
                     >
-                        <UploadCloud className="h-16 w-16 text-muted-foreground mb-4" />
-                        <p className="text-lg font-semibold text-foreground">
+                        <UploadCloud className="h-12 w-12 text-muted-foreground mb-4" />
+                        <p className="text-base font-semibold text-foreground">
                             {fileName ? fileName : 'Haz clic o arrastra un archivo para subir'}
                         </p>
                         <p className="text-sm text-muted-foreground mt-1">Se admiten documentos PDF (máx. 10MB)</p>
@@ -159,8 +159,8 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                             onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
                         />
                     </div>
-                    <Button type="submit" form="analysis-form" disabled={analysisState !== 'idle' || !fileName} size="lg" className="w-full py-7 text-lg">
-                       <BookOpen className="mr-3 h-6 w-6" />
+                    <Button type="submit" form="analysis-form" disabled={analysisState !== 'idle' || !fileName} size="lg" className="w-full py-7 text-base">
+                       <BookOpen className="mr-3 h-5 w-5" />
                         Analizar Contenido
                     </Button>
                 </form>

@@ -14,21 +14,22 @@ export default function DashboardPage() {
 
     return (
         <div className="space-y-8">
-            <div className="text-left">
-                 <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">¿Qué vamos a crear hoy?</h1>
-                 <p className="text-muted-foreground mt-2 max-w-2xl">
-                    Sube tu programa de estudios o apuntes (PDF) y deja que la IA genere presentaciones, guías y más para tus clases.
-                </p>
-            </div>
+            {!analysisResult && (
+                <div className="text-left">
+                     <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">¿Qué vamos a crear hoy?</h1>
+                     <p className="text-muted-foreground mt-2 max-w-2xl">
+                        Sube tu programa de estudios o apuntes (PDF) y deja que la IA genere presentaciones, guías y más para tus clases.
+                    </p>
+                </div>
+            )}
             
-            <div className="max-w-5xl">
+            <div className="max-w-5xl mx-auto">
                 <FileUploader onAnalysisComplete={handleAnalysisComplete} />
             </div>
 
             {!analysisResult && (
                  <>
-                    <Separator className="my-8" />
-                    <div className="space-y-4">
+                    <div className="space-y-4 mt-12">
                          <h2 className="text-2xl font-bold tracking-tight">Cursos Recientes</h2>
                          <MaterialsHistory />
                     </div>
