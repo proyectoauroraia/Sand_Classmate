@@ -16,5 +16,5 @@ export type HistoryItem = {
     id: string;
     fileName: string;
     date: string;
-    status: 'Completed' | 'Processing' | 'Failed';
+    status: 'Completado' | 'Procesando' | 'Fallido';
 };

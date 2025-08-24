@@ -2,7 +2,13 @@ import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Home, History, Settings, LogOut } from 'lucide-react';
+import { Home, History, Settings, LogOut, Languages } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -18,15 +24,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <nav className="grid items-start px-4 text-sm font-medium">
                             <Link href="/dashboard" className="flex items-center gap-4 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary hover:bg-accent/60">
                                 <Home className="h-5 w-5" />
-                                Dashboard
+                                Inicio
                             </Link>
                             <Link href="/dashboard/history" className="flex items-center gap-4 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary hover:bg-accent/60">
                                 <History className="h-5 w-5" />
-                                My History
+                                Mi Historial
                             </Link>
                             <Link href="/dashboard/settings" className="flex items-center gap-4 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary hover:bg-accent/60">
                                 <Settings className="h-5 w-5" />
-                                Settings
+                                Configuración
                             </Link>
                         </nav>
                     </div>
@@ -37,8 +43,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 <AvatarFallback>PD</AvatarFallback>
                             </Avatar>
                             <div className="flex flex-col">
-                                <span className="text-sm font-semibold">Professor Doe</span>
-                                <span className="text-xs text-muted-foreground">Premium Plan</span>
+                                <span className="text-sm font-semibold">Profesor Doe</span>
+                                <span className="text-xs text-muted-foreground">Plan Premium</span>
                             </div>
                             <Button variant="ghost" size="icon" className="ml-auto" asChild>
                                 <Link href="/">
@@ -57,6 +63,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <div className="w-full flex-1">
                         {/* This is dynamically updated by the page */}
                     </div>
+                     <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="icon">
+                            <Languages className="h-[1.2rem] w-[1.2rem]" />
+                            <span className="sr-only">Seleccionar idioma</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            Español
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            English
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                 </header>
                 <main className="flex-1 p-4 md:p-6">
                     {children}

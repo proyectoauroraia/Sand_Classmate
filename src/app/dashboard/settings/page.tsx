@@ -9,19 +9,19 @@ export default function SettingsPage() {
         <div className="space-y-6">
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline">Profile Settings</CardTitle>
-                    <CardDescription>Update your personal information and preferences.</CardDescription>
+                    <CardTitle className="font-headline">Configuración de Perfil</CardTitle>
+                    <CardDescription>Actualiza tu información personal y tus preferencias.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="name">Full Name</Label>
+                        <Label htmlFor="name">Nombre Completo</Label>
                         <Input id="name" defaultValue="Professor Doe" />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="email">Email Address</Label>
+                        <Label htmlFor="email">Dirección de Correo</Label>
                         <Input id="email" type="email" defaultValue="professor@university.edu" />
                     </div>
-                    <Button>Save Changes</Button>
+                    <Button>Guardar Cambios</Button>
                 </CardContent>
             </Card>
 
@@ -29,23 +29,23 @@ export default function SettingsPage() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline">Change Password</CardTitle>
-                    <CardDescription>For security, choose a strong, unique password.</CardDescription>
+                    <CardTitle className="font-headline">Cambiar Contraseña</CardTitle>
+                    <CardDescription>Por seguridad, elige una contraseña fuerte y única.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                      <div className="space-y-2">
-                        <Label htmlFor="current-password">Current Password</Label>
+                        <Label htmlFor="current-password">Contraseña Actual</Label>
                         <Input id="current-password" type="password" />
                     </div>
                      <div className="space-y-2">
-                        <Label htmlFor="new-password">New Password</Label>
+                        <Label htmlFor="new-password">Nueva Contraseña</Label>
                         <Input id="new-password" type="password" />
                     </div>
                      <div className="space-y-2">
-                        <Label htmlFor="confirm-password">Confirm New Password</Label>
+                        <Label htmlFor="confirm-password">Confirmar Nueva Contraseña</Label>
                         <Input id="confirm-password" type="password" />
                     </div>
-                    <Button>Update Password</Button>
+                    <Button>Actualizar Contraseña</Button>
                 </CardContent>
             </Card>
 
