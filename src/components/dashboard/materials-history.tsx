@@ -88,7 +88,7 @@ export function MaterialsHistory() {
               </Table>
             </ScrollArea>
         </CardContent>
-         <CardFooter className="justify-center pt-4">
+         <CardFooter className="justify-center items-center pt-4">
             <div className="flex items-center gap-3">
               {Array.from({ length: pageCount }).map((_, index) => (
                 <button

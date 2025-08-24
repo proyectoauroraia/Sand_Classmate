@@ -34,7 +34,7 @@ export default function DashboardPage() {
                     Sube tu programa de estudios o apuntes (PDF) y deja que la IA genere presentaciones, guías y más para tus clases.
                 </p>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             
                 {/* Columna Principal */}
                 <div className="lg:col-span-7 flex flex-col h-full">
