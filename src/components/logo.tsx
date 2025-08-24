@@ -27,13 +27,13 @@ export function Logo({ className }: { className?: string }) {
           <path d="M -5,65 
                    C 30,50 70,80 105,60 
                    L 105,105 -5,105 Z" 
-                fill="#D9A16B" /> 
+                fill="#D9A16B" fillOpacity="0.85" /> 
           
           <path d="M -5,55 
                    C 25,35 75,65 105,45 
                    L 105,60 
                    C 70,80 30,50 -5,65 Z" 
-                fill="#BA7C46" />
+                fill="#BA7C46" fillOpacity="0.85" />
         </g>
       </svg>
       <span
