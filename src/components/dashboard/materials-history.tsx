@@ -2,35 +2,36 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Download, MoreHorizontal } from 'lucide-react';
+import { Download, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
 
 import type { HistoryItem } from '@/lib/types';
 
 const mockHistory: HistoryItem[] = [
-    { id: '1', fileName: 'CS101_Syllabus_Fall24.pdf', date: '2024-07-28', status: 'Completado' },
-    { id: '2', fileName: 'Intro_to_Philosophy_Notes.docx', date: '2024-07-25', status: 'Completado' },
-    { id: '3', fileName: 'Art_History_Week_1.pdf', date: '2024-07-22', status: 'Completado' },
+    { id: '1', fileName: 'Programa de Kinesiología 2024', date: '2024-07-28', status: 'Completado' },
+    { id: '2', fileName: 'Apuntes de Filosofía Antigua', date: '2024-07-25', status: 'Completado' },
+    { id: '3', fileName: 'Syllabus de Historia del Arte', date: '2024-07-22', status: 'Completado' },
 ];
 
 export function MaterialsHistory() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">Mis Materiales Generados</CardTitle>
-          <CardDescription>Revisa y descarga los materiales de tu curso generados anteriormente.</CardDescription>
+          <CardTitle className="font-headline">Mis Cursos Analizados</CardTitle>
+          <CardDescription>Aquí encontrarás todos los cursos que has analizado. Puedes editarlos o descargar los materiales generados.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Archivo Original</TableHead>
-                <TableHead className="hidden sm:table-cell">Fecha de Generación</TableHead>
+                <TableHead>Nombre del Curso/Archivo</TableHead>
+                <TableHead className="hidden sm:table-cell">Fecha de Análisis</TableHead>
                 <TableHead className="hidden sm:table-cell">Estado</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
@@ -39,7 +40,7 @@ export function MaterialsHistory() {
               {mockHistory.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="h-24 text-center">
-                    Aún no se han generado materiales.
+                    Aún no se han analizado cursos.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -60,8 +61,17 @@ export function MaterialsHistory() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Editar Análisis
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
                             <Download className="mr-2 h-4 w-4" />
                             Descargar Todo
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                           <DropdownMenuItem className="text-red-600">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Eliminar
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

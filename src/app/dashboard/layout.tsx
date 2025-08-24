@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Home, History, Settings, LogOut } from 'lucide-react';
+import { Home, Library, Settings, LogOut, Gem } from 'lucide-react';
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -34,11 +34,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Link href="/dashboard/history" className="flex h-12 w-12 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-primary hover:bg-accent/60">
-                                    <History className="h-6 w-6" />
-                                    <span className="sr-only">Mi Historial</span>
+                                    <Library className="h-6 w-6" />
+                                    <span className="sr-only">Mi Biblioteca</span>
                                 </Link>
                             </TooltipTrigger>
-                            <TooltipContent side="right">Mi Historial</TooltipContent>
+                            <TooltipContent side="right">Mi Biblioteca</TooltipContent>
+                        </Tooltip>
+                         <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Link href="/dashboard/pricing" className="flex h-12 w-12 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-primary hover:bg-accent/60">
+                                    <Gem className="h-6 w-6" />
+                                    <span className="sr-only">Planes</span>
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Planes</TooltipContent>
                         </Tooltip>
                         <Tooltip>
                             <TooltipTrigger asChild>
@@ -58,7 +67,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                     <AvatarFallback>PD</AvatarFallback>
                                 </Avatar>
                             </TooltipTrigger>
-                            <TooltipContent side="right">Profesor Doe</TooltipContent>
+                            <TooltipContent side="right">
+                                <div>
+                                    <p className="font-semibold">Professor Doe</p>
+                                    <p className="text-muted-foreground">Plan Premium</p>
+                                </div>
+                            </TooltipContent>
                         </Tooltip>
                          <Tooltip>
                             <TooltipTrigger asChild>
