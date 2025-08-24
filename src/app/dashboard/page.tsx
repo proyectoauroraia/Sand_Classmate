@@ -1,4 +1,5 @@
 
+
 'use client';
 import { useState } from 'react';
 import { FileUploader } from '@/components/dashboard/file-uploader';
@@ -19,7 +20,7 @@ export default function DashboardPage() {
 
     if (analysisResult) {
         return (
-            <div className="p-4 md:p-6 lg:p-8">
+            <div className="p-4 md:p-6 lg:p-12">
                 <AnalysisDisplay 
                     analysisResult={analysisResult}
                     onReset={handleReset}
@@ -29,7 +30,7 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="space-y-8 p-4 md:p-6 lg:p-8">
+        <div className="space-y-8 p-4 md:p-6 lg:p-12">
             <div className="text-left">
                 <h1 className="text-3xl md:text-4xl font-bold tracking-tight">¿Qué vamos a crear hoy?</h1>
                 <p className="text-muted-foreground mt-2 text-base md:text-lg">

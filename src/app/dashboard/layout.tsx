@@ -34,7 +34,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     const sidebarContent = (
-        <div className="flex h-full max-h-screen flex-col gap-2 text-card-foreground">
+        <div className="flex h-full max-h-screen flex-col gap-2">
             <div className="flex h-[60px] items-center border-b px-6">
                  <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-foreground">
                     <Logo />
@@ -87,11 +87,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     return (
         <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
-            <div className="hidden border-r bg-card lg:block">
+            <div className="hidden border-r bg-card text-card-foreground lg:block">
                 {sidebarContent}
             </div>
             <div className="flex flex-col">
-                 <header className="flex h-14 items-center justify-between gap-4 border-b bg-muted px-4 md:px-6 lg:h-[60px] lg:justify-end">
+                 <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b bg-muted px-4 md:px-6 lg:h-[60px] lg:justify-end">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
@@ -139,7 +139,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
 
                 </header>
-                 <main className="flex-1 overflow-y-auto bg-background">
+                 <main className="flex-1 overflow-y-auto bg-background relative">
                     {children}
                 </main>
             </div>
