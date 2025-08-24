@@ -9,12 +9,6 @@ export function Logo() {
             xmlns="http://www.w3.org/2000/svg"
             className="h-8 w-8"
             >
-            <defs>
-                <linearGradient id="duneGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style={{stopColor: '#D2B48C', stopOpacity: 1}} />
-                <stop offset="100%" style={{stopColor: '#A0522D', stopOpacity: 1}} />
-                </linearGradient>
-            </defs>
             <path
                 d="M0,100 C20,80 40,70 60,80 C80,90 100,100 100,100 L100,50 C80,60 60,40 40,50 C20,60 0,80 0,80 Z"
                 fill="#C2A47C"
