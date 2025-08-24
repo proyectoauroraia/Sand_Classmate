@@ -50,7 +50,7 @@ const AnalyzeContentOutputSchema = z.object({
   
   bibliography: z.object({
       mentioned: z.array(z.string()).describe('A list of bibliographic references or source materials mentioned directly in the document.').optional(),
-      recommended: z.array(z.string()).describe('A list of relevant, modern external bibliographic recommendations (books, key articles) that are NOT in the original document but are highly relevant to the subject area. Prioritize resources from the last 5 years from reliable sources like .edu, .gov, or academic journals.'),
+      recommended: z.array(z.string()).describe('A list of relevant, modern external bibliographic recommendations (books, key articles) that are NOT in the original document but are highly relevant to the subject area. Prioritize resources from the last 5 years from reliable sources like .edu, .gov, or academic journals. They must be formatted in APA 7th Edition style.'),
   }).optional(),
 
 });
@@ -83,8 +83,8 @@ export async function analyzeAndEnrichContent(
           *   **Actionable Recommendations:** Provide concrete recommendations for improvement based on your analysis. Use a pedagogical framework. (e.g., "Incorporar casos clínicos contextualizados para evaluar análisis y aplicación", "Aumentar el peso de preguntas de desarrollo usando la taxonomía de Bloom para pasar de 'recordar' a 'aplicar' o 'analizar'", "Diseñar una rúbrica explícita para respuestas cortas").
 
       3.  **Bibliography Analysis:**
-          *   List any bibliography mentioned.
-          *   Provide 2-3 **highly relevant, modern recommended bibliographic sources** not mentioned in the document. Prioritize academic sources from the last 5-10 years.
+          *   List any bibliography mentioned in the document.
+          *   Provide a minimum of 5 **highly relevant, modern recommended bibliographic sources** not mentioned in the document. Prioritize academic sources from the last 5 years (e.g., Scielo, PubMed, Scopus, university books). Each reference MUST be formatted in **APA 7th Edition style**.
 
       Provide a structured JSON response according to the defined output schema. Ensure all fields are populated accurately and in Spanish.`
   });
@@ -258,7 +258,7 @@ export async function generateMaterialFromAnalysis(
     **Course Summary:** ${analysisResult.summary}
     **Key Concepts:** ${analysisResult.keyConcepts?.join(', ')}
     **Coherence Analysis:** ${analysisResult.coherenceAnalysis}
-    **Identified Weaknesses:** ${analysisResult.weaknesses?.join(', ')}
+    **Identified Weaknesses:** ${analysis.result.weaknesses?.join(', ')}
     **Improvement Recommendations:** ${analysisResult.recommendations?.join(', ')}
     
     **Your Specific Task:**
