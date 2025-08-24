@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { PencilRuler, Goal, FileSignature } from 'lucide-react';
 import type { MaterialStatus } from './analysis-display';
 import { GenerationButton } from './generation-button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface AssessmentsTabProps {
     analysisResult: AnalysisResult;
@@ -28,49 +29,38 @@ export const AssessmentsTab: React.FC<AssessmentsTabProps> = React.memo(({
     return (
         <div className="space-y-6">
             <div>
-                <h3 className="font-semibold text-xl mb-3 flex items-center gap-2">
+                <h3 className="font-semibold text-xl mb-4 flex items-center gap-2">
                     <PencilRuler className="h-6 w-6 text-primary"/> Evaluaciones Planificadas
                 </h3>
-                 <Accordion type="single" collapsible className="w-full space-y-2">
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {analysisResult.assessments.map((assessment, i) => (
-                        <AccordionItem value={`item-${i}`} key={i} className="bg-secondary/30 rounded-lg px-4 border-b-0">
-                            <AccordionTrigger className="text-base font-medium hover:no-underline py-4">
-                               {assessment.type}
-                            </AccordionTrigger>
-                            <AccordionContent className="space-y-4 pb-4">
-                                <div className="border-t pt-4">
-                                    <h4 className="font-semibold flex items-center gap-2 mb-2"><FileSignature className="h-5 w-5"/>Descripción</h4>
-                                    <p className="text-sm text-muted-foreground">{assessment.description}</p>
+                       <Card key={i} className="flex flex-col">
+                           <CardHeader>
+                               <CardTitle className="flex items-center gap-2">
+                                   <FileSignature className="h-5 w-5 text-primary"/>
+                                   {assessment.type}
+                               </CardTitle>
+                               <CardDescription>{assessment.description}</CardDescription>
+                           </CardHeader>
+                           <CardContent className="flex-grow space-y-3">
+                                <div className="text-sm">
+                                    <p className="font-semibold text-secondary-foreground mb-1">Resultado de Aprendizaje:</p>
+                                    <p className="text-muted-foreground text-xs leading-relaxed">{assessment.feedback}</p>
                                 </div>
-                                <div className="border-t pt-4">
-                                    <h4 className="font-semibold flex items-center gap-2 mb-2"><Goal className="h-5 w-5"/>Resultado de Aprendizaje y Retroalimentación</h4>
-                                    <p className="text-sm text-muted-foreground">{assessment.feedback}</p>
-                                </div>
-                                <div className="border-t pt-4 flex justify-end">
-                                     <GenerationButton
-                                        title="Generar Examen de Ejemplo"
-                                        materialType="exampleTests"
-                                        icon="clipboardCheck"
-                                        analysisResult={{ ...analysisResult, assessments: [assessment] }}
-                                        status={statuses.exampleTests}
-                                        setStatus={(s) => setStatuses(p => ({...p, exampleTests: s}))}
-                                        isAnyTaskRunning={isAnyTaskRunning}
-                                    />
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
+                           </CardContent>
+                           <CardFooter>
+                                <GenerationButton
+                                    title="Generar Examen"
+                                    materialType="exampleTests"
+                                    icon="clipboardCheck"
+                                    analysisResult={{ ...analysisResult, assessments: [assessment] }}
+                                    status={statuses.exampleTests}
+                                    setStatus={(s) => setStatuses(p => ({...p, exampleTests: s}))}
+                                    isAnyTaskRunning={isAnyTaskRunning}
+                                />
+                           </CardFooter>
+                       </Card>
                     ))}
-                </Accordion>
-                <div className="border-t pt-6 mt-6">
-                    <GenerationButton
-                        title="Generar Todos los Examenes de Ejemplo"
-                        materialType="exampleTests"
-                        icon="clipboardCheck"
-                        analysisResult={analysisResult}
-                        status={statuses.exampleTests}
-                        setStatus={(s) => setStatuses(p => ({...p, exampleTests: s}))}
-                        isAnyTaskRunning={isAnyTaskRunning}
-                    />
                 </div>
             </div>
         </div>
