@@ -22,20 +22,20 @@ export const SummaryTab: React.FC<SummaryTabProps> = React.memo(({
 }) => {
     return (
         <div className="space-y-6">
-            <p>{analysisResult.summary}</p>
+            <p className="text-muted-foreground">{analysisResult.summary}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {analysisResult.weeks && (
                     <div className="bg-secondary/30 p-4 rounded-lg flex-1">
-                        <div className="flex items-center gap-3 text-lg font-semibold"><Calendar className="h-6 w-6" /> Duración Estimada</div>
-                        <p className="text-primary text-3xl font-bold mt-2">{analysisResult.weeks} {typeof analysisResult.weeks === 'number' && analysisResult.weeks > 1 ? 'Semanas' : 'Semana'}</p>
+                        <div className="flex items-center gap-3 text-lg font-semibold text-secondary-foreground"><Calendar className="h-6 w-6 text-primary" /> Duración Estimada</div>
+                        <p className="text-primary text-4xl font-bold mt-2">{analysisResult.weeks} {typeof analysisResult.weeks === 'number' && analysisResult.weeks > 1 ? 'Semanas' : 'Semana'}</p>
                     </div>
                 )}
                 {analysisResult.keyConcepts && (
                     <div className="bg-secondary/30 p-4 rounded-lg flex-1 break-words">
-                        <div className="flex items-center gap-3 text-lg font-semibold"><BookCopy className="h-6 w-6" /> Conceptos Clave</div>
-                        <div className="flex flex-wrap gap-2 justify-start mt-2">
+                        <div className="flex items-center gap-3 text-lg font-semibold text-secondary-foreground"><BookCopy className="h-6 w-6 text-primary" /> Conceptos Clave</div>
+                        <div className="flex flex-wrap gap-2 justify-start mt-3">
                             {analysisResult.keyConcepts.map((concept, i) => (
-                                <span key={i} className="bg-primary text-primary-foreground font-medium px-3 py-1 rounded-full text-xs">{concept}</span>
+                                <span key={i} className="bg-primary/10 border border-primary/20 text-primary font-medium px-3 py-1 rounded-full text-xs">{concept}</span>
                             ))}
                         </div>
                     </div>
