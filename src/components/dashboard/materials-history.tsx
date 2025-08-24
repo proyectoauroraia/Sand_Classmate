@@ -1,18 +1,13 @@
 
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Download, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu"
+'use client';
 
+import { Card, CardContent } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Search } from 'lucide-react';
 import type { HistoryItem } from '@/lib/types';
+import { useRouter } from 'next/navigation';
+
 
 const mockHistory: HistoryItem[] = [
     { id: '1', fileName: 'Programa de Kinesiología 2024', date: '2024-07-28', status: 'Completado' },
@@ -21,6 +16,15 @@ const mockHistory: HistoryItem[] = [
 ];
 
 export function MaterialsHistory() {
+    const router = useRouter();
+
+    const handleViewAnalysis = (id: string) => {
+        // TODO: Implement logic to fetch and display the analysis for the given ID.
+        // For now, it can navigate to a placeholder or log to the console.
+        console.log(`Navigating to analysis for ID: ${id}`);
+        // Example navigation: router.push(`/dashboard/analysis/${id}`);
+    };
+
     return (
       <Card>
         <CardContent className="pt-6">
@@ -28,13 +32,13 @@ export function MaterialsHistory() {
             <TableHeader>
               <TableRow className="border-border/80">
                 <TableHead>Nombre del Curso</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
+                <TableHead className="text-right">Ver Análisis</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {mockHistory.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
+                  <TableCell colSpan={2} className="h-24 text-center">
                     Aún no se han analizado cursos.
                   </TableCell>
                 </TableRow>
@@ -46,29 +50,14 @@ export function MaterialsHistory() {
                         <div className="text-xs text-muted-foreground sm:hidden mt-1">{item.date}</div>
                     </TableCell>
                     <TableCell className="text-right">
-                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Alternar menú</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Editar Análisis
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Download className="mr-2 h-4 w-4" />
-                            Descargar Todo
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                           <DropdownMenuItem className="text-red-500 focus:text-red-400 focus:bg-red-900/50">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Eliminar
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleViewAnalysis(item.id)}
+                      >
+                        <Search className="mr-2 h-4 w-4" />
+                        Ver Análisis
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
