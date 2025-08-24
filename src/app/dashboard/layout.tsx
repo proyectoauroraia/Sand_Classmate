@@ -32,8 +32,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     const sidebarContent = (
-        <div className="flex h-full max-h-screen flex-col gap-2 bg-secondary/30 text-card-foreground">
-            <div className="flex h-[60px] items-center border-b border-border/50 px-6">
+        <div className="flex h-full max-h-screen flex-col gap-2 text-card-foreground">
+            <div className="flex h-[60px] items-center border-b px-6">
                  <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-foreground">
                     <Logo />
                 </Link>
@@ -46,7 +46,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                          <Link 
                             key={link.href} 
                             href={link.href} 
-                            className={`flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary ${isActive ? 'bg-background text-primary shadow-[0_2px_4px_rgba(0,0,0,0.05)_inset]' : 'hover:bg-accent/50'}`}
+                            className={`flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary ${isActive ? 'bg-accent text-accent-foreground font-semibold' : ''}`}
                          >
                             <link.icon className="h-5 w-5" />
                             {link.label}
@@ -55,7 +55,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     })}
                 </nav>
             </div>
-            <div className="mt-auto p-4 border-t border-border/50">
+            <div className="mt-auto p-4 border-t">
                 <div className="flex items-center gap-4">
                      <Avatar className="h-10 w-10">
                         <AvatarImage src="https://placehold.co/40x40.png" alt="@prof" data-ai-hint="person face" />
@@ -84,12 +84,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
 
     return (
-        <div className="grid min-h-screen w-full lg:grid-cols-[220px_1fr]">
-            <div className="hidden border-r border-border/50 bg-secondary/30 lg:block">
+        <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
+            <div className="hidden border-r bg-card lg:block">
                 {sidebarContent}
             </div>
             <div className="flex flex-col">
-                 <header className="flex h-14 items-center justify-between gap-4 border-b border-border/50 bg-secondary/30 px-6 lg:h-[60px]">
+                 <header className="flex h-14 items-center justify-between gap-4 border-b bg-card px-6 lg:h-[60px]">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
@@ -97,7 +97,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 <span className="sr-only">Toggle navigation menu</span>
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="left" className="flex flex-col p-0 bg-secondary/30 border-r-0">
+                        <SheetContent side="left" className="flex flex-col p-0 bg-card border-r-0">
                             {sidebarContent}
                         </SheetContent>
                     </Sheet>
@@ -105,7 +105,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         {/* Header content can go here, e.g. search bar */}
                     </div>
                 </header>
-                 <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-background">
+                 <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-12 bg-background">
                     {children}
                 </main>
             </div>

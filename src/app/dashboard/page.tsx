@@ -27,29 +27,29 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-           
-            {/* Columna Principal (Ocupa 7/12 del espacio) */}
-            <div className="lg:col-span-7 flex flex-col h-full">
-                 <div className="text-left mb-6">
-                     <h1 className="text-3xl font-bold tracking-tight">¿Qué vamos a crear hoy?</h1>
-                     <p className="text-muted-foreground mt-2 text-lg">
-                        Sube tu programa de estudios o apuntes (PDF) y deja que la IA genere presentaciones, guías y más para tus clases.
-                    </p>
-                </div>
-                <div className="flex-grow">
+        <div className="space-y-8">
+            <div className="text-left">
+                <h1 className="text-3xl md:text-4xl font-bold tracking-tight">¿Qué vamos a crear hoy?</h1>
+                <p className="text-muted-foreground mt-2 text-lg">
+                    Sube tu programa de estudios o apuntes (PDF) y deja que la IA genere presentaciones, guías y más para tus clases.
+                </p>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+                {/* Columna Principal */}
+                <div className="lg:col-span-7 flex flex-col h-full">
                     <FileUploader onAnalysisComplete={handleAnalysisComplete} />
                 </div>
-            </div>
 
-            {/* Columna Secundaria (Ocupa 5/12 del espacio) */}
-            <div className="lg:col-span-5 flex flex-col h-full">
-                <h2 className="text-3xl font-bold tracking-tight mb-6">Cursos Recientes</h2>
-                <div className="flex-grow">
-                    <MaterialsHistory />
+                {/* Columna Secundaria */}
+                <div className="lg:col-span-5 flex flex-col h-full">
+                    <h2 className="text-2xl font-bold tracking-tight mb-4">Cursos Recientes</h2>
+                    <div className="flex-grow">
+                        <MaterialsHistory />
+                    </div>
                 </div>
+                
             </div>
-            
         </div>
     );
 }
