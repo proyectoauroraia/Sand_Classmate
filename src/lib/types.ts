@@ -1,5 +1,6 @@
 
 
+
 export type AnalysisResult = {
   summary?: string;
   keyConcepts?: string[];
@@ -55,5 +56,25 @@ export type UserProfile = {
 };
 
 export type CheckoutSessionResult = {
+    token: string;
     url: string;
+};
+
+export type WebpayCommitResult = {
+    vci?: string;
+    amount: number;
+    status: 'AUTHORIZED' | 'FAILED' | 'REJECTED' | 'CANCELED' | 'INITIALIZED';
+    buy_order: string;
+    session_id: string;
+    card_detail: {
+        card_number: string;
+    };
+    accounting_date: string;
+    transaction_date: string;
+    authorization_code?: string;
+    payment_type_code: string;
+    response_code: number;
+    installments_number: number;
+    installments_amount?: number;
+    error_message?: string;
 };

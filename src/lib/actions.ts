@@ -2,7 +2,7 @@
 'use server';
 
 import { analyzeAndEnrichContent, generateMaterialFromAnalysis } from '@/ai/flows/educational-content-flows';
-import type { AnalysisResult, CheckoutSessionResult } from '@/lib/types';
+import type { AnalysisResult, CheckoutSessionResult, WebpayCommitResult } from '@/lib/types';
 import { z } from 'zod';
 import PptxGenJS from 'pptxgenjs';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Numbering } from 'docx';
@@ -390,30 +390,77 @@ export async function generateMaterialsActionFromAnalysis(
 }
 
 
-export async function createCheckoutSessionAction(
-): Promise<{ data: CheckoutSessionResult | null; error: string | null }> {
+const WEBPAY_API_BASE = "https://webpay3gint.transbank.cl/rswebpaytransaction/api/webpay/v1.2";
+const COMMERCE_CODE = process.env.WEBPAY_PLUS_COMMERCE_CODE!;
+const API_KEY = process.env.WEBPAY_PLUS_API_KEY!;
+
+export async function createCheckoutSessionAction(): Promise<{ data: CheckoutSessionResult | null; error: string | null }> {
     try {
-        // In a real application, you would:
-        // 1. Get the currently logged-in user.
-        // 2. Define the product/price ID from your payment provider (e.g., Stripe).
-        // 3. Call the payment provider's API to create a checkout session.
-        // 4. Return the session URL.
-        
-        // For now, we'll simulate this process.
-        console.log("Creating checkout session...");
-        
-        // Simulate a delay to mimic a real API call.
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        const buy_order = `O-${Math.floor(Math.random() * 10000) + 1}`;
+        const session_id = `S-${Math.floor(Math.random() * 10000) + 1}`;
+        const amount = 12000;
+        const return_url = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/dashboard/payment/return`;
 
-        // This is a placeholder URL. In a real app, this would be the URL
-        // provided by WebPay, Stripe, Mercado Pago, etc.
-        const checkoutUrl = 'https://www.webpay.cl/portalpagodirecto/pages/institucion.jsf?idEstablecimiento=597020000';
+        const headers = {
+            "Tbk-Api-Key-Id": COMMERCE_CODE,
+            "Tbk-Api-Key-Secret": API_KEY,
+            "Content-Type": "application/json",
+        };
 
-        return { data: { url: checkoutUrl }, error: null };
+        const response = await fetch(`${WEBPAY_API_BASE}/transactions`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ buy_order, session_id, amount, return_url }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error_message || 'Error al crear la transacción en Webpay');
+        }
+
+        return { data, error: null };
 
     } catch (e) {
         console.error(e);
         const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
         return { data: null, error: `No se pudo crear la sesión de pago: ${errorMessage}` };
+    }
+}
+
+export async function commitWebpayTransactionAction(
+  token: string
+): Promise<{ data: WebpayCommitResult | null; error: string | null }> {
+    try {
+        if (!token) {
+            throw new Error("Token de Webpay no proporcionado.");
+        }
+        
+        const headers = {
+            "Tbk-Api-Key-Id": COMMERCE_CODE,
+            "Tbk-Api-Key-Secret": API_KEY,
+            "Content-Type": "application/json",
+        };
+
+        const response = await fetch(`${WEBPAY_API_BASE}/transactions/${token}`, {
+            method: 'PUT',
+            headers,
+        });
+
+        const data: WebpayCommitResult = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error_message || 'Error al confirmar la transacción en Webpay');
+        }
+        
+        // If payment is authorized, you would update your database here.
+        // For example: await updateUserToPremium(userId);
+        
+        return { data, error: null };
+
+    } catch (e) {
+        console.error(e);
+        const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
+        return { data: null, error: `Falló la confirmación del pago: ${errorMessage}` };
     }
 }
