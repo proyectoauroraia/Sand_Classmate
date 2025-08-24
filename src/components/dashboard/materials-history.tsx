@@ -4,7 +4,6 @@
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
 import type { HistoryItem } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -30,7 +29,7 @@ export function MaterialsHistory() {
 
     return (
       <Card className="h-full flex flex-col">
-        <CardContent className="pt-6">
+        <CardContent className="pt-6 flex-grow">
             <ScrollArea className="h-full">
               <Table>
                 <TableHeader>
