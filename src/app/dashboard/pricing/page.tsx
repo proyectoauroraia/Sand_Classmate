@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, Loader2 } from 'lucide-react';
-import { DunesBackground } from '@/components/icons/dunes-background';
+import { DuneBackground } from '@/components/icons/dunes-background';
 import { createCheckoutSessionAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 
@@ -46,7 +46,7 @@ export default function PricingPage() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-full relative overflow-hidden">
-            <DunesBackground />
+            <DuneBackground />
             <div className="text-center max-w-2xl mx-auto z-10 p-4 md:p-6 lg:p-8">
                 <h1 
                     className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground"

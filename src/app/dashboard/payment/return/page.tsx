@@ -9,7 +9,7 @@ import { Loader2, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { DunesBackground } from '@/components/icons/dunes-background';
+import { DuneBackground } from '@/components/icons/dunes-background';
 
 type Status = 'loading' | 'success' | 'failed' | 'user_canceled' | 'error';
 
@@ -108,7 +108,7 @@ export default function PaymentReturnPage() {
 
     return (
         <main className="flex min-h-screen flex-col items-center justify-center bg-background relative overflow-hidden">
-            <DunesBackground />
+            <DuneBackground />
              <div className="w-full max-w-lg z-10 p-4">
                 <Card className="shadow-2xl shadow-primary/10">
                     <CardHeader className="text-center items-center">
