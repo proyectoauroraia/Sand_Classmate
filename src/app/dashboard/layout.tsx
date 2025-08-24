@@ -84,12 +84,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
 
     return (
-        <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
+        <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
             <div className="hidden border-r border-border/50 bg-secondary/30 lg:block">
                 {sidebarContent}
             </div>
-            <div className="flex flex-col bg-background">
-                 <header className="flex h-14 items-center justify-between gap-4 border-b border-border/50 bg-background px-6 lg:h-[60px]">
+            <div className="flex flex-col">
+                 <header className="flex h-14 items-center justify-between gap-4 border-b border-border/50 bg-secondary/30 px-6 lg:h-[60px]">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
@@ -104,11 +104,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                      <div className="w-full flex-1">
                         {/* Header content can go here, e.g. search bar */}
                     </div>
-                     <Button variant="outline" size="default" onClick={() => router.push('/')}>
-                        Login
-                    </Button>
                 </header>
-                 <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+                 <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-background">
                     {children}
                 </main>
             </div>

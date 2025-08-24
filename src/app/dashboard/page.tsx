@@ -27,10 +27,10 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-16 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
            
-            {/* Columna Principal (Ocupa 3/5 del espacio) */}
-            <div className="lg:col-span-3 flex flex-col">
+            {/* Columna Principal (Ocupa 7/12 del espacio) */}
+            <div className="lg:col-span-7 flex flex-col h-full">
                  <div className="text-left mb-6">
                      <h1 className="text-3xl font-bold tracking-tight">¿Qué vamos a crear hoy?</h1>
                      <p className="text-muted-foreground mt-2 text-lg">
@@ -42,8 +42,8 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* Columna Secundaria (Ocupa 2/5 del espacio) */}
-            <div className="lg:col-span-2 flex flex-col">
+            {/* Columna Secundaria (Ocupa 5/12 del espacio) */}
+            <div className="lg:col-span-5 flex flex-col h-full">
                 <h2 className="text-3xl font-bold tracking-tight mb-6">Cursos Recientes</h2>
                 <div className="flex-grow">
                     <MaterialsHistory />

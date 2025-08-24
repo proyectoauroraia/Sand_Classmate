@@ -11,7 +11,7 @@ body {
     --background: 30 100% 98%; /* #FEFBF7 - Very light cream */
     --foreground: 28 40% 25%; /* #664A31 - Dark Brown for text */
 
-    --card: 30 100% 98%; /* Same as background for cards */
+    --card: 0 0% 100%; /* White for cards */
     --card-foreground: 28 40% 25%;
 
     --popover: 30 100% 98%;
@@ -20,14 +20,14 @@ body {
     --primary: 142 60% 35%;  /* #248247 - Main dark green from 'Analizar' button */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 175 65% 40%; /* #24A2A2 - Teal from file uploader */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 40 50% 95%; /* #F6EFE6 - Light sand for sidebar */
+    --secondary-foreground: 28 40% 25%;
     
     --muted: 35 73% 91%;
     --muted-foreground: 28 25% 55%; /* Lighter brown for muted text */
 
-    --accent: 175 65% 45%; /* Slightly darker teal for hover */
-    --accent-foreground: 0 0% 100%;
+    --accent: 40 50% 90%; /* Slightly darker sand for hover */
+    --accent-foreground: 28 40% 25%;
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 100%;
@@ -57,14 +57,14 @@ body {
     --primary: 142 60% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 175 65% 40%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 28 10% 18%;
+    --secondary-foreground: 40 30% 90%;
 
     --muted: 28 10% 20%;
     --muted-foreground: 40 30% 70%;
 
-    --accent: 175 65% 45%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 28 10% 22%;
+    --accent-foreground: 40 30% 90%;
     
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 100%;
