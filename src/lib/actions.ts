@@ -13,7 +13,6 @@ const AnalyzeInputSchema = z.object({
     (uri) => uri.startsWith('data:application/pdf;base64,'),
     'Solo se admiten documentos PDF.'
   ),
-  subjectArea: z.string().min(3, 'El área de estudio es requerida.'),
 });
 
 const GenerateMaterialInputSchema = z.object({
@@ -21,6 +20,7 @@ const GenerateMaterialInputSchema = z.object({
         summary: z.string(),
         keyConcepts: z.array(z.string()),
         scientificContext: z.string(),
+        subjectArea: z.string(),
     }),
     materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
 });
@@ -34,7 +34,7 @@ async function createStyledPdf(title: string, markdownContent: string): Promise<
     const helveticaBoldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-    const primaryColor = rgb(0.1, 0.4, 0.7); // Dark Blue
+    const primaryColor = rgb(0.333, 0.22, 0.133); // Terracotta
     const textColor = rgb(0.15, 0.15, 0.15); // Almost Black
     const grayColor = rgb(0.5, 0.5, 0.5);
 
@@ -124,14 +124,15 @@ async function createStyledPptx(markdownContent: string): Promise<string> {
     const pres = new PptxGenJS();
     pres.layout = 'LAYOUT_16x9';
 
+    // Master Slide with a warm, sandy background and professional footer
     pres.defineSlideMaster({
         title: 'MASTER_SLIDE',
-        background: { color: 'F1F5F9' },
+        background: { color: 'FDFBF6' }, // Light sand color
         objects: [
-            { 'rect': { x: 0, y: '93%', w: '100%', h: 0.25, fill: { color: '0369A1' } } },
+            { 'rect': { x: 0, y: '93%', w: '100%', h: 0.25, fill: { color: 'C0A080' } } }, // Muted terracotta/sand color
             { 'text': {
                 text: 'Generado por Sand Classmate',
-                options: { x: 0, y: '95%', w: '100%', align: 'center', color: '64748B', fontSize: 10 }
+                options: { x: 0, y: '95%', w: '100%', align: 'center', color: '6B4F3A', fontSize: 10 }
             }}
         ],
     });
@@ -142,10 +143,10 @@ async function createStyledPptx(markdownContent: string): Promise<string> {
     // Title Slide
     const titleSlide = pres.addSlide({ masterName: 'MASTER_SLIDE' });
     titleSlide.addText(titleText, {
-        x: 0.5, y: 1.5, w: 9, h: 1.5, fontSize: 48, bold: true, align: 'center', color: '075985'
+        x: 0.5, y: 1.5, w: 9, h: 1.5, fontSize: 48, bold: true, align: 'center', color: '5A3D2B' // Dark brown/terracotta
     });
      titleSlide.addText('Material de curso generado por IA', {
-        x: 0.5, y: 2.8, w: 9, h: 1, fontSize: 20, align: 'center', color: '334155'
+        x: 0.5, y: 2.8, w: 9, h: 1, fontSize: 20, align: 'center', color: '6B4F3A' // Muted brown
     });
 
     if (slidesContent.length > 1) {
@@ -155,14 +156,14 @@ async function createStyledPptx(markdownContent: string): Promise<string> {
             const [title, ...contentPoints] = slideContent.split('\n').map(l => l.trim()).filter(line => line);
 
             slide.addText(title.replace('## ', ''), {
-                x: 0.5, y: 0.25, w: '90%', h: 0.75, fontSize: 32, bold: true, color: '0369A1',
+                x: 0.5, y: 0.25, w: '90%', h: 0.75, fontSize: 32, bold: true, color: '5A3D2B',
             });
             
             const content = contentPoints.map(point => point.replace(/^\* /, '').trim());
 
             if (content.length > 0) {
                 slide.addText(content.join('\n'), {
-                    x: 0.75, y: 1.5, w: '85%', h: 3.75, fontSize: 20, color: '475569', bullet: true,
+                    x: 0.75, y: 1.5, w: '85%', h: 3.75, fontSize: 20, color: '3C2A1E', bullet: true, // Darker text for readability
                 });
             }
         });
@@ -174,10 +175,9 @@ async function createStyledPptx(markdownContent: string): Promise<string> {
 
 
 export async function analyzeContentAction(
-  documentDataUri: string,
-  subjectArea: string,
+  documentDataUri: string
 ): Promise<{ data: AnalysisResult | null; error: string | null }> {
-  const validation = AnalyzeInputSchema.safeParse({ documentDataUri, subjectArea });
+  const validation = AnalyzeInputSchema.safeParse({ documentDataUri });
   if (!validation.success) {
     const error = validation.error.errors[0]?.message || 'Datos de entrada inválidos.';
     return { data: null, error };
@@ -186,7 +186,6 @@ export async function analyzeContentAction(
   try {
     const analysisResult = await analyzeAndEnrichContent({
       documentDataUri,
-      subjectArea,
     });
     
     return { data: analysisResult, error: null };

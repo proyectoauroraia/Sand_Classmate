@@ -2,6 +2,7 @@ export type AnalysisResult = {
   summary: string;
   keyConcepts: string[];
   scientificContext: string;
+  subjectArea: string;
 }
 
 export type GeneratedMaterials = {

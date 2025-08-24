@@ -15,11 +15,6 @@ const AnalyzeContentInputSchema = z.object({
     .describe(
       "The educational document (PDF) as a data URI ('data:application/pdf;base64,...')."
     ),
-  subjectArea: z
-    .string()
-    .describe(
-      'The specific subject area (e.g., Kinesiology, Nutrition, Electrical Engineering).'
-    ),
 });
 
 const AnalyzeContentOutputSchema = z.object({
@@ -32,8 +27,11 @@ const AnalyzeContentOutputSchema = z.object({
   scientificContext: z
     .string()
     .describe(
-      'An enrichment of the content with scientific principles, foundational theories, or relevant context from the specified subject area.'
+      'An enrichment of the content with scientific principles, foundational theories, or relevant context from the identified subject area.'
     ),
+  subjectArea: z
+    .string()
+    .describe('The subject area or field of study identified from the document.')
 });
 
 export async function analyzeAndEnrichContent(
@@ -43,15 +41,16 @@ export async function analyzeAndEnrichContent(
       name: 'contentAnalysisPrompt',
       input: { schema: AnalyzeContentInputSchema },
       output: { schema: AnalyzeContentOutputSchema },
-      prompt: `You are an expert academic assistant specializing in the field of {{{subjectArea}}}. Your task is to analyze the provided document and extract key educational information.
+      prompt: `You are an expert academic assistant. Your task is to analyze the provided educational document and extract key information.
 
       Document: {{media url=documentDataUri}}
 
-      1.  **Summarize:** Read the entire document and provide a concise summary of its main topics, objectives, and overall structure.
-      2.  **Extract Key Concepts:** Identify and list the most critical keywords, phrases, and concepts discussed.
-      3.  **Enrich with Scientific Context:** Based on the content and the subject area of {{{subjectArea}}}, provide a brief explanation of the underlying scientific principles, relevant theories, or foundational knowledge that complements the material. Connect the document's topics to established knowledge in the field.
+      1.  **Identify Subject Area:** First, determine the specific field of study or subject area of the document (e.g., Kinesiology, Nutrition, Electrical Engineering, Philosophy).
+      2.  **Summarize:** Read the entire document and provide a concise summary of its main topics, objectives, and overall structure.
+      3.  **Extract Key Concepts:** Identify and list the most critical keywords, phrases, and concepts discussed.
+      4.  **Enrich with Scientific Context:** Based on the content and the subject area you identified, provide a brief explanation of the underlying scientific principles, relevant theories, or foundational knowledge that complements the material. Connect the document's topics to established knowledge in the identified field.
 
-      Provide a structured response with a clear summary, a list of key concepts, and the enriched scientific context.`
+      Provide a structured response with the identified subject area, a clear summary, a list of key concepts, and the enriched scientific context.`
   });
   
   const { output } = await analysisPrompt(input);
@@ -65,6 +64,7 @@ const GenerateMaterialInputSchema = z.object({
         summary: z.string(),
         keyConcepts: z.array(z.string()),
         scientificContext: z.string(),
+        subjectArea: z.string(),
     }),
     materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
 });
@@ -105,7 +105,7 @@ export async function generateMaterialFromAnalysis(
 
     const generationPrompt = ai.definePrompt({
         name: `generate${materialType}Prompt`,
-        prompt: `You are an expert curriculum developer for the field of ${analysisResult.keyConcepts[0] || 'higher education'}.
+        prompt: `You are an expert curriculum developer for the field of ${analysisResult.subjectArea}.
         
         You have been provided with an analysis of a course document, which includes a summary, key concepts, and scientific context.
         

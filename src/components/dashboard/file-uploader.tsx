@@ -21,7 +21,6 @@ export function FileUploader() {
     const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
     const [generatedMaterials, setGeneratedMaterials] = useState<GeneratedMaterials | null>(null);
     const [fileName, setFileName] = useState<string | null>(null);
-    const [subjectArea, setSubjectArea] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
 
@@ -40,10 +39,6 @@ export function FileUploader() {
             setError('Por favor, selecciona un archivo para analizar.');
             return;
         }
-        if (!subjectArea) {
-            setError('Por favor, especifica el área de estudio.');
-            return;
-        }
 
         setGenerationState('analyzing');
         setError(null);
@@ -54,7 +49,7 @@ export function FileUploader() {
             reader.readAsDataURL(file);
             reader.onload = async () => {
                 const dataUri = reader.result as string;
-                const response = await analyzeContentAction(dataUri, subjectArea);
+                const response = await analyzeContentAction(dataUri);
 
                 if (response.error || !response.data) {
                     throw new Error(response.error || 'Falló el análisis del contenido.');
@@ -64,7 +59,7 @@ export function FileUploader() {
                 setGenerationState('idle');
                 toast({
                   title: "¡Análisis Completo!",
-                  description: "Hemos extraído los conceptos clave de tu documento.",
+                  description: `Hemos analizado tu documento sobre ${response.data.subjectArea}.`,
                 });
             };
             reader.onerror = () => {
@@ -134,7 +129,6 @@ export function FileUploader() {
         setAnalysisResult(null);
         setGeneratedMaterials(null);
         setFileName(null);
-        setSubjectArea('');
         if(fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -159,7 +153,7 @@ export function FileUploader() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-3">
                            <BookOpen className="h-7 w-7 text-primary"/>
-                           <span className="text-2xl">Análisis y Conceptos Clave</span>
+                           <span className="text-2xl">Análisis de "{analysisResult.subjectArea}"</span>
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -186,7 +180,7 @@ export function FileUploader() {
                          <CardHeader>
                             <CardTitle className="flex items-center gap-3">
                                <GraduationCap className="h-7 w-7 text-primary"/>
-                               <span className="text-2xl">Generar</span>
+                               <span className="text-2xl">Generar Material</span>
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 gap-4">
@@ -216,16 +210,6 @@ export function FileUploader() {
                             <AlertDescription>{error}</AlertDescription>
                         </Alert>
                     )}
-                     <div className="space-y-2">
-                        <Label htmlFor="subjectArea" className="text-base">Área de Estudio</Label>
-                        <Input 
-                            id="subjectArea" 
-                            value={subjectArea} 
-                            onChange={(e) => setSubjectArea(e.target.value)}
-                            placeholder="Ej: Kinesiología, Nutrición, Ingeniería Eléctrica..."
-                            className="py-6 text-base"
-                        />
-                    </div>
                     <div 
                         className="flex flex-col items-center justify-center p-10 rounded-lg cursor-pointer transition-colors bg-secondary/50 hover:bg-accent/40 border-2 border-dashed border-border"
                         onClick={() => fileInputRef.current?.click()}
@@ -245,7 +229,7 @@ export function FileUploader() {
                             onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
                         />
                     </div>
-                    <Button type="submit" disabled={generationState !== 'idle' || !fileName || !subjectArea} size="lg" className="w-full py-7 text-lg">
+                    <Button type="submit" disabled={generationState !== 'idle' || !fileName} size="lg" className="w-full py-7 text-lg">
                         {generationState === 'analyzing' ? <Loader2 className="mr-2 h-6 w-6 animate-spin" /> : <BookOpen className="mr-3 h-6 w-6" />}
                         Analizar Contenido
                     </Button>
