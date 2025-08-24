@@ -5,7 +5,7 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { UploadCloud, Loader2, RefreshCw, AlertCircle, BookOpen } from 'lucide-react';
+import { Loader2, RefreshCw, AlertCircle, BookOpen } from 'lucide-react';
 import { analyzeContentAction } from '@/lib/actions';
 import type { AnalysisResult } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +16,19 @@ type AnalysisState = 'idle' | 'analyzing';
 type FileUploaderProps = {
     onAnalysisComplete: (result: AnalysisResult | null) => void;
 };
+
+const PremiumUploadIcon = () => (
+    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-4">
+        <circle cx="32" cy="32" r="32" fill="url(#icon_gradient)" />
+        <path d="M27.5 35.5V44H36.5V35.5H43.5L32 24L20.5 35.5H27.5Z" fill="white" />
+        <defs>
+            <linearGradient id="icon_gradient" x1="32" y1="0" x2="32" y2="64" gradientUnits="userSpaceOnUse">
+                <stop stopColor="hsl(var(--primary))" stopOpacity="0.8"/>
+                <stop offset="1" stopColor="hsl(var(--primary))" />
+            </linearGradient>
+        </defs>
+    </svg>
+);
 
 
 export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
@@ -99,7 +112,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     }
 
     return (
-        <Card className="h-full flex flex-col bg-primary/5 border-primary/20">
+        <Card className="h-full flex flex-col bg-card">
             <form id="analysis-form" onSubmit={handleAnalysisSubmit} className="flex-grow flex flex-col">
                 <CardContent className="p-6 flex-grow flex flex-col">
                     {error && (
@@ -110,7 +123,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                         </Alert>
                     )}
                     <div 
-                        className="flex flex-col items-center justify-center py-10 px-6 rounded-lg cursor-pointer transition-colors border-2 border-dashed border-primary/20 hover:bg-primary/10 flex-grow"
+                        className="flex flex-col items-center justify-center py-10 px-6 rounded-lg cursor-pointer transition-colors border-2 border-dashed border-border hover:bg-accent/50 flex-grow"
                         onClick={() => fileInputRef.current?.click()}
                         onDrop={(e) => {
                             e.preventDefault();
@@ -118,11 +131,11 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                         }}
                         onDragOver={(e) => e.preventDefault()}
                     >
-                        <UploadCloud className="h-12 w-12 text-primary/70 mb-4" />
-                        <p className="text-base font-semibold text-primary/90">
+                        <PremiumUploadIcon />
+                        <p className="text-base font-semibold text-foreground">
                             {fileName ? fileName : 'Haz clic o arrastra un archivo para subir'}
                         </p>
-                        <p className="text-sm text-primary/60 mt-1">Se admiten documentos PDF (máx. 10MB)</p>
+                        <p className="text-sm text-muted-foreground mt-1">Se admiten documentos PDF (máx. 10MB)</p>
                         <Input 
                             ref={fileInputRef} 
                             id="syllabusFile" 
