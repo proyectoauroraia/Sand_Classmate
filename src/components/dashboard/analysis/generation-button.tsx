@@ -56,12 +56,12 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
             
             const fileNames: Record<MaterialKey, string> = {
                 powerpointPresentation: 'presentacion.pptx',
-                workGuide: 'guia_de_trabajo.pdf',
-                exampleTests: 'examen_de_ejemplo.pdf',
-                interactiveReviewPdf: 'repaso_interactivo.pdf'
+                workGuide: 'guia_de_trabajo.docx',
+                exampleTests: 'examen_de_ejemplo.docx',
+                interactiveReviewPdf: 'repaso_interactivo.docx'
             };
 
-            link.download = fileNames[materialType] || 'material.pdf';
+            link.download = fileNames[materialType] || 'material.docx';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

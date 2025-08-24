@@ -5,7 +5,7 @@ import { analyzeAndEnrichContent, generateMaterialFromAnalysis } from '@/ai/flow
 import type { AnalysisResult } from '@/lib/types';
 import { z } from 'zod';
 import PptxGenJS from 'pptxgenjs';
-import { PDFDocument, rgb, StandardFonts, PageSizes } from 'pdf-lib';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Numbering, Indent, Footer, PageNumber } from 'docx';
 import type { GeneratedMaterials } from '@/lib/types';
 
 
@@ -37,97 +37,138 @@ const GenerateMaterialInputSchema = z.object({
 });
 
 
-async function createStyledPdf(title: string, markdownContent: string): Promise<string> {
-    const pdfDoc = await PDFDocument.create();
-    let page = pdfDoc.addPage(PageSizes.A4);
-    const { width, height } = page.getSize();
-    
-    const helveticaBoldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-    const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
-
-    const primaryColor = rgb(0.333, 0.22, 0.133); // Terracotta
-    const textColor = rgb(0.15, 0.15, 0.15); // Almost Black
-    const grayColor = rgb(0.5, 0.5, 0.5);
-
-    const margin = 50;
-    let y = height - margin;
-
-    const addNewPage = () => {
-        page = pdfDoc.addPage(PageSizes.A4);
-        y = height - margin;
-        // Footer on new page
-        page.drawText(`Generado por Sand Classmate - ${new Date().toLocaleDateString()}`, {
-            x: margin,
-            y: margin / 2,
-            font: helveticaFont,
-            size: 9,
-            color: grayColor,
-        });
-    };
-    
-    // Initial Footer
-    page.drawText(`Generado por Sand Classmate - ${new Date().toLocaleDateString()}`, {
-        x: margin, y: margin/2, font: helveticaFont, size: 9, color: grayColor
+async function createStyledDocx(title: string, markdownContent: string): Promise<string> {
+    const doc = new Document({
+        creator: "Sand Classmate",
+        title: title,
+        description: `Material de curso sobre ${title}`,
+        styles: {
+            paragraphStyles: [
+                {
+                    id: "Heading1",
+                    name: "Heading 1",
+                    basedOn: "Normal",
+                    next: "Normal",
+                    quickFormat: true,
+                    run: {
+                        size: 56, // 28pt
+                        bold: true,
+                        color: "5A3D2B",
+                    },
+                    paragraph: {
+                        spacing: { after: 240 },
+                    },
+                },
+                {
+                    id: "Heading2",
+                    name: "Heading 2",
+                    basedOn: "Normal",
+                    next: "Normal",
+                    quickFormat: true,
+                    run: {
+                        size: 36, // 18pt
+                        bold: true,
+                        color: "3C2A1E",
+                    },
+                    paragraph: {
+                        spacing: { before: 240, after: 120 },
+                    },
+                },
+                 {
+                    id: "Heading3",
+                    name: "Heading 3",
+                    basedOn: "Normal",
+                    next: "Normal",
+                    quickFormat: true,
+                    run: {
+                        size: 28, // 14pt
+                        bold: true,
+                        color: "3C2A1E",
+                    },
+                    paragraph: {
+                        spacing: { before: 120, after: 80 },
+                    },
+                },
+            ],
+        },
+        numbering: {
+            config: [
+                {
+                    reference: "bullet-points",
+                    levels: [
+                        {
+                            level: 0,
+                            format: "bullet",
+                            text: "•",
+                            alignment: AlignmentType.LEFT,
+                            style: {
+                                paragraph: {
+                                    indent: { left: 720, hanging: 360 },
+                                },
+                            },
+                        },
+                    ],
+                },
+            ],
+        },
     });
 
-
-    // Main Title
-    page.drawText(title, {
-        x: margin, y, font: helveticaBoldFont, size: 28, color: primaryColor,
-    });
-    y -= 50;
+    const children = [new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        text: title,
+        alignment: AlignmentType.CENTER,
+    })];
 
     const lines = markdownContent.split('\n');
 
     for (const line of lines) {
-        if (y < margin + 20) { // Check for space before writing new line
-            addNewPage();
-        }
-
         const trimmedLine = line.trim();
         if (trimmedLine.startsWith('## ')) {
-            y -= 10; // Extra space before H2
-            page.drawText(trimmedLine.substring(3), { x: margin, y, font: helveticaBoldFont, size: 18, color: textColor });
-            y -= 25;
+             children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, text: trimmedLine.substring(3) }));
         } else if (trimmedLine.startsWith('### ')) {
-            y -= 5; // Extra space before H3
-            page.drawText(trimmedLine.substring(4), { x: margin, y, font: helveticaBoldFont, size: 14, color: textColor });
-            y -= 20;
+            children.push(new Paragraph({ heading: HeadingLevel.HEADING_3, text: trimmedLine.substring(4) }));
         } else if (trimmedLine.startsWith('* ')) {
-            // Basic wrapping for long bullet points
-            const text = `•  ${trimmedLine.substring(2)}`;
-            const textWidth = helveticaFont.widthOfTextAtSize(text, 11);
-            const maxWidth = width - margin * 2 - 15;
-            if (textWidth > maxWidth) {
-                 const words = text.split(' ');
-                 let currentLine = '';
-                 for (const word of words) {
-                    const testLine = currentLine + word + ' ';
-                    if(helveticaFont.widthOfTextAtSize(testLine, 11) > maxWidth) {
-                         page.drawText(currentLine, { x: margin + 15, y, font: helveticaFont, size: 11, color: textColor, lineHeight: 15 });
-                         y -= 18;
-                         currentLine = word + ' ';
-                    } else {
-                        currentLine = testLine;
+            children.push(new Paragraph({
+                text: trimmedLine.substring(2),
+                numbering: {
+                    reference: "bullet-points",
+                    level: 0,
+                },
+                style: {
+                    paragraph: {
+                        indent: { left: 720, hanging: 360 }
                     }
-                 }
-                 page.drawText(currentLine, { x: margin + 15, y, font: helveticaFont, size: 11, color: textColor, lineHeight: 15 });
-                 y-= 18;
-
-            } else {
-                 page.drawText(text, { x: margin + 15, y, font: helveticaFont, size: 11, color: textColor });
-                 y -= 18;
-            }
+                }
+            }));
         } else if (trimmedLine.length > 0) {
-             page.drawText(trimmedLine, { x: margin, y, font: helveticaFont, size: 11, color: textColor, lineHeight: 15 });
-             y -= 18;
+            children.push(new Paragraph({ text: trimmedLine }));
         } else {
-            y -= 10;
+             children.push(new Paragraph("")); // Empty line for spacing
         }
     }
 
-    const pdfBytes = await pdfDoc.save();
-    return `data:application/pdf;base64,${Buffer.from(pdfBytes).toString('base64')}`;
+
+    doc.addSection({
+        footers: {
+            default: new Footer({
+                children: [
+                    new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [
+                            new TextRun({
+                                children: ["Generado por Sand Classmate - Página ", PageNumber.CURRENT],
+                                size: 18, // 9pt
+                            }),
+                        ],
+                    }),
+                ],
+            }),
+        },
+        children,
+    });
+
+    const buffer = await Packer.toBuffer(doc);
+    return `data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${buffer.toString('base64')}`;
 }
 
 
@@ -233,13 +274,13 @@ export async function generateMaterialsActionFromAnalysis(
                 fileDataUri = await createStyledPptx(markdownContent);
                 break;
             case 'workGuide':
-                fileDataUri = await createStyledPdf('Guía de Trabajo', markdownContent);
+                fileDataUri = await createStyledDocx('Guía de Trabajo', markdownContent);
                 break;
             case 'exampleTests':
-                fileDataUri = await createStyledPdf('Examen de Ejemplo', markdownContent);
+                fileDataUri = await createStyledDocx('Examen de Ejemplo', markdownContent);
                 break;
             case 'interactiveReviewPdf':
-                 fileDataUri = await createStyledPdf('Repaso Interactivo', markdownContent);
+                 fileDataUri = await createStyledDocx('Repaso Interactivo', markdownContent);
                 break;
             default:
                 throw new Error("Tipo de material no soportado");
