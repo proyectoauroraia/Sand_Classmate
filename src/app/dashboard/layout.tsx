@@ -87,11 +87,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     return (
         <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
-            <div className="hidden border-r bg-card lg:block">
+            <div className="hidden border-r bg-muted lg:block">
                 {sidebarContent}
             </div>
             <div className="flex flex-col">
-                 <header className="flex h-14 items-center justify-between gap-4 border-b bg-card px-6 lg:h-[60px] lg:justify-end">
+                 <header className="flex h-14 items-center justify-between gap-4 border-b bg-muted px-6 lg:h-[60px] lg:justify-end">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
@@ -99,7 +99,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 <span className="sr-only">Toggle navigation menu</span>
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="left" className="flex flex-col p-0 bg-card border-r-0">
+                        <SheetContent side="left" className="flex flex-col p-0 bg-muted border-r-0">
                             {sidebarContent}
                         </SheetContent>
                     </Sheet>
