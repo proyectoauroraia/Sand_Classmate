@@ -12,6 +12,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter, usePathname } from 'next/navigation';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -105,6 +106,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                      <div className="w-full flex-1">
                         {/* Header content can go here, e.g. search bar */}
                     </div>
+
+                    <ThemeSwitcher />
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
