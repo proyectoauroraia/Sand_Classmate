@@ -32,7 +32,7 @@ export function MaterialsHistory() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nombre del Curso</TableHead>
-                <TableHead className="text-right">Ver Análisis</TableHead>
+                <TableHead>Ver Análisis</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
