@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  .light-theme-default, .theme-default {
+  :root, .theme-default {
     --background: 24 51% 97%; /* Light Sand */
     --foreground: 24 51% 20%; /* Dark Brown */
     
@@ -39,9 +39,17 @@
     --chart-5: 23 88% 65%;
 
     --radius: 0.75rem;
+
+    --sand-bg: hsl(36 52% 90%);
+    --sand-dune-1-start: hsl(35 60% 85%);
+    --sand-dune-1-end: hsl(25 70% 75%);
+    --sand-dune-2-start: hsl(40 70% 80%);
+    --sand-dune-2-end: hsl(30 80% 70%);
+    --sand-dune-3-start: hsl(45 80% 88%);
+    --sand-dune-3-end: hsl(35 90% 80%);
   }
 
-  .dark-theme-default {
+  .dark.theme-default {
     --background: 24 51% 10%;
     --foreground: 0 0% 95%;
     --card: 24 51% 12%;
@@ -61,9 +69,17 @@
     --border: 0 0% 18%;
     --input: 0 0% 20%;
     --ring: 15 82% 60%;
+
+     --sand-bg: hsl(25 40% 10%);
+    --sand-dune-1-start: hsl(20 50% 15%);
+    --sand-dune-1-end: hsl(15 60% 20%);
+    --sand-dune-2-start: hsl(30 45% 12%);
+    --sand-dune-2-end: hsl(25 55% 18%);
+    --sand-dune-3-start: hsl(35 55% 8%);
+    --sand-dune-3-end: hsl(30 65% 14%);
   }
 
-  .light-theme-navy {
+  .theme-navy {
     --background: 210 50% 98%;
     --foreground: 215 30% 25%;
     --primary: 215 41% 45%;
@@ -74,7 +90,7 @@
     --accent-foreground: 215 41% 35%;
   }
   
-  .dark-theme-navy {
+  .dark .theme-navy {
     --background: 215 30% 12%;
     --foreground: 210 30% 95%;
     --primary: 215 41% 65%;
@@ -85,7 +101,7 @@
     --accent-foreground: 215 41% 80%;
   }
   
-  .light-theme-forest {
+  .theme-forest {
     --background: 110 30% 97%;
     --foreground: 120 25% 20%;
     --primary: 120 39% 40%;
@@ -96,7 +112,7 @@
     --accent-foreground: 120 39% 30%;
   }
 
-  .dark-theme-forest {
+  .dark .theme-forest {
     --background: 120 25% 10%;
     --foreground: 110 20% 95%;
     --primary: 120 39% 60%;
@@ -107,7 +123,7 @@
     --accent-foreground: 120 39% 80%;
   }
 
-  .light-theme-dusk {
+  .theme-dusk {
     --background: 250 40% 97%;
     --foreground: 250 20% 25%;
     --primary: 250 50% 60%;
@@ -118,7 +134,7 @@
     --accent-foreground: 250 50% 50%;
   }
 
-  .dark-theme-dusk {
+  .dark .theme-dusk {
     --background: 250 20% 12%;
     --foreground: 250 20% 95%;
     --primary: 250 50% 70%;
@@ -129,7 +145,7 @@
     --accent-foreground: 250 50% 85%;
   }
 
-  .light-theme-sunrise {
+  .theme-sunrise {
     --background: 35 60% 96%;
     --foreground: 25 40% 25%;
     --primary: 20 90% 60%;
@@ -140,7 +156,7 @@
     --accent-foreground: 20 90% 50%;
   }
 
-  .dark-theme-sunrise {
+  .dark .theme-sunrise {
     --background: 25 40% 10%;
     --foreground: 35 40% 95%;
     --primary: 20 90% 65%;

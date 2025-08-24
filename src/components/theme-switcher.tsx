@@ -22,39 +22,33 @@ const themes = [
 ];
 
 export function ThemeSwitcher() {
-  const { theme, setTheme } = useTheme();
+  const { theme: activeTheme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
+  const [palette, setPalette] = React.useState('theme-default');
 
   React.useEffect(() => {
     setMounted(true);
-  }, []);
+    // On mount, determine the initial palette from the active theme
+    const currentPalette = themes.find(t => activeTheme?.includes(t.theme))?.theme || 'theme-default';
+    setPalette(currentPalette);
+  }, [activeTheme]);
 
-  const { baseTheme, colorMode } = React.useMemo(() => {
-    const parts = theme?.split('-') || ['light', 'theme', 'default'];
-    if (parts[0] === 'light' || parts[0] === 'dark') {
-      return {
-        colorMode: parts[0],
-        baseTheme: parts.slice(1).join('-'),
-      };
-    }
-    // Default case if theme is not in expected format
-    return {
-      colorMode: 'light',
-      baseTheme: theme || 'theme-default',
-    };
-  }, [theme]);
-  
   const handleDarkModeToggle = (isDark: boolean) => {
-    setTheme(`${isDark ? 'dark' : 'light'}-${baseTheme}`);
+    setTheme(isDark ? 'dark' : 'light');
   };
 
-  const handlePaletteChange = (newBaseTheme: string) => {
-     setTheme(`${colorMode}-${newBaseTheme}`);
+  const handlePaletteChange = (newPalette: string) => {
+    setPalette(newPalette);
+    // This is a way to remove all other theme classes before adding the new one
+    document.body.classList.remove(...themes.map(t => t.theme));
+    document.body.classList.add(newPalette);
   };
-
+  
   if (!mounted) {
     return <div className="w-24 h-10" />;
   }
+
+  const isDarkMode = resolvedTheme === 'dark';
 
   return (
     <div className="flex items-center gap-2 rounded-lg border bg-card p-1">
@@ -78,7 +72,7 @@ export function ThemeSwitcher() {
                 />
                 <span>{themeOption.name}</span>
               </div>
-              {baseTheme === themeOption.theme && <Check className="h-4 w-4" />}
+              {palette === themeOption.theme && <Check className="h-4 w-4" />}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
@@ -88,7 +82,7 @@ export function ThemeSwitcher() {
         <Sun className="h-5 w-5" />
         <Switch
             id="dark-mode"
-            checked={colorMode === 'dark'}
+            checked={isDarkMode}
             onCheckedChange={handleDarkModeToggle}
             aria-label="Cambiar entre modo claro y oscuro"
         />
