@@ -16,13 +16,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { href: "/dashboard/history", icon: History, label: "Mi Biblioteca" },
         { href: "/dashboard/profile", icon: User, label: "Mi Perfil" },
         { href: "/dashboard/pricing", icon: Gem, label: "Planes" },
-        { href: "/dashboard/settings", icon: Settings, label: "Configuración" },
     ];
 
     const sidebarContent = (
         <div className="flex h-full max-h-screen flex-col gap-2">
             <div className="flex h-[60px] items-center border-b px-6">
-                <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-foreground">
+                 <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-foreground">
                     <Logo />
                 </Link>
             </div>
