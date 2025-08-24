@@ -27,10 +27,10 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="theme-default"
+          enableSystem={false}
           disableTransitionOnChange
-          themes={['light', 'dark', 'theme-default', 'theme-navy', 'theme-forest', 'theme-dusk', 'theme-sunrise']}
+          themes={['light', 'dark', 'theme-default', 'theme-rose', 'theme-teal']}
         >
           {children}
           <Toaster />
