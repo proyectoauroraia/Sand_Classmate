@@ -1,3 +1,4 @@
+
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -22,17 +23,11 @@ const mockHistory: HistoryItem[] = [
 export function MaterialsHistory() {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle>Mis Cursos Analizados</CardTitle>
-          <CardDescription>Aquí encontrarás todos los cursos que has analizado. Puedes editarlos o descargar los materiales generados.</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <Table>
             <TableHeader>
               <TableRow className="border-border/80">
-                <TableHead>Nombre del Curso/Archivo</TableHead>
-                <TableHead className="hidden sm:table-cell">Fecha de Análisis</TableHead>
-                <TableHead className="hidden sm:table-cell">Estado</TableHead>
+                <TableHead>Nombre del Curso</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -46,10 +41,9 @@ export function MaterialsHistory() {
               ) : (
                 mockHistory.map((item) => (
                   <TableRow key={item.id} className="border-border/80">
-                    <TableCell className="font-medium">{item.fileName}</TableCell>
-                    <TableCell className="hidden sm:table-cell text-muted-foreground">{item.date}</TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <Badge variant="outline" className="text-green-600 border-green-400/50 bg-green-500/10">{item.status}</Badge>
+                    <TableCell className="font-medium">
+                        <div>{item.fileName}</div>
+                        <div className="text-xs text-muted-foreground sm:hidden mt-1">{item.date}</div>
                     </TableCell>
                     <TableCell className="text-right">
                        <DropdownMenu>

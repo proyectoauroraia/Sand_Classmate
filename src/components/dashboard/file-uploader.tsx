@@ -10,10 +10,8 @@ import { analyzeContentAction } from '@/lib/actions';
 import type { AnalysisResult } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
-import { AnalysisDisplay } from '@/components/dashboard/analysis/analysis-display';
 
-
-type AnalysisState = 'idle' | 'analyzing' | 'success';
+type AnalysisState = 'idle' | 'analyzing';
 
 type FileUploaderProps = {
     onAnalysisComplete: (result: AnalysisResult | null) => void;
@@ -23,7 +21,6 @@ type FileUploaderProps = {
 export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     const [analysisState, setAnalysisState] = useState<AnalysisState>('idle');
     const [error, setError] = useState<string | null>(null);
-    const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
 
     const [fileName, setFileName] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -57,7 +54,6 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
 
         setAnalysisState('analyzing');
         setError(null);
-        setAnalysisResult(null);
 
         try {
             const dataUri = await new Promise<string>((resolve, reject) => {
@@ -73,8 +69,6 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                 throw new Error(response.error || 'Falló el análisis del contenido.');
             }
             
-            setAnalysisResult(response.data);
-            setAnalysisState('success');
             onAnalysisComplete(response.data);
             toast({
                 title: "¡Análisis Completo!",
@@ -91,17 +85,6 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
             });
         }
     };
-
-    const resetState = () => {
-        setAnalysisState('idle');
-        setError(null);
-        setAnalysisResult(null);
-        setFileName(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-        onAnalysisComplete(null);
-    }
     
     if (analysisState === 'analyzing') {
         return (
@@ -113,15 +96,6 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                 <p className="text-muted-foreground mt-2">Esto puede tardar unos momentos. No cierres esta página.</p>
             </Card>
         );
-    }
-    
-    if (analysisState === 'success' && analysisResult) {
-        return (
-            <AnalysisDisplay 
-                analysisResult={analysisResult}
-                onReset={resetState}
-            />
-        )
     }
 
     return (
