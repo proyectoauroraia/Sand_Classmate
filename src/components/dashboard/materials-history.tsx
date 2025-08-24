@@ -17,13 +17,9 @@ const mockHistory: HistoryItem[] = [
     { id: '2', fileName: 'Programa de Kinesiología 2024', date: '2024-07-25', status: 'Completado' },
     { id: '3', fileName: 'Apuntes de Filosofía Antigua', date: '2024-07-22', status: 'Completado' },
     { id: '4', fileName: 'Syllabus de Historia del Arte', date: '2024-07-20', status: 'Completado' },
-    { id: '5', fileName: 'Plan de Estudios de Psicología', date: '2024-07-18', status: 'Completado' },
-    { id: '6', fileName: 'Material de Nutrición I', date: '2024-07-15', status: 'Completado' },
-    { id: '7', fileName: 'Guía de Laboratorio de Química', date: '2024-07-12', status: 'Completado' },
-    { id: '8', fileName: 'Curso de Cálculo Avanzado', date: '2024-07-10', status: 'Completado' },
 ];
 
-const ITEMS_PER_PAGE = 4;
+const ITEMS_PER_PAGE = 5;
 
 const buttonColors = [
     'bg-gradient-to-br from-green-400 to-green-600 text-white hover:from-green-500 hover:to-green-700', // Green
@@ -89,19 +85,21 @@ export function MaterialsHistory() {
             </ScrollArea>
         </CardContent>
          <CardFooter className="justify-center items-center pt-4">
-            <div className="flex items-center gap-3">
-              {Array.from({ length: pageCount }).map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentPage(index)}
-                  className={cn(
-                    'h-2 w-2 rounded-full bg-muted transition-all duration-300 ease-in-out hover:bg-muted-foreground/50',
-                    currentPage === index && 'w-4 bg-primary'
-                  )}
-                  aria-label={`Ir a la página ${index + 1}`}
-                />
-              ))}
-            </div>
+             {pageCount > 1 && (
+                <div className="flex items-center gap-4">
+                    {Array.from({ length: pageCount }).map((_, index) => (
+                        <button
+                            key={index}
+                            onClick={() => setCurrentPage(index)}
+                            className={cn(
+                                'h-2.5 w-2.5 rounded-full bg-border transition-all duration-300 ease-in-out hover:bg-primary/50',
+                                currentPage === index && 'w-6 bg-primary'
+                            )}
+                            aria-label={`Ir a la página ${index + 1}`}
+                        />
+                    ))}
+                </div>
+             )}
         </CardFooter>
       </Card>
     );
