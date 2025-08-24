@@ -4,17 +4,13 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 
 export default function DashboardPage() {
     return (
-        <div className="space-y-6">
-             <h1 className="font-semibold text-lg font-headline hidden">Dashboard</h1>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline">Generate New Course Materials</CardTitle>
-                    <CardDescription>Upload your syllabus or class notes (PDF) to get started.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <FileUploader />
-                </CardContent>
-            </Card>
+        <div className="space-y-8">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight">Generate New Course Materials</h1>
+                <p className="text-muted-foreground mt-1">Upload your syllabus or class notes (PDF) to get started.</p>
+            </div>
+
+            <FileUploader />
 
             <MaterialsHistory />
         </div>

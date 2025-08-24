@@ -4,12 +4,13 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from '@/components/ui/card';
-import { UploadCloud, Presentation, FileText, ClipboardCheck, MousePointerClick, Loader2, Download, RefreshCw, AlertCircle } from 'lucide-react';
+import { UploadCloud, Presentation, FileText, ClipboardCheck, MousePointerClick, Loader2, Download, RefreshCw, AlertCircle, Copy } from 'lucide-react';
 import { generateMaterialsAction } from '@/lib/actions';
 import type { GeneratedMaterials } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 export function FileUploader() {
     const [isLoading, setIsLoading] = useState(false);
@@ -84,83 +85,121 @@ export function FileUploader() {
 
     if (isLoading) {
         return (
-            <div className="flex flex-col items-center justify-center text-center p-10 border-2 border-dashed rounded-lg h-64">
+            <Card className="flex flex-col items-center justify-center text-center p-10 h-64">
                 <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
                 <p className="text-lg font-semibold">Generating your materials...</p>
                 <p className="text-sm text-muted-foreground">This may take a few moments. Please don't close this page.</p>
-            </div>
+            </Card>
         );
     }
     
     if(result) {
         return (
-            <div>
-                <h3 className="text-lg font-semibold mb-4 font-headline">Your materials for "{fileName}" are ready!</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <MaterialCard icon={Presentation} title="PowerPoint" description="PPTX Presentation" href={result.powerpointPresentation} fileName="presentation.pptx"/>
-                    <MaterialCard icon={FileText} title="Work Guide" description="PDF document" href={result.workGuide} fileName="work-guide.pdf"/>
-                    <MaterialCard icon={ClipboardCheck} title="Example Tests" description="PDF document" href={result.exampleTests} fileName="example-tests.pdf"/>
-                    <MaterialCard icon={MousePointerClick} title="Interactive Review" description="Interactive PDF" href={result.interactiveReviewPdf} fileName="interactive-review.pdf"/>
-                </div>
-                 <Button onClick={resetState} className="mt-6">
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Generate Another
-                </Button>
-            </div>
+             <Card>
+                <CardContent className="p-6">
+                    <h3 className="text-xl font-semibold mb-4">Your materials for "{fileName}" are ready!</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                        <MaterialCard icon={FileText} title="Work Guide" description="PDF document" href={result.workGuide} fileName="work-guide.pdf"/>
+                        <MaterialCard icon={ClipboardCheck} title="Example Tests" description="PDF document" href={result.exampleTests} fileName="example-tests.pdf"/>
+                        <MaterialCard icon={MousePointerClick} title="Interactive Review" description="Interactive PDF" href={result.interactiveReviewPdf} fileName="interactive-review.pdf"/>
+                        <PresentationCard markdownContent={result.powerpointPresentation} />
+                    </div>
+                    <Button onClick={resetState} className="mt-6">
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Generate Another
+                    </Button>
+                </CardContent>
+             </Card>
         );
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-             {error && (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
-            )}
-            <div 
-                className={cn(
-                    "flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary hover:bg-accent/50 transition-colors",
-                    error && "border-destructive hover:border-destructive"
-                )}
-                onClick={() => fileInputRef.current?.click()}
-            >
-                <UploadCloud className="h-12 w-12 text-muted-foreground mb-2" />
-                <p className="text-lg font-semibold">
-                    {fileName ? fileName : 'Click or drag file to this area to upload'}
-                </p>
-                <p className="text-sm text-muted-foreground">Supports PDF documents up to 10MB.</p>
-                <Input 
-                    ref={fileInputRef} 
-                    id="syllabusFile" 
-                    name="syllabusFile" 
-                    type="file" 
-                    className="hidden" 
-                    accept=".pdf"
-                    onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
-                />
-            </div>
-            <Button type="submit" disabled={isLoading || !fileName} className="w-full sm:w-auto">
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
-                Generate Materials
-            </Button>
-        </form>
+        <Card>
+            <CardContent className="p-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {error && (
+                        <Alert variant="destructive">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertTitle>Error</AlertTitle>
+                            <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                    )}
+                    <div 
+                        className={cn(
+                            "flex flex-col items-center justify-center p-10 rounded-lg cursor-pointer transition-colors bg-secondary/50 hover:bg-secondary",
+                            error && "border-destructive hover:border-destructive border-2"
+                        )}
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        <UploadCloud className="h-16 w-16 text-muted-foreground mb-4" />
+                        <p className="text-lg font-semibold text-foreground">
+                            {fileName ? fileName : 'Click or drag file to upload'}
+                        </p>
+                        <p className="text-sm text-muted-foreground">Supports PDF documents up to 10MB.</p>
+                        <Input 
+                            ref={fileInputRef} 
+                            id="syllabusFile" 
+                            name="syllabusFile" 
+                            type="file" 
+                            className="hidden" 
+                            accept=".pdf"
+                            onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
+                        />
+                    </div>
+                    <Button type="submit" disabled={isLoading || !fileName} size="lg">
+                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
+                        Generate Materials
+                    </Button>
+                </form>
+            </CardContent>
+        </Card>
     );
 }
 
 function MaterialCard({ icon: Icon, title, description, href, fileName }: { icon: React.ElementType, title: string, description: string, href: string, fileName: string }) {
     return (
-        <Card>
-            <CardContent className="flex flex-col items-center justify-center p-6 text-center">
-                <Icon className="h-12 w-12 text-primary mb-4" />
-                <h4 className="text-md font-semibold font-headline">{title}</h4>
-                <p className="text-sm text-muted-foreground mb-4">{description}</p>
-                <Button asChild variant="outline" size="sm">
+        <Card className="flex flex-col">
+            <CardContent className="flex flex-col flex-1 items-start p-6">
+                <div className="bg-primary/10 p-3 rounded-full mb-4">
+                    <Icon className="h-8 w-8 text-primary" />
+                </div>
+                <h4 className="text-lg font-semibold">{title}</h4>
+                <p className="text-sm text-muted-foreground mb-4 flex-1">{description}</p>
+                <Button asChild variant="outline" size="sm" className="w-full">
                     <a href={href} download={fileName}>
                         <Download className="mr-2 h-4 w-4" /> Download
                     </a>
                 </Button>
+            </CardContent>
+        </Card>
+    );
+}
+
+function PresentationCard({ markdownContent }: { markdownContent: string }) {
+    const { toast } = useToast();
+    const handleCopy = () => {
+        navigator.clipboard.writeText(markdownContent);
+        toast({ title: "Copied to clipboard!" });
+    };
+
+    return (
+        <Card className="flex flex-col">
+            <CardContent className="flex flex-col flex-1 items-start p-6">
+                 <div className="bg-primary/10 p-3 rounded-full mb-4">
+                    <Presentation className="h-8 w-8 text-primary" />
+                </div>
+                <h4 className="text-lg font-semibold">PowerPoint Content</h4>
+                <p className="text-sm text-muted-foreground mb-4 flex-1">Copy the markdown content and paste it into your presentation software.</p>
+                <div className="w-full space-y-2">
+                    <Textarea 
+                        readOnly 
+                        value={markdownContent} 
+                        className="h-32 text-xs bg-secondary/50" 
+                    />
+                    <Button onClick={handleCopy} variant="outline" size="sm" className="w-full">
+                        <Copy className="mr-2 h-4 w-4" /> Copy Content
+                    </Button>
+                </div>
             </CardContent>
         </Card>
     );
