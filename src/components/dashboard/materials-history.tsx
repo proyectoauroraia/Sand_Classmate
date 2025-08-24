@@ -8,6 +8,7 @@ import type { HistoryItem } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 
 const mockHistory: HistoryItem[] = [
@@ -15,14 +16,13 @@ const mockHistory: HistoryItem[] = [
     { id: '2', fileName: 'Programa de Kinesiología 2024', date: '2024-07-25', status: 'Completado' },
     { id: '3', fileName: 'Apuntes de Filosofía Antigua', date: '2024-07-22', status: 'Completado' },
     { id: '4', fileName: 'Syllabus de Historia del Arte', date: '2024-07-20', status: 'Completado' },
-    { id: '5', fileName: 'Plan de Estudios de Psicología', date: '2024-07-18', status: 'Completado' },
 ];
 
 const buttonColors = [
-    'bg-chart-4 text-white hover:bg-chart-4/90', // Green for 'Ver' text
-    'bg-chart-1 text-black hover:bg-chart-1/90', // Yellow
-    'bg-chart-2 text-white hover:bg-chart-2/90', // Teal
-    'bg-chart-3 text-white hover:bg-chart-3/90', // Blue
+    'bg-gradient-to-br from-green-400 to-green-600 text-white hover:from-green-500 hover:to-green-700', // Green
+    'bg-gradient-to-br from-yellow-400 to-amber-500 text-white hover:from-yellow-500 hover:to-amber-600', // Yellow
+    'bg-gradient-to-br from-teal-400 to-cyan-500 text-white hover:from-teal-500 hover:to-cyan-600', // Teal/Cyan
+    'bg-gradient-to-br from-blue-400 to-indigo-500 text-white hover:from-blue-500 hover:to-indigo-600', // Blue
 ];
 
 export function MaterialsHistory() {
@@ -63,7 +63,7 @@ export function MaterialsHistory() {
                           <Button 
                             size="sm" 
                             onClick={() => handleViewAnalysis(item.id)}
-                            className={cn(buttonColors[(index % buttonColors.length)])}
+                            className={cn('shadow-md hover:shadow-lg transition-shadow',buttonColors[(index % buttonColors.length)])}
                           >
                             Ver
                           </Button>
@@ -75,8 +75,10 @@ export function MaterialsHistory() {
               </Table>
             </ScrollArea>
         </CardContent>
-         <CardFooter>
-            {/* Footer can be used for pagination or other actions in the future */}
+         <CardFooter className="justify-center">
+            <Button variant="secondary" asChild>
+                <Link href="/dashboard/history">Ver más...</Link>
+            </Button>
         </CardFooter>
       </Card>
     );
