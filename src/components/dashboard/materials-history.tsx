@@ -42,8 +42,8 @@ export function MaterialsHistory() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nombre del Curso</TableHead>
-                    <TableHead className="text-left">Ver Análisis</TableHead>
+                    <TableHead className="text-sm text-foreground">Nombre del Curso</TableHead>
+                    <TableHead className="text-right text-sm text-foreground">Ver Análisis</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -75,7 +75,7 @@ export function MaterialsHistory() {
               </Table>
             </ScrollArea>
         </CardContent>
-         <CardFooter className="justify-center">
+         <CardFooter className="justify-center pt-4">
             <Button variant="secondary" asChild>
                 <Link href="/dashboard/history">Ver más...</Link>
             </Button>
