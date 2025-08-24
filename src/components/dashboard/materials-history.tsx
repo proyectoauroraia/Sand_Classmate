@@ -19,7 +19,7 @@ const mockHistory: HistoryItem[] = [
     { id: '4', fileName: 'Syllabus de Historia del Arte', date: '2024-07-20', status: 'Completado' },
 ];
 
-const ITEMS_PER_PAGE = 4;
+const ITEMS_TO_SHOW = 4;
 
 const buttonColors = [
     'bg-gradient-to-br from-green-400 to-green-600 text-white hover:from-green-500 hover:to-green-700', // Green
@@ -30,13 +30,8 @@ const buttonColors = [
 
 export function MaterialsHistory() {
     const router = useRouter();
-    const [currentPage, setCurrentPage] = useState(0);
 
-    const pageCount = Math.ceil(mockHistory.length / ITEMS_PER_PAGE);
-    const paginatedHistory = mockHistory.slice(
-        currentPage * ITEMS_PER_PAGE,
-        (currentPage + 1) * ITEMS_PER_PAGE
-    );
+    const displayedHistory = mockHistory.slice(0, ITEMS_TO_SHOW);
 
     const handleViewAnalysis = (id: string) => {
         // TODO: Implement logic to fetch and display the analysis for the given ID.
@@ -46,8 +41,11 @@ export function MaterialsHistory() {
 
     return (
       <Card className="h-full flex flex-col">
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-2xl font-bold tracking-tight">Cursos Recientes</CardTitle>
+             <Button asChild variant="link" className="text-primary font-semibold">
+                <Link href="/dashboard/history">Ver todo</Link>
+            </Button>
         </CardHeader>
         <CardContent className="pt-0 flex-grow">
             <ScrollArea className="h-full">
@@ -59,14 +57,14 @@ export function MaterialsHistory() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginatedHistory.length === 0 ? (
+                  {displayedHistory.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={2} className="h-24 text-center">
                         Aún no se han analizado cursos.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    paginatedHistory.map((item, index) => (
+                    displayedHistory.map((item, index) => (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium py-4">
                             {item.fileName}
@@ -75,7 +73,7 @@ export function MaterialsHistory() {
                           <Button 
                             size="sm" 
                             onClick={() => handleViewAnalysis(item.id)}
-                            className={cn('shadow-md hover:shadow-lg transition-shadow',buttonColors[((currentPage * ITEMS_PER_PAGE) + index) % buttonColors.length])}
+                            className={cn('shadow-md hover:shadow-lg transition-shadow',buttonColors[index % buttonColors.length])}
                           >
                             Ver
                           </Button>
@@ -87,23 +85,6 @@ export function MaterialsHistory() {
               </Table>
             </ScrollArea>
         </CardContent>
-         <CardFooter className="justify-center items-center pt-4">
-             {pageCount > 1 && (
-                <div className="flex items-center gap-4">
-                    {Array.from({ length: pageCount }).map((_, index) => (
-                        <button
-                            key={index}
-                            onClick={() => setCurrentPage(index)}
-                            className={cn(
-                                'h-2.5 w-2.5 rounded-full bg-border transition-all duration-300 ease-in-out hover:bg-primary/50',
-                                currentPage === index && 'w-6 bg-primary'
-                            )}
-                            aria-label={`Ir a la página ${index + 1}`}
-                        />
-                    ))}
-                </div>
-             )}
-        </CardFooter>
       </Card>
     );
 }
