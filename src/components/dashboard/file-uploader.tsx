@@ -5,7 +5,7 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { UploadCloud, Presentation, FileText, ClipboardCheck, Loader2, Download, RefreshCw, AlertCircle, Copy, BookOpen, Lightbulb, GraduationCap, Sparkles } from 'lucide-react';
+import { UploadCloud, Presentation, FileText, ClipboardCheck, Loader2, Download, RefreshCw, AlertCircle, Copy, BookOpen, Lightbulb, GraduationCap, Sparkles, Youtube, Link as LinkIcon, Target, BookCopy, Calendar } from 'lucide-react';
 import { analyzeContentAction, generateMaterialsActionFromAnalysis } from '@/lib/actions';
 import type { AnalysisResult, GeneratedMaterials } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -166,22 +166,69 @@ export function FileUploader() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                            {analysisResult.weeks && (
+                                <div className="bg-secondary/30 p-3 rounded-lg">
+                                    <div className="flex items-center justify-center gap-2 text-lg font-semibold"><Calendar className="h-5 w-5" /> Duración</div>
+                                    <p className="text-primary text-2xl font-bold">{analysisResult.weeks} {typeof analysisResult.weeks === 'number' && analysisResult.weeks > 1 ? 'Semanas' : 'Semana'}</p>
+                                </div>
+                            )}
+                             <div className="bg-secondary/30 p-3 rounded-lg md:col-span-2">
+                                <div className="flex items-center justify-center gap-2 text-lg font-semibold"><BookCopy className="h-5 w-5" /> Conceptos Clave</div>
+                                <div className="flex flex-wrap gap-2 justify-center mt-2">
+                                    {analysisResult.keyConcepts.map((concept, i) => (
+                                        <span key={i} className="bg-primary/10 text-primary-foreground font-medium px-3 py-1 rounded-full text-xs bg-primary">{concept}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
                         <div>
-                            <h3 className="font-semibold text-lg mb-2">Resumen del Contenido</h3>
+                            <h3 className="font-semibold text-lg mb-2 flex items-center gap-2"><Target className="h-5 w-5"/> Objetivos de Aprendizaje</h3>
+                            <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2">
+                                {analysisResult.learningObjectives.map((obj, i) => <li key={i}>{obj}</li>)}
+                            </ul>
+                        </div>
+                        
+                         <div>
+                            <h3 className="font-semibold text-lg mb-2">Resumen General</h3>
                             <p className="text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg">{analysisResult.summary}</p>
                         </div>
+                        
                          <div>
-                            <h3 className="font-semibold text-lg mb-2">Conceptos Clave Identificados</h3>
-                             <div className="flex flex-wrap gap-2">
-                                {analysisResult.keyConcepts.map((concept, i) => (
-                                    <span key={i} className="bg-primary/10 text-primary-foreground font-medium px-3 py-1 rounded-full text-xs bg-primary">{concept}</span>
+                            <h3 className="font-semibold text-lg mb-2">Recursos Externos Sugeridos</h3>
+                             <div className="space-y-3">
+                                {analysisResult.enrichedContent.externalLinks.map((link, i) => (
+                                    <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors">
+                                        <div className="font-semibold flex items-center gap-2 text-primary"><LinkIcon className="h-4 w-4"/> {link.title}</div>
+                                        <p className="text-xs text-muted-foreground mt-1">{link.summary}</p>
+                                    </a>
                                 ))}
                             </div>
                         </div>
+
                          <div>
-                            <h3 className="font-semibold text-lg mb-2">Enriquecimiento Científico</h3>
-                            <p className="text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg">{analysisResult.scientificContext}</p>
+                            <h3 className="font-semibold text-lg mb-2">Videos de YouTube Recomendados</h3>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {analysisResult.enrichedContent.youtubeVideos.map((video, i) => (
+                                    <a key={i} href={`https://www.youtube.com/watch?v=${video.videoId}`} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors">
+                                        <div className="font-semibold flex items-center gap-2 text-red-600"><Youtube className="h-5 w-5"/> {video.title}</div>
+                                        <p className="text-xs text-muted-foreground mt-1">{video.summary}</p>
+                                    </a>
+                                ))}
+                            </div>
                         </div>
+                        
+                        {analysisResult.bibliography.length > 0 && (
+                             <div>
+                                <h3 className="font-semibold text-lg mb-2">Bibliografía Mencionada</h3>
+                                <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2">
+                                    {analysisResult.bibliography.map((item, i) => <li key={i}>{item}</li>)}
+                                </ul>
+                            </div>
+                        )}
+
                     </CardContent>
                 </Card>
                  <div className="col-span-1 space-y-6">

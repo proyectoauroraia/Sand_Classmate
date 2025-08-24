@@ -24,14 +24,24 @@ const AnalyzeContentOutputSchema = z.object({
   keyConcepts: z
     .array(z.string())
     .describe('A list of the most important terms and concepts found in the document.'),
-  scientificContext: z
-    .string()
-    .describe(
-      'An enrichment of the content with scientific principles, foundational theories, or relevant context from the identified subject area.'
-    ),
   subjectArea: z
     .string()
-    .describe('The subject area or field of study identified from the document.')
+    .describe('The subject area or field of study identified from the document.'),
+  weeks: z.union([z.number(), z.string()]).describe('The total number of weeks the course or syllabus covers.').optional(),
+  learningObjectives: z.array(z.string()).describe('A list of the main learning objectives or goals from the document.'),
+  bibliography: z.array(z.string()).describe('A list of bibliographic references or source materials mentioned.'),
+  enrichedContent: z.object({
+    externalLinks: z.array(z.object({
+      title: z.string().describe("The title of the article or resource."),
+      url: z.string().url().describe("The URL to the resource."),
+      summary: z.string().describe("A brief summary of why this link is relevant.")
+    })).describe("A list of relevant, modern external links (articles, studies, etc.) to enrich the content."),
+    youtubeVideos: z.array(z.object({
+      title: z.string().describe("The title of the YouTube video."),
+      videoId: z.string().describe("The YouTube video ID."),
+      summary: z.string().describe("A brief summary of what the video covers and why it's relevant.")
+    })).describe("A list of relevant YouTube videos to complement the key concepts."),
+  }).describe("A collection of modern, high-quality educational resources to enhance the original document.")
 });
 
 export async function analyzeAndEnrichContent(
@@ -41,16 +51,22 @@ export async function analyzeAndEnrichContent(
       name: 'contentAnalysisPrompt',
       input: { schema: AnalyzeContentInputSchema },
       output: { schema: AnalyzeContentOutputSchema },
-      prompt: `You are an expert academic assistant. Your task is to analyze the provided educational document and extract key information.
+      prompt: `You are an expert academic and pedagogical assistant. Your task is to perform a deep and structured analysis of the provided educational document.
 
       Document: {{media url=documentDataUri}}
 
-      1.  **Identify Subject Area:** First, determine the specific field of study or subject area of the document (e.g., Kinesiology, Nutrition, Electrical Engineering, Philosophy).
-      2.  **Summarize:** Read the entire document and provide a concise summary of its main topics, objectives, and overall structure.
-      3.  **Extract Key Concepts:** Identify and list the most critical keywords, phrases, and concepts discussed.
-      4.  **Enrich with Scientific Context:** Based on the content and the subject area you identified, provide a brief explanation of the underlying scientific principles, relevant theories, or foundational knowledge that complements the material. Connect the document's topics to established knowledge in the identified field.
+      1.  **Identify Subject Area:** First, determine the specific field of study (e.g., Kinesiology, Nutrition, Philosophy).
+      2.  **Summarize:** Provide a concise summary of the document's main topics and overall structure.
+      3.  **Extract Key Information:**
+          *   Identify and list the most critical **keywords and concepts**.
+          *   Determine the total duration in **weeks** if specified.
+          *   Extract the main **learning objectives**.
+          *   List any **bibliography** or references mentioned.
+      4.  **Enrich with Modern Resources:** Based on the key concepts, find and provide a list of high-quality, modern educational resources. For each resource, provide a title, a URL (or video ID for YouTube), and a brief summary of its relevance.
+          *   Find 2-3 relevant **academic articles or web pages**.
+          *   Find 2-3 relevant **YouTube videos** that explain the concepts visually or practically.
 
-      Provide a structured response with the identified subject area, a clear summary, a list of key concepts, and the enriched scientific context.`
+      Provide a structured JSON response according to the defined output schema. Ensure all fields are populated accurately.`
   });
   
   const { output } = await analysisPrompt(input);
@@ -63,8 +79,11 @@ const GenerateMaterialInputSchema = z.object({
     analysisResult: z.object({
         summary: z.string(),
         keyConcepts: z.array(z.string()),
-        scientificContext: z.string(),
         subjectArea: z.string(),
+        weeks: z.union([z.number(), z.string()]).optional(),
+        learningObjectives: z.array(z.string()),
+        bibliography: z.array(z.string()),
+        enrichedContent: z.any(),
     }),
     materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
 });
@@ -114,9 +133,6 @@ export async function generateMaterialFromAnalysis(
         
         **Key Concepts:**
         ${analysisResult.keyConcepts.join(', ')}
-        
-        **Scientific Context:**
-        ${analysisResult.scientificContext}
         
         **Your Task:**
         ${MaterialPrompts[materialType]}

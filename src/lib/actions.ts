@@ -19,8 +19,11 @@ const GenerateMaterialInputSchema = z.object({
     analysisResult: z.object({
         summary: z.string(),
         keyConcepts: z.array(z.string()),
-        scientificContext: z.string(),
         subjectArea: z.string(),
+        weeks: z.union([z.number(), z.string()]).optional(),
+        learningObjectives: z.array(z.string()),
+        bibliography: z.array(z.string()),
+        enrichedContent: z.any(),
     }),
     materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
 });
@@ -163,7 +166,7 @@ async function createStyledPptx(markdownContent: string): Promise<string> {
 
             if (content.length > 0) {
                 slide.addText(content.join('\n'), {
-                    x: 0.75, y: 1.5, w: '85%', h: 3.75, fontSize: 20, color: '3C2A1E', bullet: true, // Darker text for readability
+                    x: 0.75, y: 1.5, w: '85%', h: 3.75, fontSize: 20, color: '3C2A1E', bullet: true,
                 });
             }
         });

@@ -1,8 +1,22 @@
 export type AnalysisResult = {
   summary: string;
   keyConcepts: string[];
-  scientificContext: string;
   subjectArea: string;
+  weeks?: number | string;
+  learningObjectives: string[];
+  bibliography: string[];
+  enrichedContent: {
+    externalLinks: {
+      title: string;
+      url: string;
+      summary: string;
+    }[];
+    youtubeVideos: {
+      title: string;
+      videoId: string;
+      summary: string;
+    }[];
+  };
 }
 
 export type GeneratedMaterials = {
