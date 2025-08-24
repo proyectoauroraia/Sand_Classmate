@@ -5,7 +5,7 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { UploadCloud, Presentation, FileText, ClipboardCheck, Loader2, Download, RefreshCw, AlertCircle, Copy, BookOpen, Lightbulb, GraduationCap, Sparkles, Youtube, Link as LinkIcon, Target, BookCopy, Calendar, ListChecks, PencilRuler } from 'lucide-react';
+import { UploadCloud, Presentation, FileText, ClipboardCheck, Loader2, Download, RefreshCw, AlertCircle, Copy, BookOpen, Lightbulb, GraduationCap, Sparkles, Youtube, Link as LinkIcon, Target, BookCopy, Calendar, ListChecks, PencilRuler, CheckCircle2 } from 'lucide-react';
 import { analyzeContentAction, generateMaterialsActionFromAnalysis } from '@/lib/actions';
 import type { AnalysisResult, GeneratedMaterials } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +16,8 @@ import { Label } from '../ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 type GenerationState = 'idle' | 'analyzing' | 'generating' | 'success';
+type MaterialKey = keyof GeneratedMaterials;
+type MaterialStatus = 'idle' | 'generating' | 'success';
 
 type FileUploaderProps = {
     onAnalysisComplete: (result: AnalysisResult | null) => void;
@@ -23,10 +25,17 @@ type FileUploaderProps = {
 
 
 export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
-    const [generationState, setGenerationState] = useState<GenerationState>('idle');
+    const [analysisState, setAnalysisState] = useState<GenerationState>('idle');
     const [error, setError] = useState<string | null>(null);
     const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
-    const [generatedMaterials, setGeneratedMaterials] = useState<GeneratedMaterials | null>(null);
+    const [materialStatuses, setMaterialStatuses] = useState<Record<MaterialKey, MaterialStatus>>({
+        powerpointPresentation: 'idle',
+        workGuide: 'idle',
+        exampleTests: 'idle',
+        interactiveReviewPdf: 'idle',
+    });
+    const [isGeneratingAll, setIsGeneratingAll] = useState(false);
+
     const [fileName, setFileName] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
@@ -47,7 +56,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
             return;
         }
 
-        setGenerationState('analyzing');
+        setAnalysisState('analyzing');
         setError(null);
         setAnalysisResult(null);
 
@@ -80,15 +89,15 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                 description: errorMessage,
             });
         } finally {
-            setGenerationState('idle');
+            setAnalysisState('idle');
         }
     };
 
 
-    const handleGenerationSubmit = async (materialType: keyof GeneratedMaterials) => {
+    const handleGenerationSubmit = async (materialType: MaterialKey) => {
         if (!analysisResult) return;
 
-        setGenerationState('generating');
+        setMaterialStatuses(prev => ({ ...prev, [materialType]: 'generating' }));
         setError(null);
 
         try {
@@ -100,7 +109,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
             const link = document.createElement('a');
             link.href = response.data;
             
-            const fileNames = {
+            const fileNames: Record<MaterialKey, string> = {
                 powerpointPresentation: 'presentacion.pptx',
                 workGuide: 'guia_de_trabajo.pdf',
                 exampleTests: 'examen_de_ejemplo.pdf',
@@ -116,6 +125,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                 title: '¡Material Generado!',
                 description: `Tu ${fileNames[materialType]} se ha descargado.`,
             });
+            setMaterialStatuses(prev => ({ ...prev, [materialType]: 'success' }));
 
         } catch (e) {
              const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error inesperado.';
@@ -125,38 +135,45 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
               title: "Falló la Generación",
               description: errorMessage,
             });
-        } finally {
-            setGenerationState('idle');
+            setMaterialStatuses(prev => ({ ...prev, [materialType]: 'idle' })); // Reset on error
         }
     }
 
     const handleGenerateAll = async () => {
-        // This is a simplified version. A real implementation might zip files on the server.
-        await handleGenerationSubmit('powerpointPresentation');
-        await handleGenerationSubmit('workGuide');
-        await handleGenerationSubmit('exampleTests');
-        await handleGenerationSubmit('interactiveReviewPdf');
+        setIsGeneratingAll(true);
+        const materialsToGenerate: MaterialKey[] = ['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf'];
+        for (const materialType of materialsToGenerate) {
+            await handleGenerationSubmit(materialType);
+        }
+        setIsGeneratingAll(false);
     };
 
+    const isAnyTaskRunning = isGeneratingAll || Object.values(materialStatuses).some(s => s === 'generating');
 
     const resetState = () => {
-        setGenerationState('idle');
+        setAnalysisState('idle');
         setError(null);
         setAnalysisResult(null);
-        setGeneratedMaterials(null);
         setFileName(null);
+         setMaterialStatuses({
+            powerpointPresentation: 'idle',
+            workGuide: 'idle',
+            exampleTests: 'idle',
+            interactiveReviewPdf: 'idle',
+        });
+        setIsGeneratingAll(false);
         if(fileInputRef.current) {
             fileInputRef.current.value = '';
         }
         onAnalysisComplete(null);
     }
 
-    if (generationState === 'analyzing' || generationState === 'generating') {
+    if (analysisState === 'analyzing') {
         return (
             <Card className="flex flex-col items-center justify-center text-center p-10 h-96">
                 <Loader2 className="h-16 w-16 animate-spin text-primary mb-6" />
                 <p className="text-xl font-semibold">
-                    {generationState === 'analyzing' ? 'Analizando tu documento...' : 'Generando tus materiales...'}
+                    Analizando tu documento...
                 </p>
                 <p className="text-muted-foreground mt-2">Esto puede tardar unos momentos. No cierres esta página.</p>
             </Card>
@@ -218,7 +235,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                                 <h3 className="font-semibold text-xl mb-3 flex items-center gap-2"><PencilRuler className="h-6 w-6 text-primary"/> Evaluaciones</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {analysisResult.assessments.map((assessment, i) => (
-                                        <div key={i} className="p-4 rounded-lg bg-secondary/30">
+                                        <div key={i} className="p-4 rounded-lg bg-secondary/30 break-words">
                                             <div className="font-semibold">{assessment.type}</div>
                                             <p className="text-sm text-muted-foreground mt-1">{assessment.description}</p>
                                         </div>
@@ -256,7 +273,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                                 <h3 className="font-semibold text-xl mb-3">Recursos Externos Sugeridos</h3>
                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {analysisResult.enrichedContent.externalLinks.map((link, i) => (
-                                        <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors">
+                                        <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors break-words">
                                             <div className="font-semibold flex items-center gap-2 text-primary"><LinkIcon className="h-4 w-4"/> {link.title}</div>
                                             <p className="text-xs text-muted-foreground mt-1">{link.summary}</p>
                                         </a>
@@ -270,7 +287,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                                 <h3 className="font-semibold text-xl mb-3">Videos de YouTube Recomendados</h3>
                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {analysisResult.enrichedContent.youtubeVideos.map((video, i) => (
-                                        <a key={i} href={`https://www.youtube.com/watch?v=${video.videoId}`} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors">
+                                        <a key={i} href={`https://www.youtube.com/watch?v=${video.videoId}`} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors break-words">
                                             <div className="font-semibold flex items-center gap-2 text-red-600"><Youtube className="h-5 w-5"/> {video.title}</div>
                                             <p className="text-xs text-muted-foreground mt-1">{video.summary}</p>
                                         </a>
@@ -291,19 +308,19 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <Button size="lg" className="w-full py-7 text-lg" onClick={handleGenerateAll} disabled={generationState === 'generating'}>
-                                <Sparkles className="mr-3 h-6 w-6"/>
+                            <Button size="lg" className="w-full py-7 text-lg" onClick={handleGenerateAll} disabled={isAnyTaskRunning}>
+                                {isGeneratingAll ? <Loader2 className="mr-3 h-6 w-6 animate-spin"/> : <Sparkles className="mr-3 h-6 w-6"/>}
                                 Generar Todo
                             </Button>
                             <div className="grid grid-cols-2 gap-4">
-                                <MaterialButton icon={Presentation} title="Presentación" onClick={() => handleGenerationSubmit('powerpointPresentation')} disabled={generationState === 'generating'} />
-                                <MaterialButton icon={FileText} title="Guía de Trabajo" onClick={() => handleGenerationSubmit('workGuide')} disabled={generationState === 'generating'}/>
-                                <MaterialButton icon={ClipboardCheck} title="Examen" onClick={() => handleGenerationSubmit('exampleTests')} disabled={generationState === 'generating'}/>
-                                <MaterialButton icon={Lightbulb} title="Repaso" onClick={() => handleGenerationSubmit('interactiveReviewPdf')} disabled={generationState === 'generating'}/>
+                                <MaterialButton icon={Presentation} title="Presentación" status={materialStatuses.powerpointPresentation} onClick={() => handleGenerationSubmit('powerpointPresentation')} disabled={isAnyTaskRunning} />
+                                <MaterialButton icon={FileText} title="Guía de Trabajo" status={materialStatuses.workGuide} onClick={() => handleGenerationSubmit('workGuide')} disabled={isAnyTaskRunning}/>
+                                <MaterialButton icon={ClipboardCheck} title="Examen" status={materialStatuses.exampleTests} onClick={() => handleGenerationSubmit('exampleTests')} disabled={isAnyTaskRunning}/>
+                                <MaterialButton icon={Lightbulb} title="Repaso" status={materialStatuses.interactiveReviewPdf} onClick={() => handleGenerationSubmit('interactiveReviewPdf')} disabled={isAnyTaskRunning}/>
                             </div>
                         </CardContent>
                     </Card>
-                     <Button onClick={resetState} variant="outline" className="w-full py-6 text-base">
+                     <Button onClick={resetState} variant="outline" className="w-full py-6 text-base" disabled={isAnyTaskRunning}>
                         <RefreshCw className="mr-2 h-5 w-5" />
                         Analizar Otro Documento
                     </Button>
@@ -342,8 +359,8 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                             onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
                         />
                     </div>
-                    <Button type="submit" disabled={generationState !== 'idle' || !fileName} size="lg" className="w-full py-7 text-lg">
-                        {generationState === 'analyzing' ? <Loader2 className="mr-2 h-6 w-6 animate-spin" /> : <BookOpen className="mr-3 h-6 w-6" />}
+                    <Button type="submit" disabled={analysisState !== 'idle' || !fileName} size="lg" className="w-full py-7 text-lg">
+                        {analysisState === 'analyzing' ? <Loader2 className="mr-2 h-6 w-6 animate-spin" /> : <BookOpen className="mr-3 h-6 w-6" />}
                         Analizar Contenido
                     </Button>
                 </form>
@@ -352,10 +369,22 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     );
 }
 
-function MaterialButton({ icon: Icon, title, onClick, disabled }: { icon: React.ElementType, title: string, onClick: () => void, disabled: boolean }) {
+function MaterialButton({ icon: Icon, title, onClick, disabled, status }: { icon: React.ElementType, title: string, onClick: () => void, disabled: boolean, status: MaterialStatus }) {
+    const getIcon = () => {
+        switch (status) {
+            case 'generating':
+                return <Loader2 className="h-8 w-8 animate-spin text-primary" />;
+            case 'success':
+                return <CheckCircle2 className="h-8 w-8 text-green-500" />;
+            case 'idle':
+            default:
+                return <Icon className="h-8 w-8 text-primary" />;
+        }
+    };
+
     return (
-        <Button onClick={onClick} disabled={disabled} variant="outline" className="w-full justify-center h-24 p-4 gap-2 text-center flex-col">
-            <Icon className="h-8 w-8 text-primary" />
+        <Button onClick={onClick} disabled={disabled || status === 'generating' || status === 'success'} variant="outline" className="w-full justify-center h-24 p-4 gap-2 text-center flex-col">
+            {getIcon()}
             <span className="text-sm font-medium">{title}</span>
         </Button>
     );
