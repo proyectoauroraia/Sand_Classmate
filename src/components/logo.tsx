@@ -1,13 +1,13 @@
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
+    <div className={`flex items-center gap-2 ${className}`}>
       <svg
         width="40"
         height="40"
         viewBox="0 0 100 100"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-10 w-10"
+        className="h-8 w-8"
       >
         <defs>
             <linearGradient id="sandGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -38,7 +38,7 @@ export function Logo({ className }: { className?: string }) {
       </svg>
       <span
         style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
-        className="text-xl font-medium"
+        className="text-lg font-medium"
         >
         Sand Classmate
       </span>
