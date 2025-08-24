@@ -26,8 +26,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <TooltipProvider delayDuration={0}>
             <div className="grid min-h-screen w-full lg:grid-cols-[80px_1fr]">
                 <div className="hidden border-r bg-card lg:flex lg:flex-col lg:items-center">
-                    <div className="flex h-[60px] items-center border-b px-6">
-                        <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
+                    <div className="flex h-[60px] w-full items-center justify-center border-b">
+                        <Link href="/dashboard" className="flex items-center justify-center gap-2 font-semibold">
                            <Logo />
                         </Link>
                     </div>

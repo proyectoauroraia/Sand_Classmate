@@ -7,7 +7,10 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4 sm:p-8">
       <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
-          <Logo />
+          <div className="flex items-center gap-2">
+            <Logo />
+            <span className="text-2xl font-bold text-primary">Sand Classmate</span>
+          </div>
           <h1 className="mt-4 text-2xl font-bold text-foreground">Welcome Back, Educator</h1>
           <p className="text-muted-foreground">Sign in to generate your course materials in seconds.</p>
         </div>
