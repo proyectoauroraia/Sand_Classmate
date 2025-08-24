@@ -256,11 +256,12 @@ export function FileUploader() {
 
 function MaterialButton({ icon: Icon, title, onClick, disabled }: { icon: React.ElementType, title: string, onClick: () => void, disabled: boolean }) {
     return (
-        <Button onClick={onClick} disabled={disabled} variant="outline" className="w-full justify-center h-auto p-4 gap-2 text-center flex-col aspect-square">
+        <Button onClick={onClick} disabled={disabled} variant="outline" className="w-full justify-center h-24 p-4 gap-2 text-center flex-col">
             <Icon className="h-8 w-8 text-primary" />
             <span className="text-sm font-medium">{title}</span>
         </Button>
     );
 }
 
+    
     
