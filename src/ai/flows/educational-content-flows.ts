@@ -50,7 +50,7 @@ const AnalyzeContentOutputSchema = z.object({
   
   bibliography: z.object({
       mentioned: z.array(z.string()).describe('A list of bibliographic references or source materials mentioned directly in the document.').optional(),
-      recommended: z.array(z.string()).describe('A list of relevant, modern external bibliographic recommendations (books, key articles) that are NOT in the original document but are highly relevant to the subject area. Prioritize resources from the last 5 years from reliable sources like .edu, .gov domains, or academic journals.'),
+      recommended: z.array(z.string()).describe('A list of relevant, modern external bibliographic recommendations (books, key articles) that are NOT in the original document but are highly relevant to the subject area. Prioritize resources from the last 5 years from reliable sources like .edu, .gov, or academic journals.'),
   }).optional(),
 
 });
@@ -180,6 +180,31 @@ Aquí tienes un conjunto de **sugerencias de buenas prácticas** para crear un e
 ---
 `;
 
+const PedagogicalFoundationPrompt = `
+---
+
+## Fundamentación Pedagógica y Bibliográfica de este Material
+
+Como experto en diseño curricular y pedagogía universitaria, este material ha sido diseñado no solo como un recurso práctico, sino como una manifestación de principios de evaluación para el aprendizaje de alta calidad, garantizando su rigor y pertinencia internacional.
+
+**1. ¿Cómo se construyó este material?**
+
+Este recurso se desarrolló aplicando directamente las recomendaciones del análisis pedagógico previo y las "Sugerencias de Buenas Prácticas" incluidas. Se ha enfocado en:
+*   **Conexión Directa con el Análisis:** El diseño de este material responde a las debilidades y fortalezas detectadas en el documento original. Por ejemplo, si se recomendó "incorporar casos clínicos", este material los incluye para pasar de la memorización a la aplicación práctica.
+*   **Jerarquía Cognitiva (Taxonomía de Bloom):** Se han formulado actividades y preguntas que buscan elevar el nivel cognitivo, transitando desde el simple "recordar" hacia "analizar", "aplicar" o "evaluar", en línea con las demandas de la formación universitaria actual.
+*   **Enfoque en Competencias:** El diseño prioriza la evaluación de competencias y habilidades prácticas sobre la mera repetición de contenido.
+
+**2. Referencias Bibliográficas y Autores Clave de Respaldo:**
+
+La estructura y enfoque de este material se fundamentan en los trabajos de autores y marcos teóricos de referencia en la pedagogía moderna:
+
+*   **Alineamiento Constructivo (Biggs & Tang, 2011):** Este principio sostiene que los objetivos de aprendizaje, las actividades de enseñanza y las tareas de evaluación deben estar perfectamente alineados. El material busca asegurar esta coherencia, garantizando que lo que se evalúa es realmente lo que se pretende enseñar y lo que el estudiante debe aprender.
+*   **Diseño Inverso o "Understanding by Design" (Wiggins & McTighe, 2005):** Este material se ha creado partiendo del resultado de aprendizaje esperado. Primero se define qué debe ser capaz de hacer el estudiante, y luego se diseñan las evaluaciones y actividades que le permitirán demostrar esa competencia.
+*   **Evaluación para el Aprendizaje (Formative Assessment):** Se considera la evaluación no como un fin en sí mismo, sino como una oportunidad para el aprendizaje. Se incluyen pautas de corrección o respuestas ideales para que tanto el docente como el estudiante tengan claridad sobre los criterios de éxito y las áreas de mejora.
+
+Este enfoque asegura que el material no es un producto genérico, sino una herramienta pedagógica robusta, transparente y diseñada para fomentar un aprendizaje significativo y profundo.
+`;
+
 
 const MaterialPrompts = {
     powerpointPresentation: `
@@ -246,7 +271,8 @@ export async function generateMaterialFromAnalysis(
         ? `${GoodPracticesForExams}\n${MaterialPrompts.exampleTests}`
         : MaterialPrompts[materialType];
     
-    const finalPrompt = `${basePrompt}\n${specificInstructions}\n\nGenerate the content in Markdown and place it in the 'markdownContent' field of the JSON output.`;
+    // Add the pedagogical foundation to the end of every prompt.
+    const finalPrompt = `${basePrompt}\n${specificInstructions}\n\n${PedagogicalFoundationPrompt}\n\nGenerate the content in Markdown and place it in the 'markdownContent' field of the JSON output.`;
 
 
     const generationPrompt = ai.definePrompt({
