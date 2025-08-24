@@ -21,9 +21,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     ];
     
     const router = useRouter();
-    const supabase = createClient();
 
     const handleSignOut = async () => {
+        const supabase = createClient();
         await supabase.auth.signOut();
         router.push('/');
         router.refresh();
