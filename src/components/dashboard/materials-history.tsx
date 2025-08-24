@@ -60,23 +60,13 @@ export function MaterialsHistory() {
                             {item.fileName}
                         </TableCell>
                         <TableCell className="text-right">
-                          { index === 0 ? (
-                             <Button 
-                                variant="link"
-                                size="sm" 
-                                onClick={() => handleViewAnalysis(item.id)}
-                              >
-                                Ver
-                              </Button>
-                          ) : (
-                            <Button 
-                              size="sm" 
-                              onClick={() => handleViewAnalysis(item.id)}
-                              className={cn(buttonColors[(index % buttonColors.length)])}
-                            >
-                              Ver
-                            </Button>
-                          )}
+                          <Button 
+                            size="sm" 
+                            onClick={() => handleViewAnalysis(item.id)}
+                            className={cn(buttonColors[(index % buttonColors.length)])}
+                          >
+                            Ver
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))
