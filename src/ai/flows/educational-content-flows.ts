@@ -72,6 +72,8 @@ export async function analyzeAndEnrichContent(
       output: { schema: AnalyzeContentOutputSchema },
       prompt: `You are an expert academic and pedagogical assistant. Your task is to perform a deep and structured analysis of the provided educational document (syllabus, course notes, etc.).
 
+      IMPORTANT: All generated text, summaries, titles, and descriptions MUST be in Spanish.
+
       Document: {{media url=documentDataUri}}
 
       1.  **Identify Subject Area:** Determine the specific field of study (e.g., Kinesiology, Nutrition, Philosophy).
@@ -89,7 +91,7 @@ export async function analyzeAndEnrichContent(
           *   Find 2-3 relevant **academic articles or web pages**.
           *   Find 2-3 relevant **YouTube videos** that explain the concepts visually or practically.
 
-      Provide a structured JSON response according to the defined output schema. Ensure all fields are populated accurately.`
+      Provide a structured JSON response according to the defined output schema. Ensure all fields are populated accurately and in Spanish.`
   });
   
   const { output } = await analysisPrompt(input);
@@ -113,7 +115,7 @@ const GenerateMaterialInputSchema = z.object({
 });
 
 const GenerateMaterialOutputSchema = z.object({
-  markdownContent: z.string().describe("The full content for the requested educational material, formatted in Markdown."),
+  markdownContent: z.string().describe("The full content for the requested educational material, formatted in Markdown and written entirely in Spanish."),
 });
 
 
@@ -128,14 +130,15 @@ const MaterialPrompts = {
     workGuide: `
         Generate a comprehensive work guide in markdown format.
         - Use H2 (##) for main sections (like course units) and H3 (###) for subsections.
-        - Include sections like "Learning Objectives", "Key Topics per Unit", "Suggested Activities", and "Further Reading".
+        - Include sections like "Objetivos de Aprendizaje", "Temas Clave por Unidad", "Actividades Sugeridas", and "Lecturas Adicionales".
         - Use bullet points (*) for detailed information within each section.
     `,
     exampleTests: `
         Generate a sample test with a variety of question types (multiple choice, true/false, short answer) covering the different units.
-        - Use H2 (##) for each question, and indicate which unit it relates to if possible.
-        - For multiple-choice questions, list options with a bullet point (*) and mark the correct one with "(Correcto)".
-        - For short answer questions, provide a brief ideal answer.
+        - Use H2 (##) to title each section, usually for each unit.
+        - Use H3 (###) for each question, indicating its type (e.g., "### 1. Pregunta de Selección Múltiple").
+        - For multiple-choice questions, list options with a bullet point (*) and mark the correct one with "(Correcta)".
+        - For short answer questions, provide a brief ideal answer under a title like "Respuesta Ideal:".
     `,
     interactiveReviewPdf: `
         Create content for an interactive review guide.
@@ -158,6 +161,8 @@ export async function generateMaterialFromAnalysis(
         prompt: `You are an expert curriculum developer for the field of ${analysisResult.subjectArea}.
         
         You have been provided with a detailed analysis of a course document. Use all the information below to generate the requested material.
+        
+        IMPORTANT: All generated content MUST be in Spanish. The markdown output must be entirely in Spanish.
 
         **Subject Area:** ${analysisResult.subjectArea}
         **Course Summary:** ${analysisResult.summary}

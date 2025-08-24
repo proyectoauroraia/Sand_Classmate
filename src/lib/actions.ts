@@ -5,15 +5,15 @@ import { analyzeAndEnrichContent, generateMaterialFromAnalysis } from '@/ai/flow
 import type { AnalysisResult } from '@/lib/types';
 import { z } from 'zod';
 import PptxGenJS from 'pptxgenjs';
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Numbering, Indent, Footer, PageNumber } from 'docx';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Numbering } from 'docx';
 import type { GeneratedMaterials } from '@/lib/types';
 import { PDFDocument, rgb, StandardFonts, PageSizes } from 'pdf-lib';
 
 
 const AnalyzeInputSchema = z.object({
   documentDataUri: z.string().refine(
-    (uri) => uri.startsWith('data:application/pdf;base64,'),
-    'Solo se admiten documentos PDF.'
+    (uri) => uri.startsWith('data:application/pdf;base64,') || uri.startsWith('data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,'),
+    'Solo se admiten documentos PDF o DOCX.'
   ),
 });
 
@@ -41,22 +41,30 @@ const GenerateMaterialInputSchema = z.object({
 
 async function createStyledPdf(title: string, markdownContent: string): Promise<string> {
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage(PageSizes.A4);
+    let page = pdfDoc.addPage(PageSizes.A4);
     const { width, height } = page.getSize();
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
 
     const margin = 50;
     let y = height - margin;
 
-    const drawText = (text: string, x: number, currentY: number, font: any, size: number, color = rgb(0, 0, 0)) => {
-        page.drawText(text, { x, y: currentY, font, size, color });
-        return size + 4; // Line height
+    const checkY = (requiredHeight: number) => {
+        if (y - requiredHeight < margin) {
+            page = pdfDoc.addPage(PageSizes.A4);
+            y = height - margin;
+        }
+    };
+
+    const drawText = (text: string, x: number, currentY: number, font: any, size: number, color = rgb(0.1, 0.1, 0.1)) => {
+        page.drawText(text, { x, y: currentY, font, size, color, lineHeight: size * 1.2 });
+        return size * 1.2;
     };
     
     const wrapText = (text: string, maxWidth: number, font: any, size: number): string[] => {
         const words = text.split(' ');
-        const lines = [];
+        const lines: string[] = [];
         let currentLine = '';
         for(const word of words){
             const testLine = currentLine.length > 0 ? `${currentLine} ${word}` : word;
@@ -72,44 +80,53 @@ async function createStyledPdf(title: string, markdownContent: string): Promise<
         return lines;
     };
 
-
-    y -= drawText(title, margin, y, fontBold, 24);
-    y -= 20;
+    // Main Title
+    checkY(30);
+    y -= drawText(title, margin, y, fontBold, 24, rgb(0, 0.3, 0.5));
 
     const lines = markdownContent.split('\n');
 
     for (const line of lines) {
-        if (y < margin) {
-            const newPage = pdfDoc.addPage(PageSizes.A4);
-            page.setRotation(newPage.getRotation());
-            y = height - margin;
-        }
-
         const trimmedLine = line.trim();
+        if (trimmedLine.startsWith('# ')) continue; // Skip main title again
+
         if (trimmedLine.startsWith('## ')) {
             y -= 20;
-            const wrappedLines = wrapText(trimmedLine.substring(3), width - 2 * margin, fontBold, 16);
+            checkY(18);
+            const wrappedLines = wrapText(trimmedLine.substring(3), width - 2 * margin, fontBold, 18);
             for(const wrapped of wrappedLines){
-                y -= drawText(wrapped, margin, y, fontBold, 16);
+                y -= drawText(wrapped, margin, y, fontBold, 18, rgb(0.1, 0.4, 0.6));
             }
-            y -= 10;
         } else if (trimmedLine.startsWith('### ')) {
-             y -= 15;
+            y -= 15;
+            checkY(14);
             const wrappedLines = wrapText(trimmedLine.substring(4), width - 2 * margin, fontBold, 14);
-            for(const wrapped of wrappedLines){
-                y -= drawText(wrapped, margin, y, fontBold, 14);
+             for(const wrapped of wrappedLines){
+                y -= drawText(wrapped, margin, y, fontBold, 14, rgb(0.2, 0.2, 0.2));
             }
-            y -= 8;
         } else if (trimmedLine.startsWith('* ')) {
+            checkY(12);
             const itemText = trimmedLine.substring(2);
             const wrappedLines = wrapText(itemText, width - 2 * margin - 20, font, 12);
             for(const [i, wrapped] of wrappedLines.entries()){
                 const bullet = i === 0 ? '• ' : '  ';
+                 checkY(12);
                 y -= drawText(bullet + wrapped, margin + 10, y, font, 12);
             }
+        } else if (trimmedLine.match(/^\s*Respuesta Ideal:/i)) {
+             checkY(12);
+             const answerText = trimmedLine.substring(trimmedLine.indexOf(':') + 1).trim();
+             const wrappedLines = wrapText(answerText, width - 2 * margin - 20, fontItalic, 11);
+              for(const wrapped of wrappedLines){
+                checkY(12);
+                y -= drawText(wrapped, margin + 10, y, fontItalic, 11, rgb(0.3, 0.3, 0.3));
+            }
+
         } else if (trimmedLine.length > 0) {
+            checkY(12);
             const wrappedLines = wrapText(trimmedLine, width - 2 * margin, font, 12);
             for(const wrapped of wrappedLines){
+                 checkY(12);
                 y -= drawText(wrapped, margin, y, font, 12);
             }
         } else {
@@ -117,7 +134,7 @@ async function createStyledPdf(title: string, markdownContent: string): Promise<
         }
     }
     
-     // Footer
+    // Footer
     const pages = pdfDoc.getPages();
     for (let i = 0; i < pages.length; i++) {
         pages[i].drawText(`Generado por Sand Classmate - Página ${i + 1} de ${pages.length}`, {
@@ -147,14 +164,8 @@ async function createStyledDocx(title: string, markdownContent: string): Promise
                     basedOn: "Normal",
                     next: "Normal",
                     quickFormat: true,
-                    run: {
-                        size: 56, // 28pt
-                        bold: true,
-                        color: "5A3D2B",
-                    },
-                    paragraph: {
-                        spacing: { after: 240 },
-                    },
+                    run: { size: 48, bold: true, color: "2E74B5" },
+                    paragraph: { spacing: { after: 240, before: 120 }, alignment: AlignmentType.CENTER },
                 },
                 {
                     id: "Heading2",
@@ -162,14 +173,8 @@ async function createStyledDocx(title: string, markdownContent: string): Promise
                     basedOn: "Normal",
                     next: "Normal",
                     quickFormat: true,
-                    run: {
-                        size: 36, // 18pt
-                        bold: true,
-                        color: "3C2A1E",
-                    },
-                    paragraph: {
-                        spacing: { before: 240, after: 120 },
-                    },
+                    run: { size: 36, bold: true, color: "333F4F" },
+                    paragraph: { spacing: { before: 240, after: 120 } },
                 },
                  {
                     id: "Heading3",
@@ -177,15 +182,16 @@ async function createStyledDocx(title: string, markdownContent: string): Promise
                     basedOn: "Normal",
                     next: "Normal",
                     quickFormat: true,
-                    run: {
-                        size: 28, // 14pt
-                        bold: true,
-                        color: "3C2A1E",
-                    },
-                    paragraph: {
-                        spacing: { before: 120, after: 80 },
-                    },
+                    run: { size: 28, bold: true, color: "4F4F4F" },
+                    paragraph: { spacing: { before: 180, after: 80 } },
                 },
+                {
+                    id: "IdealAnswer",
+                    name: "Ideal Answer",
+                    basedOn: "Normal",
+                    run: { size: 22, italics: true, color: "595959"},
+                    paragraph: { indent: { left: 720 }, spacing: { before: 60, after: 120 } }
+                }
             ],
         },
         numbering: {
@@ -198,11 +204,7 @@ async function createStyledDocx(title: string, markdownContent: string): Promise
                             format: "bullet",
                             text: "•",
                             alignment: AlignmentType.LEFT,
-                            style: {
-                                paragraph: {
-                                    indent: { left: 720, hanging: 360 },
-                                },
-                            },
+                            style: { paragraph: { indent: { left: 720, hanging: 360 } } },
                         },
                     ],
                 },
@@ -210,16 +212,13 @@ async function createStyledDocx(title: string, markdownContent: string): Promise
         },
     });
 
-    const children = [new Paragraph({
-        heading: HeadingLevel.HEADING_1,
-        text: title,
-        alignment: AlignmentType.CENTER,
-    })];
+    const children = [new Paragraph({ heading: HeadingLevel.HEADING_1, text: title })];
 
     const lines = markdownContent.split('\n');
 
     for (const line of lines) {
         const trimmedLine = line.trim();
+         if (trimmedLine.startsWith('# ')) continue;
         if (trimmedLine.startsWith('## ')) {
              children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, text: trimmedLine.substring(3) }));
         } else if (trimmedLine.startsWith('### ')) {
@@ -227,16 +226,11 @@ async function createStyledDocx(title: string, markdownContent: string): Promise
         } else if (trimmedLine.startsWith('* ')) {
             children.push(new Paragraph({
                 text: trimmedLine.substring(2),
-                numbering: {
-                    reference: "bullet-points",
-                    level: 0,
-                },
-                style: {
-                    paragraph: {
-                        indent: { left: 720, hanging: 360 }
-                    }
-                }
+                numbering: { reference: "bullet-points", level: 0 },
             }));
+        } else if (trimmedLine.match(/^\s*Respuesta Ideal:/i)) {
+            const answerText = trimmedLine.substring(trimmedLine.indexOf(':') + 1).trim();
+            children.push(new Paragraph({ text: answerText, style: "IdealAnswer" }));
         } else if (trimmedLine.length > 0) {
             children.push(new Paragraph({ text: trimmedLine }));
         } else {
@@ -246,21 +240,6 @@ async function createStyledDocx(title: string, markdownContent: string): Promise
 
 
     doc.addSection({
-        footers: {
-            default: new Footer({
-                children: [
-                    new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        children: [
-                            new TextRun({
-                                children: ["Generado por Sand Classmate - Página ", PageNumber.CURRENT],
-                                size: 18, // 9pt
-                            }),
-                        ],
-                    }),
-                ],
-            }),
-        },
         children,
     });
 
@@ -368,22 +347,20 @@ export async function generateMaterialsActionFromAnalysis(
 
         let fileDataUri: string;
         
+        const titleMap = {
+            workGuide: 'Guía de Trabajo',
+            exampleTests: 'Examen de Ejemplo',
+            interactiveReviewPdf: 'Repaso Interactivo',
+            powerpointPresentation: analysisResult.subjectArea || 'Presentación'
+        };
+        const title = titleMap[materialType];
+
         if (materialType === 'powerpointPresentation') {
             fileDataUri = await createStyledPptx(markdownContent);
         } else if (format === 'docx') {
-             const titleMap = {
-                workGuide: 'Guía de Trabajo',
-                exampleTests: 'Examen de Ejemplo',
-                interactiveReviewPdf: 'Repaso Interactivo'
-            };
-            fileDataUri = await createStyledDocx(titleMap[materialType], markdownContent);
+            fileDataUri = await createStyledDocx(title, markdownContent);
         } else { // pdf
-            const titleMap = {
-                workGuide: 'Guía de Trabajo',
-                exampleTests: 'Examen de Ejemplo',
-                interactiveReviewPdf: 'Repaso Interactivo'
-            };
-            fileDataUri = await createStyledPdf(titleMap[materialType], markdownContent);
+            fileDataUri = await createStyledPdf(title, markdownContent);
         }
         
         return { data: fileDataUri, error: null };
@@ -394,5 +371,3 @@ export async function generateMaterialsActionFromAnalysis(
         return { data: null, error: `Falló la generación del material: ${errorMessage}` };
     }
 }
-    
-    
