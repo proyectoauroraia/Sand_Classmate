@@ -13,14 +13,14 @@ const CheckListItem = ({ children }: { children: React.ReactNode }) => (
 export default function PricingPage() {
     return (
         <div className="flex flex-col items-center">
-            <div className="text-center max-w-2xl mx-auto mb-12">
+            <div className="text-center max-w-2xl mx-auto">
                 <h1 className="text-4xl lg:text-5xl font-bold tracking-tight">Encuentra el Plan Perfecto</h1>
                 <p className="text-muted-foreground mt-4 text-lg">
                     Desde proyectos individuales hasta grandes instituciones educativas, tenemos un plan que se adapta a tus necesidades.
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-6xl">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-6xl mt-12">
                 {/* Free Plan */}
                 <Card className="flex flex-col rounded-xl bg-card">
                     <CardHeader className="pb-4">
