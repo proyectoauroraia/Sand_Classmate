@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import type { HistoryItem } from '@/lib/types';
@@ -46,7 +46,10 @@ export function MaterialsHistory() {
 
     return (
       <Card className="h-full flex flex-col">
-        <CardContent className="pt-6 flex-grow">
+        <CardHeader>
+            <CardTitle className="text-2xl font-bold tracking-tight">Cursos Recientes</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0 flex-grow">
             <ScrollArea className="h-full">
               <Table>
                 <TableHeader>

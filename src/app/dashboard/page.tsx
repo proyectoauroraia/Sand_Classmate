@@ -43,10 +43,7 @@ export default function DashboardPage() {
 
                 {/* Columna Secundaria */}
                 <div className="lg:col-span-5 flex flex-col h-full">
-                    <h2 className="text-2xl font-bold tracking-tight mb-4">Cursos Recientes</h2>
-                    <div className="flex-grow">
-                        <MaterialsHistory />
-                    </div>
+                    <MaterialsHistory />
                 </div>
                 
             </div>
