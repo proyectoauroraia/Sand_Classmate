@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { UploadCloud, UserCircle2 } from 'lucide-react';
+import { UploadCloud, UserCircle2, BrainCircuit, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function ProfilePage() {
     const { toast } = useToast();
     const fileInputRef = React.useRef<HTMLInputElement>(null);
+    const cvInputRef = React.useRef<HTMLInputElement>(null);
 
     // State for user profile data
     const [fullName, setFullName] = React.useState("Professor Doe");
@@ -62,15 +63,18 @@ export default function ProfilePage() {
                 {/* Left Column: General Info */}
                 <div className="lg:col-span-1 space-y-6">
                     <Card>
-                        <CardHeader className="items-center text-center">
-                            <div className="relative group">
-                                <Avatar className="h-32 w-32 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                                    <AvatarImage src={previewUrl ?? undefined} alt="Foto de Perfil" />
-                                    <AvatarFallback className="bg-secondary/50">
-                                        <UserCircle2 className="h-20 w-20 text-muted-foreground" />
+                        <CardHeader className="items-center text-center p-6">
+                             <div className="relative group w-32 h-32">
+                                <Avatar className="h-full w-full cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                                    <AvatarImage src={previewUrl ?? undefined} alt="Foto de Perfil" className="object-cover" />
+                                    <AvatarFallback className="bg-secondary/50 text-muted-foreground">
+                                        <UserCircle2 className="h-20 w-20" />
                                     </AvatarFallback>
                                 </Avatar>
-                                <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div 
+                                    className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
                                     <span className="text-white text-xs font-semibold">Cambiar Foto</span>
                                 </div>
                             </div>
@@ -81,8 +85,10 @@ export default function ProfilePage() {
                                 accept="image/png, image/jpeg, image/webp"
                                 onChange={handleProfileImageChange}
                             />
-                            <CardTitle className="pt-2">{fullName}</CardTitle>
-                            <CardDescription>{role}</CardDescription>
+                            <div className="pt-4">
+                                <CardTitle>{fullName}</CardTitle>
+                                <CardDescription className="mt-1">{role}</CardDescription>
+                            </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
                              <div className="space-y-2">
@@ -109,14 +115,23 @@ export default function ProfilePage() {
                 <div className="lg:col-span-2 space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Personalización con IA</CardTitle>
+                            <div className="flex items-center gap-3">
+                                <BrainCircuit className="h-6 w-6 text-primary" />
+                                <CardTitle>Personalización con IA</CardTitle>
+                            </div>
                             <CardDescription>Sube tu CV y describe tu estilo de enseñanza para que la IA genere contenido adaptado a ti.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
                              <div className="space-y-2">
                                 <Label htmlFor="cv-upload">Currículum Vitae (CV)</Label>
-                                <div className="flex items-center justify-center w-full">
-                                    <label htmlFor="cv-file" className="flex flex-col items-center justify-center w-full h-32 border-2 border-border border-dashed rounded-lg cursor-pointer bg-secondary/30 hover:bg-accent/30">
+                                <div 
+                                     className="flex items-center justify-center w-full"
+                                     onClick={() => cvInputRef.current?.click()}
+                                >
+                                    <label 
+                                        htmlFor="cv-file" 
+                                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-border border-dashed rounded-lg cursor-pointer bg-secondary/30 hover:bg-accent/50 transition-colors"
+                                    >
                                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                             <UploadCloud className="w-8 h-8 mb-4 text-muted-foreground" />
                                             <p className="mb-2 text-sm text-muted-foreground">
@@ -124,7 +139,7 @@ export default function ProfilePage() {
                                             </p>
                                             <p className="text-xs text-muted-foreground">PDF, DOCX (MAX. 5MB)</p>
                                         </div>
-                                        <Input id="cv-file" type="file" className="hidden" onChange={(e) => setCvFile(e.target.files?.[0] || null)} />
+                                        <Input ref={cvInputRef} id="cv-file" type="file" className="hidden" onChange={(e) => setCvFile(e.target.files?.[0] || null)} />
                                     </label>
                                 </div>
                             </div>
@@ -142,7 +157,10 @@ export default function ProfilePage() {
                     </Card>
                      <Card>
                         <CardHeader>
-                            <CardTitle>Cambiar Contraseña</CardTitle>
+                             <div className="flex items-center gap-3">
+                                <Lock className="h-6 w-6 text-primary" />
+                                <CardTitle>Cambiar Contraseña</CardTitle>
+                            </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
                              <div className="space-y-2">
@@ -157,9 +175,11 @@ export default function ProfilePage() {
                     </Card>
                 </div>
             </div>
-             <div className="flex justify-end">
-                <Button size="lg" onClick={handleSaveChanges}>Guardar Cambios</Button>
+             <div className="flex justify-end pt-4">
+                <Button size="lg" onClick={handleSaveChanges} className="py-6 text-base">Guardar Cambios</Button>
             </div>
         </div>
     );
 }
+
+    
