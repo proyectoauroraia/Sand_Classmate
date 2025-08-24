@@ -87,9 +87,11 @@ export async function analyzeAndEnrichContent(
       5.  **Analyze Bibliography:**
           *   List any **bibliography** or references **mentioned** directly in the document.
           *   **You must provide** a list of 2-3 additional **recommended bibliographic sources** (influential books, seminal papers) that are highly relevant but *not* mentioned in the document. If no bibliography is present in the source, these recommendations are even more critical.
-      6.  **Enrich with Modern Resources:** Based on the key concepts, find and provide a list of high-quality, modern educational resources. For each resource, provide a title, a URL (or video ID for YouTube), and a brief summary of its relevance.
-          *   Find 2-3 relevant **academic articles or web pages**.
-          *   Find 2-3 relevant **YouTube videos** that explain the concepts visually or practically.
+      6.  **Enrich with Up-to-Date, High-Quality Resources:**
+          *   Your primary goal is to find resources with **high scientific and pedagogical rigor.**
+          *   **Search for recent content, prioritizing materials from the last 5 years.**
+          *   **External Links:** Find 2-3 relevant academic articles, studies, or web pages from reputable sources (e.g., universities, government agencies, scientific journals, professional organizations). Provide title, URL, and a summary.
+          *   **YouTube Videos:** Find 2-3 relevant videos from high-quality educational channels (e.g., university channels, recognized scientific communicators). Provide title, video ID, and summary.
 
       Provide a structured JSON response according to the defined output schema. Ensure all fields are populated accurately and in Spanish.`
   });
