@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Home, History, Settings, LogOut, Gem, User, Power } from 'lucide-react';
+import { Home, BookOpen, UserCircle2, Gem, Power } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
 import { Logo } from '@/components/logo';
@@ -19,8 +19,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     const navLinks = [
         { href: "/dashboard", icon: Home, label: "Inicio" },
-        { href: "/dashboard/history", icon: History, label: "Mi Biblioteca" },
-        { href: "/dashboard/profile", icon: User, label: "Mi Perfil" },
+        { href: "/dashboard/history", icon: BookOpen, label: "Mi Biblioteca" },
+        { href: "/dashboard/profile", icon: UserCircle2, label: "Mi Perfil" },
         { href: "/dashboard/pricing", icon: Gem, label: "Planes" },
     ];
     
