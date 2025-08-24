@@ -115,6 +115,71 @@ const GenerateMaterialOutputSchema = z.object({
   markdownContent: z.string().describe("The full content for the requested educational material, formatted in Markdown and written entirely in Spanish."),
 });
 
+const GoodPracticesForExams = `
+# Sugerencias de Buenas Prácticas para Crear un Examen Universitario
+
+Aquí tienes un conjunto de **sugerencias de buenas prácticas** para crear un examen universitario, pensado desde la pedagogía universitaria y la evaluación para el aprendizaje:
+
+---
+
+## 1. Claridad en los objetivos
+* Define primero los **resultados de aprendizaje** que quieres evaluar.
+* Asegúrate de que cada ítem del examen se relacione directamente con esos resultados.
+* Explica en las instrucciones qué competencias o conocimientos serán evaluados.
+
+---
+
+## 2. Diversidad de tipos de ítems
+* Combina diferentes formatos de preguntas:
+  * **Objetivas**: opción múltiple, verdadero/falso, emparejamiento.
+  * **De desarrollo**: ensayo corto, resolución de casos, análisis crítico.
+  * **Prácticas**: ejercicios de aplicación, interpretación de gráficos, problemas.
+* Evita depender solo de preguntas de memoria; incluye ítems que evalúen **comprensión, aplicación y análisis** (Taxonomía de Bloom).
+
+---
+
+## 3. Nivel de dificultad progresivo
+* Ordena las preguntas desde lo más sencillo a lo más complejo.
+* Incluye preguntas de **nivel básico (recuerdo), intermedio (análisis/aplicación)** y **avanzado (síntesis/reflexión crítica)**.
+* Esto permite diferenciar mejor los distintos niveles de logro de los estudiantes.
+
+---
+
+## 4. Redacción precisa y accesible
+* Formula enunciados **claros, sin ambigüedades ni tecnicismos innecesarios**.
+* Evita frases negativas dobles (ej: “no es incorrecto que…”).
+* Revisa ortografía, coherencia y extensión adecuada de cada ítem.
+
+---
+
+## 5. Coherencia y equidad
+* Asegúrate de que todos los estudiantes tengan la misma información y el mismo tiempo para responder.
+* Considera **ajustes razonables** para estudiantes con necesidades específicas.
+* Revisa que el examen no favorezca a quienes dominan solo la memorización.
+
+---
+
+## 6. Instrucciones claras y visibles
+* Señala el **tiempo total disponible** y la ponderación de cada sección.
+* Explica el formato de respuesta esperado (ejemplo: “responda en máximo 5 líneas”).
+* Si es digital, especifica el tipo de archivo o formato de entrega.
+
+---
+
+## 7. Validación y pilotaje
+* Revisa el examen con un colega para detectar sesgos o errores.
+* Si es posible, **pilota algunas preguntas** con un grupo reducido para ajustar tiempo y dificultad.
+* Asegúrate de que los puntajes asignados correspondan al esfuerzo cognitivo requerido.
+
+---
+
+## 8. Retroalimentación posterior
+* Informa a los estudiantes no solo la nota, sino también **qué aprendieron y en qué deben mejorar**.
+* Entregar una rúbrica o criterios de corrección ayuda a transparentar la evaluación.
+
+---
+`;
+
 
 const MaterialPrompts = {
     powerpointPresentation: `
@@ -131,7 +196,13 @@ const MaterialPrompts = {
         - Use bullet points (*) for detailed information within each section.
     `,
     exampleTests: `
-        Generate a new, improved sample test.
+        You will generate a new, improved sample test.
+        
+        **FIRST**, you MUST include the complete "Good Practices for University Exams" guide at the beginning of the document. This is a static, foundational text.
+        
+        **SECOND**, after the guide, you will create a new section titled "# Modelo de Examen Mejorado (Basado en Análisis)".
+        
+        **THIRD**, under this new title, you will generate an improved sample test.
         - **Crucially, use the 'weaknesses' and 'recommendations' from the analysis to build a better exam.** For example, if the analysis recommended using clinical cases, you MUST incorporate clinical cases. If it recommended moving up Bloom's taxonomy, your questions must require application or analysis, not just memorization.
         - Use H2 (##) to title each section (e.g., "## Caso Clínico 1", "## Preguntas de Aplicación").
         - Use H3 (###) for each question, indicating its type (e.g., "### 1. Pregunta de Análisis (Selección Múltiple)").
@@ -152,34 +223,39 @@ export async function generateMaterialFromAnalysis(
 ): Promise<string> {
     const { analysisResult, materialType } = input;
 
+    const basePrompt = `You are an expert curriculum developer for the field of ${analysisResult.subjectArea}.
+        
+    You have been provided with a detailed pedagogical analysis of a course document. Use all the information below to generate the requested material.
+    
+    IMPORTANT: All generated content MUST be in Spanish. The markdown output must be entirely in Spanish.
+
+    **Subject Area:** ${analysisResult.subjectArea}
+    **Course Summary:** ${analysisResult.summary}
+    **Key Concepts:** ${analysisResult.keyConcepts?.join(', ')}
+    **Coherence Analysis:** ${analysisResult.coherenceAnalysis}
+    **Identified Weaknesses:** ${analysisResult.weaknesses?.join(', ')}
+    **Improvement Recommendations:** ${analysisResult.recommendations?.join(', ')}
+    
+    **Your Specific Task:**
+    Based on all the data above, generate content for the following material: **${materialType}**.
+    Follow these instructions precisely:
+    `;
+
+    // Inject the good practices guide directly into the prompt for exampleTests
+    const specificInstructions = materialType === 'exampleTests' 
+        ? `${GoodPracticesForExams}\n${MaterialPrompts.exampleTests}`
+        : MaterialPrompts[materialType];
+    
+    const finalPrompt = `${basePrompt}\n${specificInstructions}\n\nGenerate the content in Markdown and place it in the 'markdownContent' field of the JSON output.`;
+
+
     const generationPrompt = ai.definePrompt({
         name: `generate${materialType}Prompt`,
         input: { schema: z.any() },
         output: { schema: GenerateMaterialOutputSchema },
-        prompt: `You are an expert curriculum developer for the field of ${analysisResult.subjectArea}.
-        
-        You have been provided with a detailed pedagogical analysis of a course document. Use all the information below to generate the requested material.
-        
-        IMPORTANT: All generated content MUST be in Spanish. The markdown output must be entirely in Spanish.
-
-        **Subject Area:** ${analysisResult.subjectArea}
-        **Course Summary:** ${analysisResult.summary}
-        **Key Concepts:** ${analysisResult.keyConcepts?.join(', ')}
-        **Coherence Analysis:** ${analysisResult.coherenceAnalysis}
-        **Identified Weaknesses:** ${analysisResult.weaknesses?.join(', ')}
-        **Improvement Recommendations:** ${analysisResult.recommendations?.join(', ')}
-        
-        **Your Specific Task:**
-        Based on all the data above, generate content for the following material: **${materialType}**.
-        Follow these instructions precisely:
-        ${MaterialPrompts[materialType]}
-        
-        Generate the content in Markdown and place it in the 'markdownContent' field of the JSON output.
-        `,
+        prompt: finalPrompt,
     });
 
     const { output } = await generationPrompt(input);
     return output?.markdownContent || '';
 }
-
-    
