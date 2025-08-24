@@ -1,16 +1,26 @@
+
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Home, History, Settings, LogOut, Languages } from 'lucide-react';
+import { Home, History, Settings, LogOut, Languages, ChevronDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const [language, setLanguage] = useState("es");
+
     return (
         <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
             <div className="hidden border-r bg-card lg:block">
@@ -65,18 +75,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
                      <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="icon">
-                            <Languages className="h-[1.2rem] w-[1.2rem]" />
-                            <span className="sr-only">Seleccionar idioma</span>
-                          </Button>
+                           <Button variant="outline" className="flex items-center gap-2">
+                                <Languages className="h-4 w-4" />
+                                <span>{language === 'es' ? 'Español' : 'English'}</span>
+                                <ChevronDown className="h-4 w-4" />
+                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            Español
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            English
-                          </DropdownMenuItem>
+                        <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuLabel>Seleccionar idioma</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuRadioGroup value={language} onValueChange={setLanguage}>
+                                <DropdownMenuRadioItem value="es">Español</DropdownMenuRadioItem>
+                                <DropdownMenuRadioItem value="en">English</DropdownMenuRadioItem>
+                            </DropdownMenuRadioGroup>
                         </DropdownMenuContent>
                       </DropdownMenu>
                 </header>
