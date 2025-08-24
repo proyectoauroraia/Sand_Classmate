@@ -158,127 +158,129 @@ export function FileUploader() {
     
     if(analysisResult) {
         return (
-             <div className="space-y-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-3">
-                           <BookOpen className="h-7 w-7 text-primary"/>
-                           <span className="text-2xl">Análisis del Curso: "{analysisResult.subjectArea}"</span>
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-8">
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {analysisResult.weeks && (
-                                <div className="bg-secondary/30 p-4 rounded-lg">
-                                    <div className="flex items-center gap-3 text-lg font-semibold"><Calendar className="h-6 w-6" /> Duración Estimada</div>
-                                    <p className="text-primary text-3xl font-bold mt-2">{analysisResult.weeks} {typeof analysisResult.weeks === 'number' && analysisResult.weeks > 1 ? 'Semanas' : 'Semana'}</p>
-                                </div>
-                            )}
-                             {analysisResult.keyConcepts && (
-                                <div className="bg-secondary/30 p-4 rounded-lg">
-                                    <div className="flex items-center gap-3 text-lg font-semibold"><BookCopy className="h-6 w-6" /> Conceptos Clave</div>
-                                    <div className="flex flex-wrap gap-2 justify-start mt-2">
-                                        {analysisResult.keyConcepts.map((concept, i) => (
-                                            <span key={i} className="bg-primary text-primary-foreground font-medium px-3 py-1 rounded-full text-xs">{concept}</span>
-                                        ))}
-                                    </div>
-                                </div>
-                             )}
-                        </div>
-
-                        {analysisResult.courseStructure && (
-                        <div>
-                            <h3 className="font-semibold text-xl mb-3 flex items-center gap-2"><ListChecks className="h-6 w-6 text-primary"/> Estructura del Curso y Objetivos</h3>
-                             <Accordion type="single" collapsible className="w-full">
-                                {analysisResult.courseStructure.map((unit, i) => (
-                                    <AccordionItem value={`item-${i}`} key={i}>
-                                        <AccordionTrigger className="text-base font-medium hover:no-underline">{unit.title}</AccordionTrigger>
-                                        <AccordionContent>
-                                            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2 pl-4">
-                                                {unit.learningObjectives.map((obj, j) => <li key={j}>{obj}</li>)}
-                                            </ul>
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                ))}
-                            </Accordion>
-                        </div>
-                        )}
-                        
-                         {analysisResult.assessments && (
-                         <div>
-                            <h3 className="font-semibold text-xl mb-3 flex items-center gap-2"><PencilRuler className="h-6 w-6 text-primary"/> Evaluaciones</h3>
+             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <div className="lg:col-span-2 space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-3">
+                               <BookOpen className="h-7 w-7 text-primary"/>
+                               <span className="text-2xl">Análisis del Curso: "{analysisResult.subjectArea}"</span>
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-8">
+                            
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {analysisResult.assessments.map((assessment, i) => (
-                                    <div key={i} className="p-4 rounded-lg bg-secondary/30">
-                                        <div className="font-semibold">{assessment.type}</div>
-                                        <p className="text-sm text-muted-foreground mt-1">{assessment.description}</p>
+                                {analysisResult.weeks && (
+                                    <div className="bg-secondary/30 p-4 rounded-lg">
+                                        <div className="flex items-center gap-3 text-lg font-semibold"><Calendar className="h-6 w-6" /> Duración Estimada</div>
+                                        <p className="text-primary text-3xl font-bold mt-2">{analysisResult.weeks} {typeof analysisResult.weeks === 'number' && analysisResult.weeks > 1 ? 'Semanas' : 'Semana'}</p>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
-                        )}
-
-                        {analysisResult.bibliography && (
-                        <div>
-                            <h3 className="font-semibold text-xl mb-3">Bibliografía</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {analysisResult.bibliography.mentioned && analysisResult.bibliography.mentioned.length > 0 && (
-                                <div>
-                                    <h4 className="font-semibold mb-2">Mencionada en el Documento</h4>
-                                    <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2">
-                                        {analysisResult.bibliography.mentioned.map((item, i) => <li key={i}>{item}</li>)}
-                                    </ul>
-                                </div>
                                 )}
-                                 {analysisResult.bibliography.recommended && analysisResult.bibliography.recommended.length > 0 && (
-                                 <div>
-                                    <h4 className="font-semibold mb-2">Recomendada</h4>
-                                    <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2">
-                                        {analysisResult.bibliography.recommended.map((item, i) => <li key={i}>{item}</li>)}
-                                    </ul>
-                                </div>
+                                 {analysisResult.keyConcepts && (
+                                    <div className="bg-secondary/30 p-4 rounded-lg">
+                                        <div className="flex items-center gap-3 text-lg font-semibold"><BookCopy className="h-6 w-6" /> Conceptos Clave</div>
+                                        <div className="flex flex-wrap gap-2 justify-start mt-2">
+                                            {analysisResult.keyConcepts.map((concept, i) => (
+                                                <span key={i} className="bg-primary text-primary-foreground font-medium px-3 py-1 rounded-full text-xs">{concept}</span>
+                                            ))}
+                                        </div>
+                                    </div>
                                  )}
                             </div>
-                        </div>
-                        )}
-                        
-                         {analysisResult.enrichedContent && analysisResult.enrichedContent.externalLinks.length > 0 && (
-                         <div>
-                            <h3 className="font-semibold text-xl mb-3">Recursos Externos Sugeridos</h3>
-                             <div className="space-y-3">
-                                {analysisResult.enrichedContent.externalLinks.map((link, i) => (
-                                    <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors">
-                                        <div className="font-semibold flex items-center gap-2 text-primary"><LinkIcon className="h-4 w-4"/> {link.title}</div>
-                                        <p className="text-xs text-muted-foreground mt-1">{link.summary}</p>
-                                    </a>
-                                ))}
-                            </div>
-                        </div>
-                         )}
 
-                         {analysisResult.enrichedContent && analysisResult.enrichedContent.youtubeVideos.length > 0 && (
-                         <div>
-                            <h3 className="font-semibold text-xl mb-3">Videos de YouTube Recomendados</h3>
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {analysisResult.enrichedContent.youtubeVideos.map((video, i) => (
-                                    <a key={i} href={`https://www.youtube.com/watch?v=${video.videoId}`} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors">
-                                        <div className="font-semibold flex items-center gap-2 text-red-600"><Youtube className="h-5 w-5"/> {video.title}</div>
-                                        <p className="text-xs text-muted-foreground mt-1">{video.summary}</p>
-                                    </a>
-                                ))}
+                            {analysisResult.courseStructure && (
+                            <div>
+                                <h3 className="font-semibold text-xl mb-3 flex items-center gap-2"><ListChecks className="h-6 w-6 text-primary"/> Estructura del Curso y Objetivos</h3>
+                                 <Accordion type="single" collapsible className="w-full">
+                                    {analysisResult.courseStructure.map((unit, i) => (
+                                        <AccordionItem value={`item-${i}`} key={i}>
+                                            <AccordionTrigger className="text-base font-medium hover:no-underline">{unit.title}</AccordionTrigger>
+                                            <AccordionContent>
+                                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2 pl-4">
+                                                    {unit.learningObjectives.map((obj, j) => <li key={j}>{obj}</li>)}
+                                                </ul>
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    ))}
+                                </Accordion>
                             </div>
-                        </div>
-                         )}
-                    </CardContent>
-                </Card>
+                            )}
+                            
+                             {analysisResult.assessments && (
+                             <div>
+                                <h3 className="font-semibold text-xl mb-3 flex items-center gap-2"><PencilRuler className="h-6 w-6 text-primary"/> Evaluaciones</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {analysisResult.assessments.map((assessment, i) => (
+                                        <div key={i} className="p-4 rounded-lg bg-secondary/30">
+                                            <div className="font-semibold">{assessment.type}</div>
+                                            <p className="text-sm text-muted-foreground mt-1">{assessment.description}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            )}
 
-                 <div className="space-y-6">
-                    <Card>
+                            {analysisResult.bibliography && (
+                            <div>
+                                <h3 className="font-semibold text-xl mb-3">Bibliografía</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {analysisResult.bibliography.mentioned && analysisResult.bibliography.mentioned.length > 0 && (
+                                    <div>
+                                        <h4 className="font-semibold mb-2">Mencionada en el Documento</h4>
+                                        <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2">
+                                            {analysisResult.bibliography.mentioned.map((item, i) => <li key={i}>{item}</li>)}
+                                        </ul>
+                                    </div>
+                                    )}
+                                     {analysisResult.bibliography.recommended && analysisResult.bibliography.recommended.length > 0 && (
+                                     <div>
+                                        <h4 className="font-semibold mb-2">Recomendada</h4>
+                                        <ul className="list-disc list-inside text-sm text-muted-foreground bg-secondary/30 p-4 rounded-lg space-y-2">
+                                            {analysisResult.bibliography.recommended.map((item, i) => <li key={i}>{item}</li>)}
+                                        </ul>
+                                    </div>
+                                     )}
+                                </div>
+                            </div>
+                            )}
+                            
+                             {analysisResult.enrichedContent && analysisResult.enrichedContent.externalLinks.length > 0 && (
+                             <div>
+                                <h3 className="font-semibold text-xl mb-3">Recursos Externos Sugeridos</h3>
+                                 <div className="space-y-3">
+                                    {analysisResult.enrichedContent.externalLinks.map((link, i) => (
+                                        <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors">
+                                            <div className="font-semibold flex items-center gap-2 text-primary"><LinkIcon className="h-4 w-4"/> {link.title}</div>
+                                            <p className="text-xs text-muted-foreground mt-1">{link.summary}</p>
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                             )}
+
+                             {analysisResult.enrichedContent && analysisResult.enrichedContent.youtubeVideos.length > 0 && (
+                             <div>
+                                <h3 className="font-semibold text-xl mb-3">Videos de YouTube Recomendados</h3>
+                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {analysisResult.enrichedContent.youtubeVideos.map((video, i) => (
+                                        <a key={i} href={`https://www.youtube.com/watch?v=${video.videoId}`} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-secondary/30 hover:bg-accent/40 transition-colors">
+                                            <div className="font-semibold flex items-center gap-2 text-red-600"><Youtube className="h-5 w-5"/> {video.title}</div>
+                                            <p className="text-xs text-muted-foreground mt-1">{video.summary}</p>
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                             )}
+                        </CardContent>
+                    </Card>
+                </div>
+
+                 <div className="lg:col-span-1 space-y-6">
+                    <Card className="sticky top-6">
                          <CardHeader>
                             <CardTitle className="flex items-center gap-3">
                                <GraduationCap className="h-7 w-7 text-primary"/>
-                               <span className="text-2xl">Generar Material Didáctico</span>
+                               <span className="text-2xl">Generar Material</span>
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -286,7 +288,7 @@ export function FileUploader() {
                                 <Sparkles className="mr-3 h-6 w-6"/>
                                 Generar Todo
                             </Button>
-                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-2 gap-4">
                                 <MaterialButton icon={Presentation} title="Presentación" onClick={() => handleGenerationSubmit('powerpointPresentation')} disabled={generationState === 'generating'} />
                                 <MaterialButton icon={FileText} title="Guía de Trabajo" onClick={() => handleGenerationSubmit('workGuide')} disabled={generationState === 'generating'}/>
                                 <MaterialButton icon={ClipboardCheck} title="Examen" onClick={() => handleGenerationSubmit('exampleTests')} disabled={generationState === 'generating'}/>
@@ -294,7 +296,7 @@ export function FileUploader() {
                             </div>
                         </CardContent>
                     </Card>
-                    <Button onClick={resetState} variant="outline" className="w-full py-6 text-base">
+                     <Button onClick={resetState} variant="outline" className="w-full py-6 text-base">
                         <RefreshCw className="mr-2 h-5 w-5" />
                         Analizar Otro Documento
                     </Button>
@@ -351,3 +353,5 @@ function MaterialButton({ icon: Icon, title, onClick, disabled }: { icon: React.
         </Button>
     );
 }
+
+    
