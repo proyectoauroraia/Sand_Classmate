@@ -19,7 +19,7 @@ const mockHistory: HistoryItem[] = [
     { id: '4', fileName: 'Syllabus de Historia del Arte', date: '2024-07-20', status: 'Completado' },
 ];
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 4;
 
 const buttonColors = [
     'bg-gradient-to-br from-green-400 to-green-600 text-white hover:from-green-500 hover:to-green-700', // Green
@@ -52,7 +52,7 @@ export function MaterialsHistory() {
                 <TableHeader>
                   <TableRow className="bg-primary/10 rounded-lg">
                     <TableHead className="text-sm text-foreground font-bold">Nombre del Curso</TableHead>
-                    <TableHead className="text-right text-sm text-foreground font-bold">Ver Análisis</TableHead>
+                    <TableHead className="text-center text-sm text-foreground font-bold">Ver Análisis</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -68,7 +68,7 @@ export function MaterialsHistory() {
                         <TableCell className="font-medium py-4">
                             {item.fileName}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-center">
                           <Button 
                             size="sm" 
                             onClick={() => handleViewAnalysis(item.id)}
