@@ -9,6 +9,7 @@ import { generateMaterialsAction } from '@/lib/actions';
 import type { GeneratedMaterials } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
 
 export function FileUploader() {
     const [isLoading, setIsLoading] = useState(false);
