@@ -23,20 +23,20 @@ export const AssessmentsTab: React.FC<AssessmentsTabProps> = React.memo(({
     isAnyTaskRunning,
 }) => {
     if (!analysisResult.assessments || analysisResult.assessments.length === 0) {
-        return <p className="text-muted-foreground">No se encontraron evaluaciones en el documento.</p>;
+        return <p className="text-muted-foreground p-4">No se encontraron evaluaciones en el documento.</p>;
     }
     
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 pt-4">
             <div>
-                <h3 className="font-semibold text-xl mb-4 flex items-center gap-2">
+                <h3 className="font-semibold text-lg md:text-xl mb-4 flex items-center gap-2">
                     <PencilRuler className="h-6 w-6 text-primary"/> Evaluaciones Planificadas
                 </h3>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     {analysisResult.assessments.map((assessment, i) => (
                        <Card key={i} className="flex flex-col bg-secondary/30">
                            <CardHeader>
-                               <CardTitle className="flex items-center gap-2">
+                               <CardTitle className="flex items-center gap-2 text-base md:text-lg">
                                    <FileSignature className="h-5 w-5 text-primary"/>
                                    {assessment.type}
                                </CardTitle>

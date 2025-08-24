@@ -17,9 +17,11 @@ const mockHistory: HistoryItem[] = [
     { id: '2', fileName: 'Programa de Kinesiología 2024', date: '2024-07-25', status: 'Completado' },
     { id: '3', fileName: 'Apuntes de Filosofía Antigua', date: '2024-07-22', status: 'Completado' },
     { id: '4', fileName: 'Syllabus de Historia del Arte', date: '2024-07-20', status: 'Completado' },
+    { id: '5', fileName: 'Planificación de Nutrición', date: '2024-07-18', status: 'Completado' },
+    { id: '6', fileName: 'Examen de Cálculo I', date: '2024-07-15', status: 'Completado' },
 ];
 
-const ITEMS_TO_SHOW = 4;
+const ITEMS_PER_PAGE = 4;
 
 const buttonColors = [
     'bg-primary/80 hover:bg-primary',
@@ -28,10 +30,10 @@ const buttonColors = [
     'bg-primary/60 hover:bg-primary/90',
 ];
 
-export function MaterialsHistory() {
+export function MaterialsHistory({ isFullPage = false }: { isFullPage?: boolean}) {
     const router = useRouter();
 
-    const displayedHistory = mockHistory.slice(0, ITEMS_TO_SHOW);
+    const displayedHistory = isFullPage ? mockHistory : mockHistory.slice(0, ITEMS_PER_PAGE);
 
     const handleViewAnalysis = (id: string) => {
         // TODO: Implement logic to fetch and display the analysis for the given ID.
@@ -42,10 +44,12 @@ export function MaterialsHistory() {
     return (
       <Card className="h-full flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-2xl font-bold tracking-tight">Cursos Recientes</CardTitle>
-             <Button asChild variant="ghost" className="text-primary font-semibold hover:underline">
-                <Link href="/dashboard/history">Ver todo</Link>
-            </Button>
+            <CardTitle className="text-xl md:text-2xl font-bold tracking-tight">Cursos Recientes</CardTitle>
+            {!isFullPage && (
+                <Button asChild variant="ghost" className="text-primary font-semibold hover:underline">
+                    <Link href="/dashboard/history">Ver todo</Link>
+                </Button>
+            )}
         </CardHeader>
         <CardContent className="pt-0 flex-grow">
             <ScrollArea className="h-full">
@@ -53,13 +57,14 @@ export function MaterialsHistory() {
                 <TableHeader>
                   <TableRow className="bg-primary/10 rounded-lg">
                     <TableHead className="text-sm text-foreground font-bold">Nombre del Curso</TableHead>
+                    {isFullPage && <TableHead className="hidden md:table-cell text-sm text-foreground font-bold">Fecha</TableHead>}
                     <TableHead className="text-center text-sm text-foreground font-bold">Ver Análisis</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {displayedHistory.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={2} className="h-24 text-center">
+                      <TableCell colSpan={isFullPage ? 3: 2} className="h-24 text-center">
                         Aún no se han analizado cursos.
                       </TableCell>
                     </TableRow>
@@ -69,6 +74,7 @@ export function MaterialsHistory() {
                         <TableCell className="font-medium py-4">
                             {item.fileName}
                         </TableCell>
+                        {isFullPage && <TableCell className="hidden md:table-cell">{item.date}</TableCell>}
                         <TableCell className="text-center">
                           <Button 
                             size="sm" 

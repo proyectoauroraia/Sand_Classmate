@@ -21,9 +21,9 @@ export const SummaryTab: React.FC<SummaryTabProps> = React.memo(({
     isAnyTaskRunning,
 }) => {
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 pt-4">
             <p className="text-muted-foreground">{analysisResult.summary}</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 
                 <div className="bg-secondary/30 p-4 rounded-lg flex-1 break-words">
                     <div className="flex items-center gap-3 text-lg font-semibold text-card-foreground mb-4"><BookCopy className="h-6 w-6 text-primary" /> Conceptos Clave</div>
@@ -63,7 +63,7 @@ export const SummaryTab: React.FC<SummaryTabProps> = React.memo(({
                 )}
 
             </div>
-            <div className="border-t pt-6 flex flex-wrap gap-4">
+            <div className="border-t pt-6 flex flex-col sm:flex-row flex-wrap gap-4">
                  <GenerationButton
                     title="Generar Guía de Trabajo"
                     materialType="workGuide"

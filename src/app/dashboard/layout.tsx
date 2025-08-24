@@ -91,7 +91,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {sidebarContent}
             </div>
             <div className="flex flex-col">
-                 <header className="flex h-14 items-center justify-between gap-4 border-b bg-muted px-6 lg:h-[60px] lg:justify-end">
+                 <header className="flex h-14 items-center justify-between gap-4 border-b bg-muted px-4 md:px-6 lg:h-[60px] lg:justify-end">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
@@ -107,34 +107,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         {/* Header content can go here, e.g. search bar */}
                     </div>
 
-                    <ThemeSwitcher />
+                    <div className="flex items-center gap-2 md:gap-4">
+                        <ThemeSwitcher />
 
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="rounded-full">
-                                <Avatar className="h-8 w-8">
-                                    <AvatarImage src="https://placehold.co/40x40.png" alt="@prof" data-ai-hint="person face" />
-                                    <AvatarFallback>PD</AvatarFallback>
-                                </Avatar>
-                                <span className="sr-only">Toggle user menu</span>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
-                                <UserCircle2 className="mr-2 h-4 w-4" />
-                                Mi Perfil
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
-                                <Settings className="mr-2 h-4 w-4" />
-                                Configuración
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                             <DropdownMenuItem onClick={handleSignOut}>
-                                <Power className="mr-2 h-4 w-4" />
-                                Cerrar Sesión
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="rounded-full">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src="https://placehold.co/40x40.png" alt="@prof" data-ai-hint="person face" />
+                                        <AvatarFallback>PD</AvatarFallback>
+                                    </Avatar>
+                                    <span className="sr-only">Toggle user menu</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
+                                    <UserCircle2 className="mr-2 h-4 w-4" />
+                                    Mi Perfil
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+                                    <Settings className="mr-2 h-4 w-4" />
+                                    Configuración
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                 <DropdownMenuItem onClick={handleSignOut}>
+                                    <Power className="mr-2 h-4 w-4" />
+                                    Cerrar Sesión
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
 
                 </header>
                  <main className="flex-1 overflow-y-auto bg-background">

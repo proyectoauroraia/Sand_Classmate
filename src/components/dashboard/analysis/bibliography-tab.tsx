@@ -26,12 +26,12 @@ export const BibliographyTab: React.FC<BibliographyTabProps> = React.memo(({ ana
     const { bibliography } = analysisResult;
 
     if (!bibliography || (!bibliography.mentioned?.length && !bibliography.recommended?.length)) {
-        return <p className="text-muted-foreground">No se encontró bibliografía en el documento.</p>;
+        return <p className="text-muted-foreground p-4">No se encontró bibliografía en el documento.</p>;
     }
 
     return (
-        <div>
-            <h3 className="font-semibold text-xl mb-3">Bibliografía</h3>
+        <div className="pt-4">
+            <h3 className="font-semibold text-lg md:text-xl mb-3">Bibliografía</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <BibliographyList title="Mencionada en el Documento" items={bibliography.mentioned} />
                 <BibliographyList title="Recomendada por Sand Classmate" items={bibliography.recommended} />

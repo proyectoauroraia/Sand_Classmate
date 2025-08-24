@@ -44,14 +44,14 @@ export function AnalysisDisplay({ analysisResult, onReset }: AnalysisDisplayProp
         <div className="space-y-6">
             <Card>
                 <CardHeader>
-                    <div className="flex items-center gap-3">
-                        <BookOpen className="h-6 w-6 text-primary"/>
-                        <h2 className="text-xl font-semibold">Análisis del Curso: "{analysisResult.subjectArea}"</h2>
+                    <div className="flex items-start gap-3">
+                        <BookOpen className="h-6 w-6 text-primary mt-1 flex-shrink-0"/>
+                        <h2 className="text-xl md:text-2xl font-semibold leading-tight">Análisis del Curso: "{analysisResult.subjectArea}"</h2>
                     </div>
                 </CardHeader>
                 <CardContent>
                     <Tabs defaultValue="summary" className="w-full">
-                        <TabsList>
+                        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto">
                             <TabsTrigger value="summary">Resumen</TabsTrigger>
                             <TabsTrigger value="structure">Estructura</TabsTrigger>
                             <TabsTrigger value="assessments">Evaluaciones</TabsTrigger>
@@ -88,12 +88,12 @@ export function AnalysisDisplay({ analysisResult, onReset }: AnalysisDisplayProp
                     </Tabs>
                 </CardContent>
             </Card>
-            <div className="flex justify-between items-center gap-4">
-                <Button onClick={onReset} variant="outline" size="lg" disabled={isAnyTaskRunning}>
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <Button onClick={onReset} variant="outline" size="lg" disabled={isAnyTaskRunning} className="w-full sm:w-auto">
                     <RefreshCw className="mr-2 h-5 w-5" />
                     Analizar Otro Documento
                 </Button>
-                <Button size="lg" onClick={handleGenerateAll} disabled={isAnyTaskRunning}>
+                <Button size="lg" onClick={handleGenerateAll} disabled={isAnyTaskRunning} className="w-full sm:w-auto">
                     {isGeneratingAll ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : <Download className="mr-2 h-5 w-5"/>}
                     Descargar Todo
                 </Button>

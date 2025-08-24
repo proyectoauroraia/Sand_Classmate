@@ -12,15 +12,15 @@ const CheckListItem = ({ children }: { children: React.ReactNode }) => (
 
 export default function PricingPage() {
     return (
-        <div className="flex flex-col items-center p-4 md:p-6 lg:p-12">
-            <div className="text-center max-w-2xl mx-auto">
-                <h1 className="text-4xl lg:text-5xl font-bold tracking-tight">Encuentra el Plan Perfecto</h1>
-                <p className="text-muted-foreground mt-4 text-lg">
+        <div className="flex flex-col items-center p-4 md:p-6 lg:p-8">
+            <div className="text-center max-w-2xl mx-auto mb-8 md:mb-12">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">Encuentra el Plan Perfecto</h1>
+                <p className="text-muted-foreground mt-4 text-base md:text-lg">
                     Desde proyectos individuales hasta grandes instituciones educativas, tenemos un plan que se adapta a tus necesidades.
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-6xl mt-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full max-w-6xl">
                 {/* Free Plan */}
                 <Card className="flex flex-col rounded-xl bg-card">
                     <CardHeader className="pb-4">
@@ -28,7 +28,7 @@ export default function PricingPage() {
                         <CardDescription>Para empezar a explorar el poder de la IA en la educación.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-6">
-                        <p className="text-5xl font-bold">$0 <span className="text-xl font-normal text-muted-foreground">/mes</span></p>
+                        <p className="text-4xl md:text-5xl font-bold">$0 <span className="text-lg md:text-xl font-normal text-muted-foreground">/mes</span></p>
                         <ul className="space-y-4">
                             <CheckListItem>Análisis de 1 curso</CheckListItem>
                             <CheckListItem>Generación de todos los materiales</CheckListItem>
@@ -52,7 +52,7 @@ export default function PricingPage() {
                         <CardDescription>Para educadores que quieren llevar sus clases al siguiente nivel.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-6">
-                        <p className="text-5xl font-bold">$12.000 <span className="text-xl font-normal text-muted-foreground">CLP/mes</span></p>
+                        <p className="text-4xl md:text-5xl font-bold">$12.000 <span className="text-lg md:text-xl font-normal text-muted-foreground">CLP/mes</span></p>
                          <ul className="space-y-4">
                             <CheckListItem>Análisis de cursos ilimitados</CheckListItem>
                             <CheckListItem>Guardado y edición de análisis</CheckListItem>
@@ -72,7 +72,7 @@ export default function PricingPage() {
                         <CardDescription>Para instituciones y equipos que buscan una solución integral.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-6">
-                       <p className="text-4xl font-bold pt-4">Personalizado</p>
+                       <p className="text-3xl md:text-4xl font-bold pt-4">Personalizado</p>
                          <ul className="space-y-4">
                             <CheckListItem>Precio especial por volumen de perfiles</CheckListItem>
                             <CheckListItem>Todas las funciones Premium</CheckListItem>

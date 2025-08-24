@@ -19,7 +19,7 @@ export default function DashboardPage() {
 
     if (analysisResult) {
         return (
-            <div className="p-4 md:p-6 lg:p-12">
+            <div className="p-4 md:p-6 lg:p-8">
                 <AnalysisDisplay 
                     analysisResult={analysisResult}
                     onReset={handleReset}
@@ -29,14 +29,14 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="space-y-8 p-4 md:p-6 lg:p-12">
+        <div className="space-y-8 p-4 md:p-6 lg:p-8">
             <div className="text-left">
                 <h1 className="text-3xl md:text-4xl font-bold tracking-tight">¿Qué vamos a crear hoy?</h1>
-                <p className="text-muted-foreground mt-2 text-lg">
+                <p className="text-muted-foreground mt-2 text-base md:text-lg">
                     Sube tu programa de estudios o apuntes (PDF) y deja que la IA genere presentaciones, guías y más para tus clases.
                 </p>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-stretch">
             
                 {/* Columna Principal */}
                 <div className="lg:col-span-7 flex flex-col h-full">

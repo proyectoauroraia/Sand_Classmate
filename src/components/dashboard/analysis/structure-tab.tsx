@@ -23,19 +23,19 @@ export const StructureTab: React.FC<StructureTabProps> = React.memo(({
     isAnyTaskRunning,
 }) => {
     if (!analysisResult.courseStructure || analysisResult.courseStructure.length === 0) {
-        return <p className="text-muted-foreground">No se pudo identificar una estructura de curso en el documento.</p>;
+        return <p className="text-muted-foreground p-4">No se pudo identificar una estructura de curso en el documento.</p>;
     }
     
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 pt-4">
             <div>
-                <h3 className="font-semibold text-xl mb-3 flex items-center gap-2">
+                <h3 className="font-semibold text-lg md:text-xl mb-3 flex items-center gap-2">
                     <ListChecks className="h-6 w-6 text-primary"/> Estructura del Curso y Objetivos
                 </h3>
                 <Accordion type="single" collapsible className="w-full">
                     {analysisResult.courseStructure.map((unit, i) => (
                         <AccordionItem value={`item-${i}`} key={i} className="border-secondary">
-                            <AccordionTrigger className="text-base font-medium hover:no-underline">{unit.title}</AccordionTrigger>
+                            <AccordionTrigger className="text-base font-medium hover:no-underline text-left">{unit.title}</AccordionTrigger>
                             <AccordionContent className="space-y-4 bg-secondary/30 p-4 rounded-b-md">
                                 <div>
                                     <h4 className="font-semibold text-sm mb-2 text-card-foreground">Resultados de Aprendizaje de la Unidad:</h4>
@@ -49,8 +49,8 @@ export const StructureTab: React.FC<StructureTabProps> = React.memo(({
                                         {unit.classes?.map((cls, j) => (
                                             <div key={j} className="flex items-center justify-between p-3 rounded-md bg-background/50">
                                                 <div className="flex items-center gap-3">
-                                                    <BookCopy className="h-5 w-5 text-primary/80" />
-                                                    <p className="font-medium text-sm text-foreground">{cls.topic}</p>
+                                                    <BookCopy className="h-5 w-5 text-primary/80 flex-shrink-0" />
+                                                    <p className="font-medium text-sm text-foreground text-left">{cls.topic}</p>
                                                 </div>
                                                 <GenerationButton
                                                     title="Generar PPT"

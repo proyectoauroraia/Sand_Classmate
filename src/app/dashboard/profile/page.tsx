@@ -52,30 +52,30 @@ export default function ProfilePage() {
     };
     
     return (
-        <div className="space-y-8 p-4 md:p-6 lg:p-12">
+        <div className="space-y-8 p-4 md:p-6 lg:p-8">
             <div>
-                <h1 className="text-3xl font-bold tracking-tight">Mi Perfil y Configuración</h1>
-                <p className="text-muted-foreground mt-1">
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Mi Perfil y Configuración</h1>
+                <p className="text-muted-foreground mt-1 text-sm md:text-base">
                     Gestiona tu información y personaliza cómo la IA interactúa contigo.
                 </p>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 items-start">
                 {/* Left Column: General Info */}
                 <div className="lg:col-span-1 space-y-6">
                     <Card>
                         <CardHeader className="items-center text-center p-6">
-                             <div className="relative group w-32 h-32">
+                             <div className="relative group w-24 h-24 md:w-32 md:h-32">
                                 <Avatar className="h-full w-full cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                                     <AvatarImage src={previewUrl ?? undefined} alt="Foto de Perfil" className="object-cover" />
                                     <AvatarFallback className="bg-secondary/50 text-muted-foreground">
-                                        <UserCircle2 className="h-20 w-20" />
+                                        <UserCircle2 className="h-16 w-16 md:h-20 md:w-20" />
                                     </AvatarFallback>
                                 </Avatar>
                                 <div 
                                     className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                                     onClick={() => fileInputRef.current?.click()}
                                 >
-                                    <span className="text-white text-xs font-semibold">Cambiar Foto</span>
+                                    <span className="text-white text-xs font-semibold text-center">Cambiar Foto</span>
                                 </div>
                             </div>
                              <Input 
@@ -86,11 +86,11 @@ export default function ProfilePage() {
                                 onChange={handleProfileImageChange}
                             />
                             <div className="pt-4">
-                                <CardTitle>{fullName}</CardTitle>
-                                <CardDescription className="mt-1">{role}</CardDescription>
+                                <CardTitle className="text-xl md:text-2xl">{fullName}</CardTitle>
+                                <CardDescription className="mt-1 text-sm">{role}</CardDescription>
                             </div>
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-4 px-4 md:px-6">
                              <div className="space-y-2">
                                 <Label htmlFor="name">Nombre Completo</Label>
                                 <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
@@ -117,7 +117,7 @@ export default function ProfilePage() {
                         <CardHeader>
                             <div className="flex items-center gap-3">
                                 <BrainCircuit className="h-6 w-6 text-primary" />
-                                <CardTitle>Personalización con IA</CardTitle>
+                                <CardTitle className="text-lg md:text-xl">Personalización con IA</CardTitle>
                             </div>
                             <CardDescription>Sube tu CV y describe tu estilo de enseñanza para que la IA genere contenido adaptado a ti.</CardDescription>
                         </CardHeader>
@@ -132,9 +132,9 @@ export default function ProfilePage() {
                                         htmlFor="cv-file" 
                                         className="flex flex-col items-center justify-center w-full h-32 border-2 border-border border-dashed rounded-lg cursor-pointer bg-secondary/30 hover:bg-accent/50 transition-colors"
                                     >
-                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
                                             <UploadCloud className="w-8 h-8 mb-4 text-muted-foreground" />
-                                            <p className="mb-2 text-sm text-muted-foreground">
+                                            <p className="mb-2 text-sm text-muted-foreground px-2">
                                                 {cvFile ? cvFile.name : <><span className="font-semibold">Haz clic para subir</span> o arrastra y suelta</>}
                                             </p>
                                             <p className="text-xs text-muted-foreground">PDF, DOCX (MAX. 5MB)</p>
@@ -159,7 +159,7 @@ export default function ProfilePage() {
                         <CardHeader>
                              <div className="flex items-center gap-3">
                                 <Lock className="h-6 w-6 text-primary" />
-                                <CardTitle>Cambiar Contraseña</CardTitle>
+                                <CardTitle className="text-lg md:text-xl">Cambiar Contraseña</CardTitle>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -176,7 +176,7 @@ export default function ProfilePage() {
                 </div>
             </div>
              <div className="flex justify-end pt-4">
-                <Button size="lg" onClick={handleSaveChanges} className="py-6 text-base">Guardar Cambios</Button>
+                <Button size="lg" onClick={handleSaveChanges} className="w-full md:w-auto py-6 text-base">Guardar Cambios</Button>
             </div>
         </div>
     );
