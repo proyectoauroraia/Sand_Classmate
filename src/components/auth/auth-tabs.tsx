@@ -41,18 +41,21 @@ export function AuthTabs() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const getRedirectURL = () => {
+    return `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`;
+  }
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const redirectTo = `${window.location.origin}/auth/callback`;
     try {
         const supabase = createClient();
         const { error } = await supabase.auth.signUp({
             email,
             password,
             options: {
-                emailRedirectTo: redirectTo,
+                emailRedirectTo: getRedirectURL(),
                  data: {
                     full_name: 'Nuevo Usuario',
                     role: 'user',
@@ -81,7 +84,6 @@ export function AuthTabs() {
         });
         if (error) throw error;
         router.push('/dashboard');
-        router.refresh();
     } catch (error: any) {
         console.error("Authentication Error:", error);
         setError(getFriendlyErrorMessage(error.message));
@@ -94,12 +96,11 @@ export function AuthTabs() {
     setLoading(true);
     setError(null);
     const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/callback`;
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo,
+          redirectTo: getRedirectURL(),
         },
       });
       if (error) throw error;
