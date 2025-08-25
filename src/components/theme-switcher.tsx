@@ -24,7 +24,7 @@ const themes = [
 export function ThemeSwitcher() {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
-  
+
   React.useEffect(() => {
     setMounted(true);
   }, []);
@@ -34,9 +34,11 @@ export function ThemeSwitcher() {
     return <div className="flex items-center gap-2 rounded-lg border bg-card p-1 h-10 w-24" />;
   }
 
+  // The resolvedTheme tells us if the final mode is 'dark' or 'light'.
   const isDarkMode = resolvedTheme === 'dark';
   
-  // The current color palette is the one that doesn't start with 'light' or 'dark'.
+  // Find the current base palette by checking which theme name is part of the current theme string.
+  // This works even if the theme is "dark". The provider will have added "dark" but kept the base theme.
   const currentPalette = themes.find(t => theme?.includes(t.theme))?.theme || 'theme-default';
 
   return (
@@ -51,6 +53,7 @@ export function ThemeSwitcher() {
           {themes.map((themeOption) => (
             <DropdownMenuItem
               key={themeOption.name}
+              // Just set the palette theme. next-themes will preserve dark/light mode.
               onClick={() => setTheme(themeOption.theme)}
               className="flex items-center justify-between"
             >
@@ -72,7 +75,7 @@ export function ThemeSwitcher() {
         <Switch
             id="dark-mode"
             checked={isDarkMode}
-            // Simply set 'dark' or 'light'. next-themes will apply it alongside the base palette.
+            // Simply set 'dark' or 'light'. next-themes handles the rest.
             onCheckedChange={(isDark) => setTheme(isDark ? 'dark' : 'light')}
             aria-label="Cambiar entre modo claro y oscuro"
         />
