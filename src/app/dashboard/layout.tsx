@@ -23,20 +23,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     useEffect(() => {
         const supabase = createClient();
         
-        const fetchUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
-            setLoading(false);
-        };
-        
-        fetchUser();
-
         const { data: authListener } = supabase.auth.onAuthStateChange(
             (event, session) => {
-                setUser(session?.user ?? null);
-                 if (event === 'SIGNED_IN') {
-                    setLoading(false);
-                }
+                const currentUser = session?.user ?? null;
+                setUser(currentUser);
+                
+                // Finished loading once we have a user or no user
+                setLoading(false);
+
                 if (event === 'SIGNED_OUT') {
                     router.replace('/');
                 }
@@ -91,6 +85,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (loading) {
         return (
             <div className="flex min-h-screen w-full items-center justify-center bg-background">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (!user) {
+        // This case should be handled by the onAuthStateChange SIGNED_OUT event,
+        // but as a fallback, we can redirect.
+        // Using a setTimeout to avoid potential hydration errors on initial load.
+        setTimeout(() => router.replace('/'), 0);
+        return (
+             <div className="flex min-h-screen w-full items-center justify-center bg-background">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
             </div>
         );
