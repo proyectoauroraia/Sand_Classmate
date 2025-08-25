@@ -30,26 +30,11 @@ export function ThemeSwitcher() {
   }, []);
 
   if (!mounted) {
-    // Render a placeholder or nothing on the server to avoid hydration mismatch
     return <div className="w-24 h-10" />;
   }
 
   const isDarkMode = resolvedTheme === 'dark';
-  
-  // Find the current palette part from the full theme string (e.g., "dark theme-forest" -> "theme-forest")
   const currentPalette = themes.find(t => activeTheme?.includes(t.theme))?.theme || 'theme-default';
-
-  const handlePaletteChange = (newPalette: string) => {
-    // Combine the new palette with the current mode (light/dark)
-    const newTheme = `${isDarkMode ? 'dark' : 'light'} ${newPalette}`;
-    setTheme(newTheme);
-  };
-  
-  const handleDarkModeToggle = (isDark: boolean) => {
-    // Combine the new mode with the current palette
-    const newTheme = `${isDark ? 'dark' : 'light'} ${currentPalette}`;
-    setTheme(newTheme);
-  };
 
   return (
     <div className="flex items-center gap-2 rounded-lg border bg-card p-1">
@@ -63,7 +48,7 @@ export function ThemeSwitcher() {
           {themes.map((themeOption) => (
             <DropdownMenuItem
               key={themeOption.name}
-              onClick={() => handlePaletteChange(themeOption.theme)}
+              onClick={() => setTheme(themeOption.theme)}
               className="flex items-center justify-between"
             >
               <div className="flex items-center gap-2">
@@ -84,7 +69,7 @@ export function ThemeSwitcher() {
         <Switch
             id="dark-mode"
             checked={isDarkMode}
-            onCheckedChange={handleDarkModeToggle}
+            onCheckedChange={(isDark) => setTheme(isDark ? 'dark' : 'light')}
             aria-label="Cambiar entre modo claro y oscuro"
         />
         <Moon className="h-5 w-5" />
