@@ -7,10 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { UploadCloud, UserCircle2, BrainCircuit, Lock, Palette } from 'lucide-react';
+import { UploadCloud, UserCircle2, BrainCircuit, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useTheme } from 'next-themes';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
@@ -18,7 +17,6 @@ export default function ProfilePage() {
     const { toast } = useToast();
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const cvInputRef = React.useRef<HTMLInputElement>(null);
-    const { theme, setTheme } = useTheme();
 
     // State for user profile data
     const [fullName, setFullName] = React.useState("Professor Doe");
@@ -55,7 +53,6 @@ export default function ProfilePage() {
         });
     };
     
-    const currentThemePalette = theme?.startsWith('dark') ? 'dark' : (theme || 'theme-default');
 
     return (
         <div className="space-y-8 p-4 md:p-6 lg:p-8">
@@ -119,33 +116,6 @@ export default function ProfilePage() {
 
                 {/* Right Column: AI Personalization & Password */}
                 <div className="lg:col-span-2 space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <div className="flex items-center gap-3">
-                                <Palette className="h-6 w-6 text-primary" />
-                                <CardTitle className="text-lg md:text-xl">Apariencia</CardTitle>
-                            </div>
-                            <CardDescription>Personaliza la paleta de colores de la aplicación.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-2">
-                                <Label htmlFor="theme-select">Paleta de Colores</Label>
-                                <Select onValueChange={(value) => setTheme(value)} defaultValue={currentThemePalette}>
-                                    <SelectTrigger id="theme-select">
-                                        <SelectValue placeholder="Selecciona una paleta" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="theme-default">Arena (Por defecto)</SelectItem>
-                                        <SelectItem value="theme-slate">Pizarra</SelectItem>
-                                        <SelectItem value="theme-stone">Piedra</SelectItem>
-                                        <SelectItem value="theme-navy">Marino</SelectItem>
-                                        <SelectItem value="theme-forest">Bosque</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </CardContent>
-                    </Card>
-
                     <Card>
                         <CardHeader>
                             <div className="flex items-center gap-3">
