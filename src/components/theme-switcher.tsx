@@ -35,7 +35,6 @@ export function ThemeSwitcher() {
   }
 
   const isDarkMode = resolvedTheme === 'dark';
-  // Extract the palette part of the theme string (e.g., 'theme-default' from 'dark theme-default')
   const currentPalette = themes.find(t => theme?.includes(t.theme))?.theme || 'theme-default';
 
   return (
