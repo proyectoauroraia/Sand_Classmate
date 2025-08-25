@@ -2,6 +2,7 @@
 
 
 
+
 export type AnalysisResult = {
   summary: string;
   keyConcepts: string[];
@@ -9,7 +10,6 @@ export type AnalysisResult = {
   
   coherenceAnalysis: string;
   strengths: string[];
-  weaknesses: string[];
   recommendations: string[];
 
   courseStructure?: {
@@ -30,6 +30,10 @@ export type AnalysisResult = {
     mentioned?: string[];
     recommended?: string[];
   };
+
+  linksOfInterest: { title: string; url: string }[];
+  reviewVideos: { title: string; url: string }[];
+  activeMethodologies: { name: string; description: string }[];
 }
 
 export type GeneratedMaterials = {

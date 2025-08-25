@@ -3,9 +3,10 @@
 
 import * as React from 'react';
 import type { AnalysisResult } from '@/lib/types';
-import { Calendar, BookCopy, Info, CheckCircle2, AlertTriangle, GitCommit } from 'lucide-react';
+import { Calendar, BookCopy, Info, CheckCircle2, GitCommit, Youtube, Link as LinkIcon, Lightbulb, GraduationCap } from 'lucide-react';
 import type { MaterialStatus } from './analysis-display';
 import { GenerationButton } from './generation-button';
+import Link from 'next/link';
 
 interface SummaryTabProps {
     analysisResult: AnalysisResult;
@@ -23,6 +24,14 @@ const InfoCard: React.FC<{ title: string; icon: React.ElementType; children: Rea
         {children}
     </div>
 );
+
+const ResourceItem: React.FC<{ href: string; title: string, icon: React.ElementType }> = ({ href, title, icon: Icon }) => (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-background/50 p-3 rounded-lg hover:bg-accent transition-colors group">
+        <Icon className="h-5 w-5 text-primary/80 group-hover:text-primary transition-colors" />
+        <span className="text-sm font-medium text-muted-foreground group-hover:text-accent-foreground transition-colors">{title}</span>
+    </a>
+);
+
 
 export const SummaryTab: React.FC<SummaryTabProps> = React.memo(({
     analysisResult,
@@ -66,26 +75,44 @@ export const SummaryTab: React.FC<SummaryTabProps> = React.memo(({
                     )}
                 </InfoCard>
                 
-                 <InfoCard title="Debilidades Identificadas" icon={AlertTriangle}>
-                     {analysisResult.weaknesses && analysisResult.weaknesses.length > 0 ? (
+                 <InfoCard title="Recomendaciones de Mejora" icon={GraduationCap}>
+                     {analysisResult.recommendations && analysisResult.recommendations.length > 0 ? (
                         <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                            {analysisResult.weaknesses.map((item, i) => <li key={i}>{item}</li>)}
+                            {analysisResult.recommendations.map((item, i) => <li key={i}>{item}</li>)}
                         </ul>
                      ) : (
-                        <p className="text-muted-foreground text-sm">No se identificaron debilidades pedagógicas.</p>
+                        <p className="text-muted-foreground text-sm">No hay recomendaciones de mejora por ahora.</p>
                      )}
                 </InfoCard>
 
             </div>
 
-             <InfoCard title="Recomendaciones de Mejora" icon={AlertTriangle}>
-                 {analysisResult.recommendations && analysisResult.recommendations.length > 0 ? (
-                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                        {analysisResult.recommendations.map((item, i) => <li key={i}>{item}</li>)}
-                    </ul>
-                 ) : (
-                    <p className="text-muted-foreground text-sm">No hay recomendaciones de mejora por ahora.</p>
-                 )}
+             <InfoCard title="Recursos Adicionales" icon={Lightbulb}>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div>
+                        <h4 className="font-semibold text-card-foreground mb-2 flex items-center gap-2"><LinkIcon className="h-4 w-4" /> Enlaces de Interés</h4>
+                        <div className="space-y-2">
+                            {analysisResult.linksOfInterest?.map(link => <ResourceItem key={link.url} href={link.url} title={link.title} icon={LinkIcon} />)}
+                        </div>
+                    </div>
+                     <div>
+                        <h4 className="font-semibold text-card-foreground mb-2 flex items-center gap-2"><Youtube className="h-4 w-4" /> Videos para Repasar</h4>
+                        <div className="space-y-2">
+                            {analysisResult.reviewVideos?.map(video => <ResourceItem key={video.url} href={video.url} title={video.title} icon={Youtube} />)}
+                        </div>
+                    </div>
+                     <div>
+                        <h4 className="font-semibold text-card-foreground mb-2 flex items-center gap-2"><GraduationCap className="h-4 w-4" /> Metodologías Activas</h4>
+                         <div className="space-y-3">
+                            {analysisResult.activeMethodologies?.map(method => (
+                                <div key={method.name}>
+                                    <p className="font-semibold text-sm">{method.name}</p>
+                                    <p className="text-xs text-muted-foreground">{method.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </InfoCard>
 
             <div className="border-t pt-6 flex flex-col sm:flex-row flex-wrap gap-4">

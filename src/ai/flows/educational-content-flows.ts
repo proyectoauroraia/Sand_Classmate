@@ -47,7 +47,6 @@ const AnalyzeContentOutputSchema = z.object({
   
   coherenceAnalysis: z.string().describe("Critical analysis on the coherence between learning outcomes, planning, and evaluation methods found in the document."),
   strengths: z.array(z.string()).describe("A list of strengths found in the provided document's pedagogical structure or content."),
-  weaknesses: z.array(z.string()).describe("A list of weaknesses or areas for improvement in the document."),
   recommendations: z.array(z.string()).describe("A list of actionable recommendations to improve the document."),
 
   courseStructure: z.array(UnitSchema).describe("A list of the course units or modules, each with its own title and learning objectives.").optional(),
@@ -57,6 +56,10 @@ const AnalyzeContentOutputSchema = z.object({
       mentioned: z.array(z.string()).describe('A list of bibliographic references or source materials mentioned directly in the document.').optional(),
       recommended: z.array(z.string()).describe('A list of relevant, modern external bibliographic recommendations (books, key articles) that are NOT in the original document but are highly relevant to the subject area. Prioritize resources from the last 5 years from reliable sources like .edu, .gov, or academic journals. They must be formatted in APA 7th Edition style.'),
   }).optional(),
+
+  linksOfInterest: z.array(z.object({ title: z.string(), url: z.string().url() })).describe("A list of relevant links of interest (articles, blogs, resources) about the subject area."),
+  reviewVideos: z.array(z.object({ title: z.string(), url: z.string().url() })).describe("A list of relevant YouTube videos for reviewing the key concepts."),
+  activeMethodologies: z.array(z.object({ name: z.string(), description: z.string() })).describe("Examples of active teaching methodologies or ICTs applicable to the subject."),
 
 });
 
@@ -69,7 +72,7 @@ export async function analyzeAndEnrichContent(
       output: { schema: AnalyzeContentOutputSchema },
       prompt: `You are an expert university pedagogy assistant. Your task is to perform a deep, critical, and structured analysis of the provided educational document (syllabus, exam, course plan, etc.). Your analysis must be coherent, constructive, and based on pedagogical principles like Bloom's Taxonomy.
 
-      IMPORTANT: All generated text, summaries, titles, and descriptions MUST be in Spanish.
+      IMPORTANT: All generated text, summaries, titles, and descriptions MUST be in Spanish. All generated URLs must be valid and directly related to the content.
 
       Document: {{media url=documentDataUri}}
 
@@ -84,10 +87,14 @@ export async function analyzeAndEnrichContent(
       2.  **Critical Pedagogical Analysis:**
           *   **Coherence Analysis:** Critically evaluate the alignment between the stated **Learning Outcomes** (or general learning goals) and the **Evaluation Methods** (exams, projects). Does the exam truly measure the analytical and application skills mentioned in the plan, or does it only measure memorization? Identify any misalignments.
           *   **Strengths:** Identify the strong points of the document. (e.g., "Variedad de formatos de preguntas", "Cobertura temática amplia", "Lenguaje claro").
-          *   **Weaknesses:** Identify the pedagogical weaknesses. Be specific. (e.g., "Predominio de la memorización, alejándose del nivel de análisis requerido", "Escasa evaluación de razonamiento clínico", "Formato de verdadero/falso poco pertinente para medir competencias").
           *   **Actionable Recommendations:** Provide concrete recommendations for improvement based on your analysis. Use a pedagogical framework. (e.g., "Incorporar casos clínicos contextualizados para evaluar análisis y aplicación", "Aumentar el peso de preguntas de desarrollo usando la taxonomía de Bloom para pasar de 'recordar' a 'aplicar' o 'analizar'", "Diseñar una rúbrica explícita para respuestas cortas").
 
-      3.  **Bibliography Analysis:**
+      3.  **Content Enrichment (Instead of Weaknesses):**
+          *   **Links of Interest:** Provide a list of 3-4 high-quality links to articles, academic blogs, or institutional pages relevant to the core subject. Provide a clear title for each link.
+          *   **Review Videos:** Find 2-3 relevant, high-quality educational videos on YouTube that explain key concepts from the document. Provide the direct URL and a descriptive title for each.
+          *   **Active Methodologies:** Suggest 2-3 active learning methodologies or ICTs (Information and Communication Technologies) that a teacher could use to teach this subject. For each, provide a name (e.g., "Aprendizaje Basado en Proyectos (ABP)", "Gamificación con Kahoot") and a brief, practical description of how it could be applied.
+
+      4.  **Bibliography Analysis:**
           *   List any bibliography mentioned in the document.
           *   Provide a minimum of 5 **highly relevant, modern recommended bibliographic sources** not mentioned in the document. Prioritize academic sources from the last 5 years (e.g., Scielo, PubMed, Scopus, university books). Each reference MUST be formatted in **APA 7th Edition style**. If no bibliography is mentioned or can be recommended, return an empty object for 'bibliography'.
 
@@ -107,11 +114,11 @@ const GenerateMaterialInputSchema = z.object({
         subjectArea: z.string(),
         coherenceAnalysis: z.string(),
         strengths: z.array(z.string()),
-        weaknesses: z.array(z.string()),
         recommendations: z.array(z.string()),
         courseStructure: z.array(UnitSchema).optional(),
         assessments: z.array(AssessmentSchema).optional(),
         bibliography: z.any().optional(),
+        // Weaknesses are removed, so no need to pass them.
     }),
     materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
     // Add context for single-class generation
@@ -247,7 +254,7 @@ const MaterialPrompts = {
         **SECOND**, after the guide, you will create a new section titled "# Modelo de Examen Mejorado (Basado en Análisis)".
         
         **THIRD**, under this new title, you will generate an improved sample test.
-        - **Crucially, use the 'weaknesses' and 'recommendations' from the analysis to build a better exam.** For example, if the analysis recommended using clinical cases, you MUST incorporate clinical cases. If it recommended moving up Bloom's taxonomy, your questions must require application or analysis, not just memorization.
+        - **Crucially, use the 'recommendations' from the analysis to build a better exam.** For example, if the analysis recommended using clinical cases, you MUST incorporate clinical cases. If it recommended moving up Bloom's taxonomy, your questions must require application or analysis, not just memorization.
         - Use H2 (##) to title each section (e.g., "## Caso Clínico 1", "## Preguntas de Aplicación").
         - Use H3 (###) for each question, indicating its type (e.g., "### 1. Pregunta de Análisis (Selección Múltiple)").
         - For multiple-choice questions, list options with a bullet point (*) and mark the correct one with "(Correcta)".
@@ -277,7 +284,6 @@ export async function generateMaterialFromAnalysis(
     **Course Summary:** ${analysisResult.summary}
     **Key Concepts:** ${analysisResult.keyConcepts?.join(', ')}
     **Coherence Analysis:** ${analysisResult.coherenceAnalysis}
-    **Identified Weaknesses:** ${analysisResult.weaknesses?.join(', ')}
     **Improvement Recommendations:** ${analysisResult.recommendations?.join(', ')}
     
     **Your Specific Task:**
