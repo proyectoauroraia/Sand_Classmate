@@ -69,7 +69,12 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  if (session && (pathname === '/' || pathname.startsWith('/auth'))) {
+  // Ignore auth routes from middleware protection
+  if (pathname.startsWith('/auth')) {
+    return response;
+  }
+
+  if (session && (pathname === '/')) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
