@@ -1,15 +1,16 @@
 
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Loader2, RefreshCw, AlertCircle, BookOpen } from 'lucide-react';
+import { AlertCircle, BookOpen } from 'lucide-react';
 import { analyzeContentAction } from '@/lib/actions';
 import type { AnalysisResult } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 
 type AnalysisState = 'idle' | 'analyzing';
 
@@ -28,10 +29,51 @@ const PremiumUploadIcon = () => (
 export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     const [analysisState, setAnalysisState] = useState<AnalysisState>('idle');
     const [error, setError] = useState<string | null>(null);
+    const [progress, setProgress] = useState(0);
 
     const [file, setFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout | null = null;
+        if (analysisState === 'analyzing') {
+            setProgress(0);
+            const totalDuration = 45000; // 45 seconds total simulation
+            const initialFastDuration = 5000; // First 5s to get to 80%
+            const remainingDuration = totalDuration - initialFastDuration;
+
+            // Fast initial progress
+            let startTime = Date.now();
+            const animateFast = () => {
+                const elapsedTime = Date.now() - startTime;
+                const newProgress = Math.min(80, (elapsedTime / initialFastDuration) * 80);
+                setProgress(newProgress);
+                if (newProgress < 80) {
+                    requestAnimationFrame(animateFast);
+                }
+            };
+            animateFast();
+
+            // Slower progress for the remainder
+            timer = setTimeout(() => {
+                startTime = Date.now();
+                const animateSlow = () => {
+                     const elapsedTime = Date.now() - startTime;
+                     const newProgress = 80 + Math.min(15, (elapsedTime / remainingDuration) * 15); // Goes up to 95%
+                     setProgress(newProgress);
+                     if (newProgress < 95) {
+                         requestAnimationFrame(animateSlow);
+                     }
+                };
+                animateSlow();
+            }, initialFastDuration);
+        }
+
+        return () => {
+            if (timer) clearTimeout(timer);
+        };
+    }, [analysisState]);
 
     const handleFileChange = (selectedFile: File | null) => {
         if (selectedFile) {
@@ -82,11 +124,15 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                 throw new Error(response.error || 'Falló el análisis del contenido.');
             }
             
-            onAnalysisComplete(response.data);
-            toast({
-                title: "¡Análisis Completo!",
-                description: `Hemos analizado tu documento sobre "${response.data.subjectArea}".`,
-            });
+            setProgress(100); // Analysis complete
+            setTimeout(() => {
+                onAnalysisComplete(response.data);
+                toast({
+                    title: "¡Análisis Completo!",
+                    description: `Hemos analizado tu documento sobre "${response.data.subjectArea}".`,
+                });
+            }, 500); // Short delay to show 100%
+
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error inesperado.';
             setError(errorMessage);
@@ -102,11 +148,16 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     if (analysisState === 'analyzing') {
         return (
             <Card className="flex flex-col items-center justify-center text-center p-10 h-full bg-primary/10">
-                <Loader2 className="h-16 w-16 animate-spin text-primary mb-6" />
-                <h2 className="text-xl font-semibold text-primary/80">
-                    Analizando tu documento...
-                </h2>
-                <p className="text-primary/70 mt-2">Esto puede tardar unos momentos. No cierres esta página.</p>
+                <div className="w-full max-w-md">
+                     <h2 className="text-xl font-semibold text-primary/80">
+                        Analizando tu documento...
+                    </h2>
+                     <p className="text-primary/70 mt-2 mb-6">
+                        Esto puede tardar unos momentos. No cierres esta página.
+                    </p>
+                    <Progress value={progress} className="w-full h-3 bg-primary/20" />
+                    <p className="text-sm font-medium text-primary/90 mt-3">{Math.round(progress)}%</p>
+                </div>
             </Card>
         );
     }
