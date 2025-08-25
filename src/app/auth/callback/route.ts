@@ -12,6 +12,7 @@ export async function GET(request: Request) {
     const supabase = createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
+      // URL de redirección en el servidor para asegurar la sesión antes de ir al cliente.
       return NextResponse.redirect(`${origin}${next}`)
     }
   }

@@ -4,19 +4,45 @@
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Home, BookOpen, UserCircle2, Gem, Power, Settings } from 'lucide-react';
+import { Home, BookOpen, UserCircle2, Gem, Power, Settings, Loader2 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, usePathname } from 'next/navigation';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useEffect, useState } from 'react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                router.replace('/');
+            } else {
+                setLoading(false);
+            }
+        };
+
+        checkUser();
+
+        const { data: authListener } = createClient().auth.onAuthStateChange((event, session) => {
+             if (event === 'SIGNED_OUT') {
+                router.replace('/');
+            }
+        });
+        
+        return () => {
+            authListener?.subscription.unsubscribe();
+        };
+
+    }, [router]);
 
     const navLinks = [
         { href: "/dashboard", icon: Home, label: "Inicio" },
@@ -58,6 +84,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
         </div>
     );
+
+    if (loading) {
+        return (
+            <div className="flex min-h-screen w-full items-center justify-center bg-background">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+        );
+    }
+
 
     return (
         <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
