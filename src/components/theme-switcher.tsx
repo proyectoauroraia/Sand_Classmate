@@ -36,20 +36,19 @@ export function ThemeSwitcher() {
 
   const isDarkMode = resolvedTheme === 'dark';
   
-  // The active theme might be 'dark theme-forest', so we find the palette part.
+  // Find the current palette part from the full theme string (e.g., "dark theme-forest" -> "theme-forest")
   const currentPalette = themes.find(t => activeTheme?.includes(t.theme))?.theme || 'theme-default';
 
   const handlePaletteChange = (newPalette: string) => {
-    // We construct the new theme string, preserving the light/dark mode.
-    setTheme(newPalette);
-    
-    // Also update the body class directly to ensure immediate change if next-themes is slow
-    document.body.classList.remove(...themes.map(t => t.theme));
-    document.body.classList.add(newPalette);
+    // Combine the new palette with the current mode (light/dark)
+    const newTheme = `${isDarkMode ? 'dark' : 'light'} ${newPalette}`;
+    setTheme(newTheme);
   };
   
   const handleDarkModeToggle = (isDark: boolean) => {
-    setTheme(isDark ? 'dark' : 'light');
+    // Combine the new mode with the current palette
+    const newTheme = `${isDark ? 'dark' : 'light'} ${currentPalette}`;
+    setTheme(newTheme);
   };
 
   return (
