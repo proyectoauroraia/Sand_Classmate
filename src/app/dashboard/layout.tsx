@@ -22,36 +22,35 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const supabase = createClient();
 
     useEffect(() => {
-        const checkUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                setUser(user);
-            }
-            setLoading(false);
-        };
-
-        checkUser();
-        
         const { data: authListener } = supabase.auth.onAuthStateChange(
             (event, session) => {
                 const currentUser = session?.user ?? null;
                 setUser(currentUser);
-                if (event === 'SIGNED_IN') {
-                    // This handles the case where the user signs in on a different tab
+                // Set loading to false once we have a definitive answer.
+                if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
                     setLoading(false);
-                }
-                if (event === 'SIGNED_OUT') {
-                    router.push('/');
                 }
             }
         );
 
+        // Check initial state
+        const checkUser = async () => {
+             const { data: { session } } = await supabase.auth.getSession();
+             if (session) {
+                setUser(session.user);
+             }
+             setLoading(false);
+        };
+        
+        checkUser();
+
         return () => {
             authListener?.subscription.unsubscribe();
         };
-    }, [router, supabase]);
+    }, [supabase.auth]);
 
     useEffect(() => {
+        // This effect redirects if the user is not logged in after the initial check.
         if (!loading && !user) {
             router.push('/');
         }
@@ -67,7 +66,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     
     const handleSignOut = async () => {
         await supabase.auth.signOut();
-        router.push('/');
+        router.push('/'); // Explicitly redirect after sign out
     }
 
     const sidebarContent = (
@@ -105,72 +104,73 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         );
     }
     
-    if (!user) {
-        // This can briefly show the loader before the useEffect above redirects.
-        // It's a fallback to prevent rendering children without a user.
+    // If not loading and there's a user, render the layout
+    if (user) {
         return (
-            <div className="flex min-h-screen w-full items-center justify-center bg-background">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
+                <div className="hidden border-r bg-card text-card-foreground lg:block">
+                    {sidebarContent}
+                </div>
+                <div className="flex flex-col">
+                     <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b bg-muted px-4 md:px-6 lg:h-[60px] lg:justify-end">
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
+                                    <Menu className="h-5 w-5" />
+                                    <span className="sr-only">Toggle navigation menu</span>
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="left" className="flex flex-col p-0 bg-card border-r-0">
+                                {sidebarContent}
+                            </SheetContent>
+                        </Sheet>
+                         <div className="w-full flex-1">
+                            {/* Header content can go here, e.g. search bar */}
+                        </div>
+
+                        <div className="flex items-center gap-2 md:gap-4">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="rounded-full">
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarImage src={user?.user_metadata?.avatar_url ?? 'https://placehold.co/40x40.png'} alt="@prof" data-ai-hint="person face" />
+                                            <AvatarFallback>{user?.email?.charAt(0)?.toUpperCase() ?? 'U'}</AvatarFallback>
+                                        </Avatar>
+                                        <span className="sr-only">Toggle user menu</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
+                                        <UserCircle2 className="mr-2 h-4 w-4" />
+                                        Mi Perfil
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+                                        <Settings className="mr-2 h-4 w-4" />
+                                        Configuración
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                     <DropdownMenuItem onClick={handleSignOut}>
+                                        <Power className="mr-2 h-4 w-4" />
+                                        Cerrar Sesión
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+
+                    </header>
+                     <main className="flex-1 overflow-y-auto bg-background relative">
+                        {children}
+                    </main>
+                </div>
             </div>
         );
     }
 
+    // This is a fallback case for when user is null after loading. 
+    // The useEffect hook will have already initiated a redirect.
     return (
-        <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
-            <div className="hidden border-r bg-card text-card-foreground lg:block">
-                {sidebarContent}
-            </div>
-            <div className="flex flex-col">
-                 <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b bg-muted px-4 md:px-6 lg:h-[60px] lg:justify-end">
-                    <Sheet>
-                        <SheetTrigger asChild>
-                            <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
-                                <Menu className="h-5 w-5" />
-                                <span className="sr-only">Toggle navigation menu</span>
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="left" className="flex flex-col p-0 bg-card border-r-0">
-                            {sidebarContent}
-                        </SheetContent>
-                    </Sheet>
-                     <div className="w-full flex-1">
-                        {/* Header content can go here, e.g. search bar */}
-                    </div>
-
-                    <div className="flex items-center gap-2 md:gap-4">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="rounded-full">
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarImage src={user?.user_metadata?.avatar_url ?? 'https://placehold.co/40x40.png'} alt="@prof" data-ai-hint="person face" />
-                                        <AvatarFallback>{user?.email?.charAt(0)?.toUpperCase() ?? 'U'}</AvatarFallback>
-                                    </Avatar>
-                                    <span className="sr-only">Toggle user menu</span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
-                                    <UserCircle2 className="mr-2 h-4 w-4" />
-                                    Mi Perfil
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
-                                    <Settings className="mr-2 h-4 w-4" />
-                                    Configuración
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                 <DropdownMenuItem onClick={handleSignOut}>
-                                    <Power className="mr-2 h-4 w-4" />
-                                    Cerrar Sesión
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-
-                </header>
-                 <main className="flex-1 overflow-y-auto bg-background relative">
-                    {children}
-                </main>
-            </div>
+        <div className="flex min-h-screen w-full items-center justify-center bg-background">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
         </div>
     );
 }
