@@ -19,20 +19,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const pathname = usePathname();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const supabase = createClient();
 
     useEffect(() => {
-        const supabase = createClient();
+        const checkUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                setUser(user);
+            }
+            setLoading(false);
+        };
+
+        checkUser();
         
         const { data: authListener } = supabase.auth.onAuthStateChange(
             (event, session) => {
                 const currentUser = session?.user ?? null;
                 setUser(currentUser);
-                
-                // Finished loading once we have a user or no user
-                setLoading(false);
-
+                if (event === 'SIGNED_IN') {
+                    // This handles the case where the user signs in on a different tab
+                    setLoading(false);
+                }
                 if (event === 'SIGNED_OUT') {
-                    router.replace('/');
+                    router.push('/');
                 }
             }
         );
@@ -40,7 +49,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         return () => {
             authListener?.subscription.unsubscribe();
         };
-    }, [router]);
+    }, [router, supabase]);
+
+    useEffect(() => {
+        if (!loading && !user) {
+            router.push('/');
+        }
+    }, [loading, user, router]);
+
 
     const navLinks = [
         { href: "/dashboard", icon: Home, label: "Inicio" },
@@ -50,7 +66,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     ];
     
     const handleSignOut = async () => {
-        const supabase = createClient();
         await supabase.auth.signOut();
         router.push('/');
     }
@@ -89,19 +104,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
         );
     }
-
+    
     if (!user) {
-        // This case should be handled by the onAuthStateChange SIGNED_OUT event,
-        // but as a fallback, we can redirect.
-        // Using a setTimeout to avoid potential hydration errors on initial load.
-        setTimeout(() => router.replace('/'), 0);
+        // This can briefly show the loader before the useEffect above redirects.
+        // It's a fallback to prevent rendering children without a user.
         return (
-             <div className="flex min-h-screen w-full items-center justify-center bg-background">
+            <div className="flex min-h-screen w-full items-center justify-center bg-background">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
             </div>
         );
     }
-    
+
     return (
         <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
             <div className="hidden border-r bg-card text-card-foreground lg:block">
