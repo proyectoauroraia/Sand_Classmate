@@ -23,7 +23,7 @@ export const StructureTab: React.FC<StructureTabProps> = React.memo(({
     isAnyTaskRunning,
 }) => {
     if (!analysisResult.courseStructure || analysisResult.courseStructure.length === 0) {
-        return <p className="text-muted-foreground p-4">No se pudo identificar una estructura de curso en el documento.</p>;
+        return <p className="text-muted-foreground p-8 text-center">No se pudo identificar una estructura de curso en el documento.</p>;
     }
     
     return (

@@ -37,18 +37,18 @@ const AssessmentSchema = z.object({
 const AnalyzeContentOutputSchema = z.object({
   summary: z
     .string()
-    .describe('A concise summary of the document\'s key topics and structure.').optional(),
+    .describe('A concise summary of the document\'s key topics and structure.'),
   keyConcepts: z
     .array(z.string())
-    .describe('A list of the most important terms and concepts found in the document.').optional(),
+    .describe('A list of the most important terms and concepts found in the document.'),
   subjectArea: z
     .string()
     .describe('The subject area or field of study identified from the document.'),
   
-  coherenceAnalysis: z.string().describe("Critical analysis on the coherence between learning outcomes, planning, and evaluation methods found in the document.").optional(),
-  strengths: z.array(z.string()).describe("A list of strengths found in the provided document's pedagogical structure or content.").optional(),
-  weaknesses: z.array(z.string()).describe("A list of weaknesses or areas for improvement in the document.").optional(),
-  recommendations: z.array(z.string()).describe("A list of actionable recommendations to improve the document.").optional(),
+  coherenceAnalysis: z.string().describe("Critical analysis on the coherence between learning outcomes, planning, and evaluation methods found in the document."),
+  strengths: z.array(z.string()).describe("A list of strengths found in the provided document's pedagogical structure or content."),
+  weaknesses: z.array(z.string()).describe("A list of weaknesses or areas for improvement in the document."),
+  recommendations: z.array(z.string()).describe("A list of actionable recommendations to improve the document."),
 
   courseStructure: z.array(UnitSchema).describe("A list of the course units or modules, each with its own title and learning objectives.").optional(),
   assessments: z.array(AssessmentSchema).describe("A list of the course assessments, including type, description, and feedback/learning outcome.").optional(),
@@ -79,7 +79,7 @@ export async function analyzeAndEnrichContent(
           *   **Subject Area:** Identify the specific field of study (e.g., Kinesiology, Nutrition, Philosophy).
           *   **Summary:** Provide a concise summary of the document's main topics and purpose.
           *   **Key Concepts:** List the most critical keywords and concepts.
-          *   **Course Structure & Assessments:** Identify units, learning objectives, and assessments as defined in the schema. For each unit, you MUST break it down into a list of individual, specific class topics. For example, a unit on "Cell Biology" might have classes on "The Cell Membrane", "Mitochondria and Energy", and "Protein Synthesis".
+          *   **Course Structure & Assessments:** Identify units, learning objectives, and assessments as defined in the schema. For each unit, you MUST break it down into a list of individual, specific class topics. For example, a unit on "Cell Biology" might have classes on "The Cell Membrane", "Mitochondria and Energy", and "Protein Synthesis". If no structure is found, return an empty array for 'courseStructure'. If no assessments are found, return an empty array for 'assessments'.
 
       2.  **Critical Pedagogical Analysis:**
           *   **Coherence Analysis:** Critically evaluate the alignment between the stated **Learning Outcomes** (or general learning goals) and the **Evaluation Methods** (exams, projects). Does the exam truly measure the analytical and application skills mentioned in the plan, or does it only measure memorization? Identify any misalignments.
@@ -89,7 +89,7 @@ export async function analyzeAndEnrichContent(
 
       3.  **Bibliography Analysis:**
           *   List any bibliography mentioned in the document.
-          *   Provide a minimum of 5 **highly relevant, modern recommended bibliographic sources** not mentioned in the document. Prioritize academic sources from the last 5 years (e.g., Scielo, PubMed, Scopus, university books). Each reference MUST be formatted in **APA 7th Edition style**.
+          *   Provide a minimum of 5 **highly relevant, modern recommended bibliographic sources** not mentioned in the document. Prioritize academic sources from the last 5 years (e.g., Scielo, PubMed, Scopus, university books). Each reference MUST be formatted in **APA 7th Edition style**. If no bibliography is mentioned or can be recommended, return an empty object for 'bibliography'.
 
       Provide a structured JSON response according to the defined output schema. Ensure all fields are populated accurately and in Spanish.`
   });
@@ -102,13 +102,13 @@ export async function analyzeAndEnrichContent(
 // Schema for generating a specific material from analysis
 const GenerateMaterialInputSchema = z.object({
     analysisResult: z.object({
-        summary: z.string().optional(),
-        keyConcepts: z.array(z.string()).optional(),
+        summary: z.string(),
+        keyConcepts: z.array(z.string()),
         subjectArea: z.string(),
-        coherenceAnalysis: z.string().optional(),
-        strengths: z.array(z.string()).optional(),
-        weaknesses: z.array(z.string()).optional(),
-        recommendations: z.array(z.string()).optional(),
+        coherenceAnalysis: z.string(),
+        strengths: z.array(z.string()),
+        weaknesses: z.array(z.string()),
+        recommendations: z.array(z.string()),
         courseStructure: z.array(UnitSchema).optional(),
         assessments: z.array(AssessmentSchema).optional(),
         bibliography: z.any().optional(),

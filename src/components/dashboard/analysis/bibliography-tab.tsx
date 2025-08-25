@@ -8,7 +8,7 @@ interface BibliographyTabProps {
     analysisResult: AnalysisResult;
 }
 
-const BibliographyList: React.FC<{ title: string; items: string[] }> = ({ title, items }) => {
+const BibliographyList: React.FC<{ title: string; items?: string[] }> = ({ title, items }) => {
     if (!items || items.length === 0) return null;
 
     return (
@@ -26,7 +26,7 @@ export const BibliographyTab: React.FC<BibliographyTabProps> = React.memo(({ ana
     const { bibliography } = analysisResult;
 
     if (!bibliography || (!bibliography.mentioned?.length && !bibliography.recommended?.length)) {
-        return <p className="text-muted-foreground p-4">No se encontró bibliografía en el documento.</p>;
+        return <p className="text-muted-foreground p-8 text-center">No se encontró bibliografía en el documento.</p>;
     }
 
     return (

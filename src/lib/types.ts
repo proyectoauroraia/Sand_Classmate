@@ -1,15 +1,16 @@
 
 
 
+
 export type AnalysisResult = {
-  summary?: string;
-  keyConcepts?: string[];
+  summary: string;
+  keyConcepts: string[];
   subjectArea: string;
   
-  coherenceAnalysis?: string;
-  strengths?: string[];
-  weaknesses?: string[];
-  recommendations?: string[];
+  coherenceAnalysis: string;
+  strengths: string[];
+  weaknesses: string[];
+  recommendations: string[];
 
   courseStructure?: {
     title: string;
@@ -26,8 +27,8 @@ export type AnalysisResult = {
   }[];
 
   bibliography?: {
-    mentioned: string[];
-    recommended: string[];
+    mentioned?: string[];
+    recommended?: string[];
   };
 }
 
@@ -40,7 +41,7 @@ export type GeneratedMaterials = {
 
 export type HistoryItem = {
     id: string;
-    fileName: string;
+    fileName:string;
     date: string;
     status: 'Completado' | 'Procesando' | 'Fallido';
 };
