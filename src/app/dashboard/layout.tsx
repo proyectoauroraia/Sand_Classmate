@@ -23,29 +23,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     useEffect(() => {
         const supabase = createClient();
         
+        // Check initial user state
+        const checkUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                setUser(user);
+            }
+            setLoading(false);
+        };
+        checkUser();
+        
         const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-            setUser(session?.user ?? null);
+            const currentUser = session?.user ?? null;
+            setUser(currentUser);
             setLoading(false);
             if (event === 'SIGNED_OUT') {
                 router.replace('/');
             }
         });
 
-        // Check initial user state
-        const checkUser = async () => {
-            const { data, error } = await supabase.auth.getUser();
-            if (data.user) {
-                setUser(data.user);
-            }
-            if (error && error.message === 'Auth session missing!') {
-                // This can happen on first load, it's not a fatal error
-            } else if (error) {
-                console.error("Error fetching user:", error.message);
-            }
-            setLoading(false);
-        };
-        
-        checkUser();
 
         return () => {
             authListener?.subscription.unsubscribe();
