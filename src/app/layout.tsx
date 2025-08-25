@@ -29,7 +29,8 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="theme-default"
           enableSystem={false}
-          themes={['theme-default', 'theme-slate', 'theme-stone']}
+          themes={['theme-default', 'theme-slate', 'theme-stone', 'theme-navy', 'theme-forest', 'dark', 'light']}
+          disableTransitionOnChange
         >
           {children}
           <Toaster />

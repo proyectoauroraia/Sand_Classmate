@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 @layer base {
-  :root, .theme-default {
+  :root, .light, .theme-default {
     --background: 24 51% 97%; /* Light Sand */
     --foreground: 24 51% 20%; /* Dark Brown */
     
@@ -50,8 +50,28 @@
     --sand-dune-3-end: hsl(35 90% 80%);
   }
 
-  .dark {
-    --sand-bg: hsl(25 40% 10%);
+  .dark.theme-default {
+    --background: 24 51% 10%;
+    --foreground: 0 0% 95%;
+    --card: 24 51% 12%;
+    --card-foreground: 0 0% 95%;
+    --popover: 24 51% 12%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 15 82% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 186 39% 25%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 15 82% 15%;
+    --accent-foreground: 15 82% 80%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 18%;
+    --input: 0 0% 20%;
+    --ring: 15 82% 60%;
+
+     --sand-bg: hsl(25 40% 10%);
     --sand-dune-1-start: hsl(20 50% 15%);
     --sand-dune-1-end: hsl(15 60% 20%);
     --sand-dune-2-start: hsl(30 45% 12%);
@@ -60,7 +80,73 @@
     --sand-dune-3-end: hsl(30 65% 14%);
   }
 
-  .theme-slate {
+  .light.theme-navy, .theme-navy {
+    --background: 210 50% 98%;
+    --foreground: 215 30% 25%;
+    --primary: 215 41% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 205 30% 35%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 210 50% 94%;
+    --accent-foreground: 215 41% 35%;
+  }
+  
+  .dark.theme-navy {
+    --background: 215 30% 12%;
+    --foreground: 210 30% 95%;
+    --primary: 215 41% 65%;
+    --primary-foreground: 215 30% 10%;
+    --secondary: 205 30% 25%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 215 30% 18%;
+    --accent-foreground: 215 41% 80%;
+  }
+  
+  .light.theme-forest, .theme-forest {
+    --background: 110 30% 97%;
+    --foreground: 120 25% 20%;
+    --primary: 120 39% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 100 25% 30%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 110 30% 94%;
+    --accent-foreground: 120 39% 30%;
+  }
+
+  .dark.theme-forest {
+    --background: 120 25% 10%;
+    --foreground: 110 20% 95%;
+    --primary: 120 39% 60%;
+    --primary-foreground: 120 25% 10%;
+    --secondary: 100 25% 20%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 120 25% 15%;
+    --accent-foreground: 120 39% 80%;
+  }
+
+  .light.theme-slate, .theme-slate {
+    --background: 222 47% 98%;
+    --foreground: 222 47% 11%;
+    --card: 222 47% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 222 47% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 222 47% 45%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217 33% 94%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 217 33% 94%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 94%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 88%;
+    --input: 217 33% 88%;
+    --ring: 222 47% 45%;
+  }
+
+  .dark.theme-slate {
     --background: 222 47% 11%; /* dark slate blue */
     --foreground: 210 40% 98%;
     --card: 222 47% 13%;
@@ -82,7 +168,29 @@
     --ring: 210 40% 98%;
   }
   
-  .theme-stone {
+  .light.theme-stone, .theme-stone {
+    --background: 240 10% 98%;
+    --foreground: 240 10% 4%;
+    --card: 240 10% 100%;
+    --card-foreground: 240 10% 4%;
+    --popover: 240 10% 100%;
+    --popover-foreground: 240 10% 4%;
+    --primary: 45 90% 55%; /* gold */
+    --primary-foreground: 240 10% 4%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 10% 4%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 5% 55%;
+    --accent: 240 5% 96%;
+    --accent-foreground: 45 90% 55%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 240 5% 95%;
+    --border: 240 5% 88%;
+    --input: 240 5% 88%;
+    --ring: 45 90% 55%;
+  }
+
+  .dark.theme-stone {
     --background: 240 10% 4%; /* near black */
     --foreground: 240 5% 65%;
     --card: 240 10% 6%;
