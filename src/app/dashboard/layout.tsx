@@ -20,35 +20,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const pathname = usePathname();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
-
+    
     useEffect(() => {
-        const supabase = createClient();
-
-        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-            const currentUser = session?.user ?? null;
-            setUser(currentUser);
+        const fetchUser = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
             setLoading(false);
-            if (event === 'SIGNED_OUT') {
-                router.replace('/');
-            }
-        });
-
-        // Also check the initial session
-        const checkInitialSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                setLoading(false);
-                router.replace('/');
-            }
-        }
-        
-        checkInitialSession();
-
-
-        return () => {
-            authListener?.subscription.unsubscribe();
         };
-    }, [router]);
+        fetchUser();
+    }, []);
 
     const navLinks = [
         { href: "/dashboard", icon: Home, label: "Inicio" },
