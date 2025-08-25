@@ -24,31 +24,33 @@ const themes = [
 export function ThemeSwitcher() {
   const { theme: activeTheme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
-  const [palette, setPalette] = React.useState('theme-default');
-
+  
   React.useEffect(() => {
     setMounted(true);
-    // On mount, determine the initial palette from the active theme
-    const currentPalette = themes.find(t => activeTheme?.includes(t.theme))?.theme || 'theme-default';
-    setPalette(currentPalette);
-  }, [activeTheme]);
+  }, []);
 
-  const handleDarkModeToggle = (isDark: boolean) => {
-    setTheme(isDark ? 'dark' : 'light');
-  };
-
-  const handlePaletteChange = (newPalette: string) => {
-    setPalette(newPalette);
-    // This is a way to remove all other theme classes before adding the new one
-    document.body.classList.remove(...themes.map(t => t.theme));
-    document.body.classList.add(newPalette);
-  };
-  
   if (!mounted) {
+    // Render a placeholder or nothing on the server to avoid hydration mismatch
     return <div className="w-24 h-10" />;
   }
 
   const isDarkMode = resolvedTheme === 'dark';
+  
+  // The active theme might be 'dark theme-forest', so we find the palette part.
+  const currentPalette = themes.find(t => activeTheme?.includes(t.theme))?.theme || 'theme-default';
+
+  const handlePaletteChange = (newPalette: string) => {
+    // We construct the new theme string, preserving the light/dark mode.
+    setTheme(newPalette);
+    
+    // Also update the body class directly to ensure immediate change if next-themes is slow
+    document.body.classList.remove(...themes.map(t => t.theme));
+    document.body.classList.add(newPalette);
+  };
+  
+  const handleDarkModeToggle = (isDark: boolean) => {
+    setTheme(isDark ? 'dark' : 'light');
+  };
 
   return (
     <div className="flex items-center gap-2 rounded-lg border bg-card p-1">
@@ -72,7 +74,7 @@ export function ThemeSwitcher() {
                 />
                 <span>{themeOption.name}</span>
               </div>
-              {palette === themeOption.theme && <Check className="h-4 w-4" />}
+              {currentPalette === themeOption.theme && <Check className="h-4 w-4" />}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
