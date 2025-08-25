@@ -45,7 +45,7 @@ export function AuthTabs() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const redirectTo = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`;
+    const redirectTo = `${window.location.origin}/auth/callback`;
     try {
         const supabase = createClient();
         const { error } = await supabase.auth.signUp({
@@ -94,7 +94,7 @@ export function AuthTabs() {
     setLoading(true);
     setError(null);
     const supabase = createClient();
-    const redirectTo = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`;
+    const redirectTo = `${window.location.origin}/auth/callback`;
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

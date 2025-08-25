@@ -33,9 +33,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         // Check initial user state
         const checkUser = async () => {
-            const { data } = await supabase.auth.getUser();
+            const { data, error } = await supabase.auth.getUser();
             if (data.user) {
                 setUser(data.user);
+            }
+            if (error && error.message === 'Auth session missing!') {
+                // This can happen on first load, it's not a fatal error
+            } else if (error) {
+                console.error("Error fetching user:", error.message);
             }
             setLoading(false);
         };
@@ -99,6 +104,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     if (!user) {
         router.replace('/');
+        // Return a loader while redirecting to avoid flashing content
         return (
              <div className="flex min-h-screen w-full items-center justify-center bg-background">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -134,8 +140,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="rounded-full">
                                     <Avatar className="h-8 w-8">
-                                        <AvatarImage src="https://placehold.co/40x40.png" alt="@prof" data-ai-hint="person face" />
-                                        <AvatarFallback>PD</AvatarFallback>
+                                        <AvatarImage src={user.user_metadata?.avatar_url ?? 'https://placehold.co/40x40.png'} alt="@prof" data-ai-hint="person face" />
+                                        <AvatarFallback>{user.email?.charAt(0)?.toUpperCase() ?? 'U'}</AvatarFallback>
                                     </Avatar>
                                     <span className="sr-only">Toggle user menu</span>
                                 </Button>
