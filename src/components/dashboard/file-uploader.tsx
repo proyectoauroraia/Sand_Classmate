@@ -35,6 +35,25 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
 
     const handleFileChange = (file: File | null) => {
         if (file) {
+            // Client-side validation for file size and type
+            if (file.size > 10 * 1024 * 1024) { // 10 MB
+                setError('El archivo no debe superar los 10MB.');
+                toast({
+                    variant: "destructive",
+                    title: "Archivo muy grande",
+                    description: "Por favor, sube un archivo de menos de 10MB.",
+                });
+                return;
+            }
+             if (!file.type.startsWith('application/pdf')) {
+                setError('Solo se admiten archivos PDF.');
+                toast({
+                    variant: "destructive",
+                    title: "Formato no válido",
+                    description: "Por favor, sube un archivo en formato PDF.",
+                });
+                return;
+            }
             setFileName(file.name);
             setError(null);
         }
@@ -49,16 +68,6 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
             return;
         }
         
-        if (file.size > 10 * 1024 * 1024) { // 10 MB limit
-            setError('El archivo es demasiado grande. El límite es de 10MB.');
-            toast({
-                variant: "destructive",
-                title: "Archivo muy grande",
-                description: "Por favor, sube un archivo de menos de 10MB.",
-            });
-            return;
-        }
-
         setAnalysisState('analyzing');
         setError(null);
 

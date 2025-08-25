@@ -12,8 +12,8 @@ import { PDFDocument, rgb, StandardFonts, PageSizes } from 'pdf-lib';
 
 const AnalyzeInputSchema = z.object({
   documentDataUri: z.string().refine(
-    (uri) => uri.startsWith('data:application/pdf;base64,') || uri.startsWith('data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,'),
-    'Solo se admiten documentos PDF o DOCX.'
+    (uri) => uri.startsWith('data:application/pdf;base64,'),
+    'Solo se admiten documentos PDF.'
   ),
 });
 
@@ -323,6 +323,7 @@ export async function analyzeContentAction(
   const validation = AnalyzeInputSchema.safeParse({ documentDataUri });
   if (!validation.success) {
     const error = validation.error.errors[0]?.message || 'Datos de entrada inválidos.';
+    console.error("Analysis Action Validation Error:", validation.error.format());
     return { data: null, error };
   }
   
@@ -333,7 +334,7 @@ export async function analyzeContentAction(
     
     return { data: analysisResult, error: null };
   } catch (e) {
-    console.error(e);
+    console.error("Analysis Action Error:", e);
     const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
     return { data: null, error: `Falló el análisis del contenido: ${errorMessage}` };
   }
@@ -348,6 +349,7 @@ export async function generateMaterialsActionFromAnalysis(
     const validation = GenerateMaterialInputSchema.safeParse({ analysisResult, materialType, format, classContext });
     if (!validation.success) {
         const error = validation.error.errors[0]?.message || 'Datos de entrada inválidos para la generación.';
+        console.error("Generate Material Validation Error:", validation.error.format());
         return { data: null, error };
     }
 
@@ -383,7 +385,7 @@ export async function generateMaterialsActionFromAnalysis(
         return { data: fileDataUri, error: null };
 
     } catch(e) {
-        console.error(e);
+        console.error("Generate Material Error:", e);
         const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
         return { data: null, error: `Falló la generación del material: ${errorMessage}` };
     }
@@ -396,6 +398,10 @@ const API_KEY = process.env.WEBPAY_PLUS_API_KEY!;
 
 export async function createCheckoutSessionAction(): Promise<{ data: CheckoutSessionResult | null; error: string | null }> {
     try {
+        if (!COMMERCE_CODE || !API_KEY) {
+            throw new Error("Las credenciales de Webpay no están configuradas en el servidor.");
+        }
+
         const buy_order = `O-${Math.floor(Math.random() * 10000) + 1}`;
         const session_id = `S-${Math.floor(Math.random() * 10000) + 1}`;
         const amount = 12000;
@@ -422,7 +428,7 @@ export async function createCheckoutSessionAction(): Promise<{ data: CheckoutSes
         return { data, error: null };
 
     } catch (e) {
-        console.error(e);
+        console.error("Create Checkout Session Error:", e);
         const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
         return { data: null, error: `No se pudo crear la sesión de pago: ${errorMessage}` };
     }
@@ -434,6 +440,9 @@ export async function commitWebpayTransactionAction(
     try {
         if (!token) {
             throw new Error("Token de Webpay no proporcionado.");
+        }
+         if (!COMMERCE_CODE || !API_KEY) {
+            throw new Error("Las credenciales de Webpay no están configuradas en el servidor.");
         }
         
         const headers = {
@@ -459,7 +468,7 @@ export async function commitWebpayTransactionAction(
         return { data, error: null };
 
     } catch (e) {
-        console.error(e);
+        console.error("Commit Webpay Transaction Error:", e);
         const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
         return { data: null, error: `Falló la confirmación del pago: ${errorMessage}` };
     }

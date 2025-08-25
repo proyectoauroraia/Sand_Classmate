@@ -40,7 +40,8 @@ export function AuthTabs() {
         if (error) throw error;
         router.push('/confirm-email'); // Redirect to a page telling them to check their email
     } catch (error: any) {
-        setError(error.message);
+        console.error("Authentication Error:", error);
+        setError("No se pudo crear la cuenta. Revisa tus datos e inténtalo de nuevo.");
     } finally {
         setLoading(false);
     }
@@ -60,7 +61,8 @@ export function AuthTabs() {
         router.push('/dashboard');
         router.refresh();
     } catch (error: any) {
-        setError(error.message);
+        console.error("Authentication Error:", error);
+        setError("Email o contraseña incorrectos. Por favor, verifica tus credenciales.");
     } finally {
         setLoading(false);
     }
@@ -79,7 +81,8 @@ export function AuthTabs() {
       });
       if (error) throw error;
     } catch(error: any) {
-      setError(error.message);
+      console.error("Google Sign-In Error:", error);
+      setError("No se pudo iniciar sesión con Google. Por favor, inténtalo más tarde.");
     } finally {
       setLoading(false);
     }
