@@ -22,7 +22,7 @@ const themes = [
 ];
 
 export function ThemeSwitcher() {
-  const { theme: activeTheme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
   
   React.useEffect(() => {
@@ -30,11 +30,13 @@ export function ThemeSwitcher() {
   }, []);
 
   if (!mounted) {
-    return <div className="w-24 h-10" />;
+    // Avoids hydration mismatch
+    return <div className="flex items-center gap-2 rounded-lg border bg-card p-1 h-10 w-24" />;
   }
 
   const isDarkMode = resolvedTheme === 'dark';
-  const currentPalette = themes.find(t => activeTheme?.includes(t.theme))?.theme || 'theme-default';
+  // Extract the palette part of the theme string (e.g., 'theme-default' from 'dark theme-default')
+  const currentPalette = themes.find(t => theme?.includes(t.theme))?.theme || 'theme-default';
 
   return (
     <div className="flex items-center gap-2 rounded-lg border bg-card p-1">
