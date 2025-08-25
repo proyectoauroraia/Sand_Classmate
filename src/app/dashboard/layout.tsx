@@ -22,14 +22,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [loading, setLoading] = useState(true);
     
     useEffect(() => {
-        const fetchUser = async () => {
-            const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
+        const supabase = createClient();
+        const getSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                setUser(session.user);
+            }
             setLoading(false);
         };
-        fetchUser();
-    }, []);
+
+        getSession();
+
+        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+            setUser(session?.user ?? null);
+            if (event === 'SIGNED_OUT') {
+                router.replace('/');
+            }
+        });
+
+        return () => {
+            authListener.subscription.unsubscribe();
+        };
+    }, [router]);
 
     const navLinks = [
         { href: "/dashboard", icon: Home, label: "Inicio" },
@@ -42,7 +56,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         const supabase = createClient();
         await supabase.auth.signOut();
         router.push('/');
-        router.refresh();
     }
 
     const sidebarContent = (
