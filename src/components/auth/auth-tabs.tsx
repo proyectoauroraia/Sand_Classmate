@@ -30,7 +30,7 @@ export function AuthTabs() {
             email,
             password,
             options: {
-                emailRedirectTo: `${location.origin}/auth/callback`,
+                emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
                  data: {
                     full_name: 'Nuevo Usuario',
                     role: 'user',
@@ -76,7 +76,7 @@ export function AuthTabs() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${location.origin}/auth/callback`,
+          redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
         },
       });
       if (error) throw error;
