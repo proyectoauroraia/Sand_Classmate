@@ -12,41 +12,40 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import type { User } from '@supabase/supabase-js';
 
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState<any>(null);
 
     useEffect(() => {
         const supabase = createClient();
-        
-        // Check initial user state
-        const checkUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                setUser(user);
-            }
+
+        const checkSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setUser(session?.user ?? null);
             setLoading(false);
         };
-        checkUser();
         
+        checkSession();
+
         const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
             const currentUser = session?.user ?? null;
             setUser(currentUser);
-            setLoading(false);
+             if (event === 'SIGNED_IN') {
+                setLoading(false);
+            }
             if (event === 'SIGNED_OUT') {
                 router.replace('/');
             }
         });
 
-
         return () => {
             authListener?.subscription.unsubscribe();
         };
-
     }, [router]);
 
     const navLinks = [
@@ -97,17 +96,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
         );
     }
-
-    if (!user) {
+    
+    if (!user && !loading) {
         router.replace('/');
-        // Return a loader while redirecting to avoid flashing content
         return (
              <div className="flex min-h-screen w-full items-center justify-center bg-background">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
             </div>
         );
     }
-
 
     return (
         <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
@@ -136,8 +133,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="rounded-full">
                                     <Avatar className="h-8 w-8">
-                                        <AvatarImage src={user.user_metadata?.avatar_url ?? 'https://placehold.co/40x40.png'} alt="@prof" data-ai-hint="person face" />
-                                        <AvatarFallback>{user.email?.charAt(0)?.toUpperCase() ?? 'U'}</AvatarFallback>
+                                        <AvatarImage src={user?.user_metadata?.avatar_url ?? 'https://placehold.co/40x40.png'} alt="@prof" data-ai-hint="person face" />
+                                        <AvatarFallback>{user?.email?.charAt(0)?.toUpperCase() ?? 'U'}</AvatarFallback>
                                     </Avatar>
                                     <span className="sr-only">Toggle user menu</span>
                                 </Button>
