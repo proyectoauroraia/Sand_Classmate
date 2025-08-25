@@ -72,7 +72,7 @@ export async function analyzeAndEnrichContent(
       output: { schema: AnalyzeContentOutputSchema },
       prompt: `You are an expert university pedagogy assistant. Your task is to perform a deep, critical, and structured analysis of the provided educational document (syllabus, exam, course plan, etc.). Your analysis must be coherent, constructive, and based on pedagogical principles like Bloom's Taxonomy.
 
-      IMPORTANT: All generated text, summaries, titles, and descriptions MUST be in Spanish. All generated URLs must be valid and directly related to the content.
+      IMPORTANT: All generated text, summaries, titles, and descriptions MUST be in Spanish. All generated URLs must be valid, well-formed (starting with https://), and directly related to the content. Do not include spaces within URLs.
 
       Document: {{media url=documentDataUri}}
 
@@ -90,8 +90,8 @@ export async function analyzeAndEnrichContent(
           *   **Actionable Recommendations:** Provide concrete recommendations for improvement based on your analysis. Use a pedagogical framework. (e.g., "Incorporar casos clínicos contextualizados para evaluar análisis y aplicación", "Aumentar el peso de preguntas de desarrollo usando la taxonomía de Bloom para pasar de 'recordar' a 'aplicar' o 'analizar'", "Diseñar una rúbrica explícita para respuestas cortas").
 
       3.  **Content Enrichment (Instead of Weaknesses):**
-          *   **Links of Interest:** Provide a list of 3-4 high-quality links to articles, academic blogs, or institutional pages relevant to the core subject. Provide a clear title for each link.
-          *   **Review Videos:** Find 2-3 relevant, high-quality educational videos on YouTube that explain key concepts from the document. Provide the direct URL and a descriptive title for each.
+          *   **Links of Interest:** Provide a list of 3-4 high-quality links to articles, academic blogs, or institutional pages relevant to the core subject. Provide a clear title for each link. Ensure each URL is a valid, working link.
+          *   **Review Videos:** Find 2-3 relevant, high-quality educational videos on YouTube that explain key concepts from the document. Provide the direct URL and a descriptive title for each. Ensure each URL is a valid, working link.
           *   **Active Methodologies:** Suggest 2-3 active learning methodologies or ICTs (Information and Communication Technologies) that a teacher could use to teach this subject. For each, provide a name (e.g., "Aprendizaje Basado en Proyectos (ABP)", "Gamificación con Kahoot") and a brief, practical description of how it could be applied.
 
       4.  **Bibliography Analysis:**
@@ -310,3 +310,5 @@ export async function generateMaterialFromAnalysis(
     const { output } = await generationPrompt(input);
     return output?.markdownContent || '';
 }
+
+    
