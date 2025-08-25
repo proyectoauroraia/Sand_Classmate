@@ -56,31 +56,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     })}
                 </nav>
             </div>
-            <div className="mt-auto p-4 border-t space-y-4">
-                <div className="flex items-center gap-4">
-                     <Avatar className="h-10 w-10">
-                        <AvatarImage src="https://placehold.co/40x40.png" alt="@prof" data-ai-hint="person face" />
-                        <AvatarFallback>PD</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-grow">
-                        <p className="text-sm font-semibold">Professor Doe</p>
-                        <p className="text-xs text-muted-foreground">Académico, Universidad de Chile</p>
-                         <p className="text-xs text-muted-foreground">Santiago, Chile</p>
-                    </div>
-                     <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" className="ml-auto flex-shrink-0" onClick={handleSignOut}>
-                                    <Power className="h-5 w-5" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Cerrar Sesión</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                </div>
-            </div>
         </div>
     );
 
