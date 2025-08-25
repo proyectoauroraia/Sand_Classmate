@@ -27,14 +27,10 @@ const getFriendlyErrorMessage = (message: string): string => {
      if (message.includes("For security purposes, you can only sign up with a new account")) {
         return "Ya existe una cuenta con este email. Por favor, inicia sesión.";
     }
-    try {
-      // For JSON-like error strings from Supabase Auth
-      const parsed = JSON.parse(message);
-      return parsed.msg || "Ocurrió un error inesperado.";
-    } catch(e) {
-      // Fallback for regular string messages
-      return message;
+    if (message.includes("redirect_uri_mismatch")) {
+        return "Error de configuración (redirect_uri_mismatch). Asegúrate de que la URL de callback en Google Cloud y Supabase sea correcta.";
     }
+    return message;
 }
 
 
@@ -103,7 +99,7 @@ export function AuthTabs() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: redirectTo,
+          redirectTo,
         },
       });
       if (error) throw error;
