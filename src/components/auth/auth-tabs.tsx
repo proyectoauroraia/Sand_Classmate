@@ -94,7 +94,7 @@ export function AuthTabs() {
     setLoading(true);
     setError(null);
     const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/callback`;
+    const redirectTo = `${window.location.origin.replace('localhost', '127.0.0.1')}/auth/callback`;
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
