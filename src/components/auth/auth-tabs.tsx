@@ -13,6 +13,28 @@ import { createClient } from '@/lib/supabase/client';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
+// Helper to parse Supabase error messages
+const getFriendlyErrorMessage = (message: string): string => {
+    if (message.includes("Invalid login credentials")) {
+        return "Email o contraseña incorrectos. Por favor, verifica tus datos.";
+    }
+    if (message.includes("User already registered")) {
+        return "Ya existe una cuenta con este correo electrónico. Intenta iniciar sesión.";
+    }
+    if (message.includes("Unsupported provider: provider is not enabled")) {
+        return "El inicio de sesión con Google no está habilitado en el servidor. Contacta a soporte.";
+    }
+    try {
+      // For JSON-like error strings from Supabase Auth
+      const parsed = JSON.parse(message);
+      return parsed.msg || "Ocurrió un error inesperado.";
+    } catch(e) {
+      // Fallback for regular string messages
+      return message;
+    }
+}
+
+
 export function AuthTabs() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -38,10 +60,10 @@ export function AuthTabs() {
             },
         });
         if (error) throw error;
-        router.push('/confirm-email'); // Redirect to a page telling them to check their email
+        router.push('/confirm-email');
     } catch (error: any) {
         console.error("Authentication Error:", error);
-        setError(error.message || "No se pudo crear la cuenta. Revisa tus datos e inténtalo de nuevo.");
+        setError(getFriendlyErrorMessage(error.message));
     } finally {
         setLoading(false);
     }
@@ -62,7 +84,7 @@ export function AuthTabs() {
         router.refresh();
     } catch (error: any) {
         console.error("Authentication Error:", error);
-        setError(error.message || "Email o contraseña incorrectos. Por favor, verifica tus credenciales.");
+        setError(getFriendlyErrorMessage(error.message));
     } finally {
         setLoading(false);
     }
@@ -71,8 +93,8 @@ export function AuthTabs() {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
+    const supabase = createClient();
     try {
-      const supabase = createClient();
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -80,12 +102,13 @@ export function AuthTabs() {
         },
       });
       if (error) throw error;
+      // The user will be redirected to Google, so no need to push route here.
     } catch(error: any) {
       console.error("Google Sign-In Error:", error);
-      setError(error.message || "No se pudo iniciar sesión con Google. Por favor, inténtalo más tarde.");
-    } finally {
-      setLoading(false);
-    }
+      setError(getFriendlyErrorMessage(error.message));
+      setLoading(false); // Stop loading only if there's an error before redirect
+    } 
+    // No finally block to set loading to false, as the page should redirect.
   };
 
   return (
