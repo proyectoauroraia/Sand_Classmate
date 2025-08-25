@@ -31,6 +31,10 @@ export function AuthTabs() {
             password,
             options: {
                 emailRedirectTo: `${location.origin}/auth/callback`,
+                 data: {
+                    full_name: 'Nuevo Usuario',
+                    role: 'user',
+                }
             },
         });
         if (error) throw error;
