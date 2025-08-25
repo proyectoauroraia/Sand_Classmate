@@ -35,8 +35,9 @@ export function ThemeSwitcher() {
   }
 
   const isDarkMode = resolvedTheme === 'dark';
-  // The current color palette is the theme that doesn't include 'light' or 'dark'.
-  const currentPalette = themes.find(t => theme === t.theme)?.theme || 'theme-default';
+  
+  // The current color palette is the one that doesn't start with 'light' or 'dark'.
+  const currentPalette = themes.find(t => theme?.includes(t.theme))?.theme || 'theme-default';
 
   return (
     <div className="flex items-center gap-2 rounded-lg border bg-card p-1">
@@ -50,7 +51,6 @@ export function ThemeSwitcher() {
           {themes.map((themeOption) => (
             <DropdownMenuItem
               key={themeOption.name}
-              // Set the base theme directly. next-themes handles combining with 'dark'
               onClick={() => setTheme(themeOption.theme)}
               className="flex items-center justify-between"
             >
@@ -61,8 +61,7 @@ export function ThemeSwitcher() {
                 />
                 <span>{themeOption.name}</span>
               </div>
-              {/* Check if the current theme string matches the option's theme */}
-              {theme === themeOption.theme && <Check className="h-4 w-4" />}
+              {currentPalette === themeOption.theme && <Check className="h-4 w-4" />}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
@@ -82,3 +81,4 @@ export function ThemeSwitcher() {
     </div>
   );
 }
+
