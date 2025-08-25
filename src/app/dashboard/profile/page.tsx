@@ -1,17 +1,16 @@
 
 'use client';
 
-import * as React from 'react';
+import *d React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { UploadCloud, UserCircle2, BrainCircuit, Lock } from 'lucide-react';
+import { UploadCloud, UserCircle2, BrainCircuit, Lock, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
+import { createClient } from '@/lib/supabase/client';
 
 export default function ProfilePage() {
     const { toast } = useToast();
@@ -19,13 +18,33 @@ export default function ProfilePage() {
     const cvInputRef = React.useRef<HTMLInputElement>(null);
 
     // State for user profile data
-    const [fullName, setFullName] = React.useState("Professor Doe");
-    const [role, setRole] = React.useState("Académico, Universidad de Chile");
-    const [city, setCity] = React.useState("Santiago, Chile");
-    const [bio, setBio] = React.useState("");
+    const [loading, setLoading] = React.useState(true);
+    const [fullName, setFullName] = React.useState('');
+    const [email, setEmail] = React.useState('');
+    const [role, setRole] = React.useState('');
+    const [city, setCity] = React.useState('');
+    const [bio, setBio] = React.useState('');
     const [cvFile, setCvFile] = React.useState<File | null>(null);
     const [profileImage, setProfileImage] = React.useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        const fetchUser = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (user) {
+                setEmail(user.email ?? '');
+                setFullName(user.user_metadata?.full_name ?? '');
+                setPreviewUrl(user.user_metadata?.avatar_url ?? null);
+                // In a real app, you'd fetch role, city, bio from your 'profiles' table
+            }
+            setLoading(false);
+        };
+
+        fetchUser();
+    }, []);
+
 
     const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
@@ -52,6 +71,14 @@ export default function ProfilePage() {
             description: "Tus cambios han sido guardados exitosamente.",
         });
     };
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-full p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        )
+    }
     
 
     return (
@@ -69,7 +96,7 @@ export default function ProfilePage() {
                         <CardHeader className="items-center text-center p-6">
                              <div className="relative group w-24 h-24 md:w-32 md:h-32">
                                 <Avatar className="h-full w-full cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                                    <AvatarImage src={previewUrl ?? "https://placehold.co/128x128.png"} alt="Foto de Perfil" data-ai-hint="person face" className="object-cover" />
+                                    <AvatarImage src={previewUrl ?? undefined} alt="Foto de Perfil" data-ai-hint="person face" className="object-cover" />
                                     <AvatarFallback className="bg-secondary/50 text-muted-foreground">
                                         <UserCircle2 className="h-16 w-16 md:h-20 md:w-20" />
                                     </AvatarFallback>
@@ -89,8 +116,8 @@ export default function ProfilePage() {
                                 onChange={handleProfileImageChange}
                             />
                             <div className="pt-4">
-                                <CardTitle className="text-xl md:text-2xl">{fullName}</CardTitle>
-                                <CardDescription className="mt-1 text-sm">{role}</CardDescription>
+                                <CardTitle className="text-xl md:text-2xl">{fullName || 'Nombre de Usuario'}</CardTitle>
+                                <CardDescription className="mt-1 text-sm">{role || 'Rol o Empleo'}</CardDescription>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4 px-4 md:px-6">
@@ -100,15 +127,15 @@ export default function ProfilePage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="email">Correo Electrónico</Label>
-                                <Input id="email" type="email" defaultValue="professor@university.edu" disabled />
+                                <Input id="email" type="email" value={email} disabled />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="role">Rol o Empleo</Label>
-                                <Input id="role" value={role} onChange={(e) => setRole(e.target.value)} />
+                                <Input id="role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Ej: Académico, Universidad de..." />
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor="city">Ciudad</Label>
-                                <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} />
+                                <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ej: Santiago, Chile" />
                             </div>
                         </CardContent>
                     </Card>
