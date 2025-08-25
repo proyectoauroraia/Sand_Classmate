@@ -22,7 +22,10 @@ const getFriendlyErrorMessage = (message: string): string => {
         return "Ya existe una cuenta con este correo electrónico. Intenta iniciar sesión.";
     }
     if (message.includes("Unsupported provider: provider is not enabled")) {
-        return "El inicio de sesión con Google no está habilitado en el servidor. Contacta a soporte.";
+        return "El inicio de sesión con Google no está habilitado en el servidor. Revisa la configuración del proveedor en Supabase.";
+    }
+     if (message.includes("For security purposes, you can only sign up with a new account")) {
+        return "Ya existe una cuenta con este email. Por favor, inicia sesión.";
     }
     try {
       // For JSON-like error strings from Supabase Auth
@@ -46,13 +49,14 @@ export function AuthTabs() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    const redirectTo = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`;
     try {
         const supabase = createClient();
         const { error } = await supabase.auth.signUp({
             email,
             password,
             options: {
-                emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
+                emailRedirectTo: redirectTo,
                  data: {
                     full_name: 'Nuevo Usuario',
                     role: 'user',
@@ -94,11 +98,12 @@ export function AuthTabs() {
     setLoading(true);
     setError(null);
     const supabase = createClient();
+    const redirectTo = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`;
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
+          redirectTo: redirectTo,
         },
       });
       if (error) throw error;
