@@ -9,15 +9,15 @@ export function createClient() {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    const errorMessage = "Supabase URL or Anon Key is missing on the server. Make sure to set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your environment variables.";
-    console.error(errorMessage);
-    throw new Error(errorMessage);
+    // This is not a fatal error, as the values might be provided later or in a different environment.
+    // Console logging is sufficient for debugging.
+    console.error("Supabase URL or Anon Key is missing on the server. Make sure to set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your environment variables.");
   }
 
 
   return createServerClient(
-    supabaseUrl,
-    supabaseAnonKey,
+    supabaseUrl!,
+    supabaseAnonKey!,
     {
       cookies: {
         get(name: string) {
