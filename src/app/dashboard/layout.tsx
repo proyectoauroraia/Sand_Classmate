@@ -18,26 +18,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const router = useRouter();
     const pathname = usePathname();
     const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState<any>(null);
 
     useEffect(() => {
-        const checkUser = async () => {
-            const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                router.replace('/');
-            } else {
-                setLoading(false);
-            }
-        };
-
-        checkUser();
-
-        const { data: authListener } = createClient().auth.onAuthStateChange((event, session) => {
-             if (event === 'SIGNED_OUT') {
+        const supabase = createClient();
+        
+        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+            setUser(session?.user ?? null);
+            setLoading(false);
+            if (event === 'SIGNED_OUT') {
                 router.replace('/');
             }
         });
+
+        // Check initial user state
+        const checkUser = async () => {
+            const { data } = await supabase.auth.getUser();
+            if (data.user) {
+                setUser(data.user);
+            }
+            setLoading(false);
+        };
         
+        checkUser();
+
         return () => {
             authListener?.subscription.unsubscribe();
         };
@@ -88,6 +92,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (loading) {
         return (
             <div className="flex min-h-screen w-full items-center justify-center bg-background">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (!user) {
+        router.replace('/');
+        return (
+             <div className="flex min-h-screen w-full items-center justify-center bg-background">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
             </div>
         );
