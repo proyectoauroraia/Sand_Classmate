@@ -22,39 +22,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const supabase = createClient();
 
     useEffect(() => {
-        const { data: authListener } = supabase.auth.onAuthStateChange(
-            (event, session) => {
-                const currentUser = session?.user ?? null;
-                setUser(currentUser);
-                // Set loading to false once we have a definitive answer.
-                if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-                    setLoading(false);
-                }
-            }
-        );
-
-        // Check initial state
-        const checkUser = async () => {
-             const { data: { session } } = await supabase.auth.getSession();
-             if (session) {
-                setUser(session.user);
-             }
-             setLoading(false);
+        const getUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
+            setLoading(false);
         };
-        
-        checkUser();
+
+        getUser();
+
+        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+            setUser(session?.user ?? null);
+            if (event === 'SIGNED_OUT') {
+                router.push('/');
+            }
+        });
 
         return () => {
-            authListener?.subscription.unsubscribe();
+            authListener.subscription.unsubscribe();
         };
-    }, [supabase.auth]);
-
+    }, [router, supabase.auth]);
+    
     useEffect(() => {
-        // This effect redirects if the user is not logged in after the initial check.
         if (!loading && !user) {
             router.push('/');
         }
-    }, [loading, user, router]);
+    }, [user, loading, router]);
 
 
     const navLinks = [
@@ -66,7 +58,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     
     const handleSignOut = async () => {
         await supabase.auth.signOut();
-        router.push('/'); // Explicitly redirect after sign out
+        // The onAuthStateChange listener will handle the redirect
     }
 
     const sidebarContent = (
