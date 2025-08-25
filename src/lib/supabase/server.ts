@@ -12,6 +12,13 @@ export function createClient() {
     // This is not a fatal error, as the values might be provided later or in a different environment.
     // Console logging is sufficient for debugging.
     console.error("Supabase URL or Anon Key is missing on the server. Make sure to set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your environment variables.");
+    // Return a mock/dummy client or handle gracefully
+    const dummyClient = createServerClient(
+      'http://localhost:54321',
+      'dummy-key',
+      { cookies: { get: () => undefined, set: () => {}, remove: () => {} } }
+    );
+    return dummyClient;
   }
 
 

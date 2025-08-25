@@ -11,6 +11,8 @@ export function createClient() {
     // This is not a fatal error, as the values might be provided later or in a different environment.
     // Console logging is sufficient for debugging.
     console.error("Supabase URL or Anon Key is missing. Make sure to set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your .env.local file.");
+    // Return a mock/dummy client or handle gracefully
+    return createBrowserClient('http://localhost:54321', 'dummy-key');
   }
 
   return createBrowserClient(

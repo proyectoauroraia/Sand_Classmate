@@ -1,4 +1,11 @@
+
 import { config } from 'dotenv';
 config();
 
-import '@/ai/flows/educational-content-flows.ts';
+// This is a dev-only file that dynamically imports your flows.
+// It is used with `genkit:watch` to support hot-reloading of flows.
+import { educationalContentFlows } from './flows';
+
+export default {
+  ...educationalContentFlows,
+};

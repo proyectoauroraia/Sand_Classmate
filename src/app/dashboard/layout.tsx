@@ -14,34 +14,39 @@ import { useEffect, useState } from 'react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import type { User } from '@supabase/supabase-js';
 
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
-    
+
     useEffect(() => {
         const supabase = createClient();
-        const getSession = async () => {
+        const { data: authListener } = supabase.auth.onAuthStateChange(
+            (event, session) => {
+                setUser(session?.user ?? null);
+                setLoading(false);
+                if (event === 'SIGNED_OUT') {
+                    router.replace('/');
+                }
+            }
+        );
+
+        // Check for initial session as well
+        const checkInitialSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
                 setUser(session.user);
             }
-            setLoading(false);
+            // Add a small delay to prevent flickering if session is immediately available
+            setTimeout(() => setLoading(false), 100);
         };
 
-        getSession();
+        checkInitialSession();
 
-        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-            setUser(session?.user ?? null);
-            if (event === 'SIGNED_OUT') {
-                router.replace('/');
-            }
-        });
 
         return () => {
-            authListener.subscription.unsubscribe();
+            authListener?.subscription.unsubscribe();
         };
     }, [router]);
 
@@ -93,6 +98,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         );
     }
     
+    if (!user) {
+        // This should theoretically not be hit if the middleware is working,
+        // but it's a good failsafe.
+        router.replace('/');
+        return (
+             <div className="flex min-h-screen w-full items-center justify-center bg-background">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+        );
+    }
 
     return (
         <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
