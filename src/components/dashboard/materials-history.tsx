@@ -13,12 +13,7 @@ import Link from 'next/link';
 
 
 const mockHistory: HistoryItem[] = [
-    { id: '1', fileName: 'Programa de Curso', date: '2024-07-28', status: 'Completado' },
-    { id: '2', fileName: 'Programa de Kinesiología 2024', date: '2024-07-25', status: 'Completado' },
-    { id: '3', fileName: 'Apuntes de Filosofía Antigua', date: '2024-07-22', status: 'Completado' },
-    { id: '4', fileName: 'Syllabus de Historia del Arte', date: '2024-07-20', status: 'Completado' },
-    { id: '5', fileName: 'Planificación de Nutrición', date: '2024-07-18', status: 'Completado' },
-    { id: '6', fileName: 'Examen de Cálculo I', date: '2024-07-15', status: 'Completado' },
+    // Real data will be fetched from the backend.
 ];
 
 const ITEMS_PER_PAGE = 4;
@@ -32,8 +27,19 @@ const buttonColors = [
 
 export function MaterialsHistory({ isFullPage = false }: { isFullPage?: boolean}) {
     const router = useRouter();
+    const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
-    const displayedHistory = isFullPage ? mockHistory : mockHistory.slice(0, ITEMS_PER_PAGE);
+
+    // In a real application, you would fetch this data from your backend
+    // React.useEffect(() => {
+    //   async function fetchHistory() {
+    //     // const data = await fetchUserHistory();
+    //     // setHistoryItems(data);
+    //   }
+    //   fetchHistory();
+    // }, []);
+
+    const displayedHistory = isFullPage ? historyItems : historyItems.slice(0, ITEMS_PER_PAGE);
 
     const handleViewAnalysis = (id: string) => {
         // TODO: Implement logic to fetch and display the analysis for the given ID.
@@ -45,7 +51,7 @@ export function MaterialsHistory({ isFullPage = false }: { isFullPage?: boolean}
       <Card className="h-full flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-xl md:text-2xl font-bold tracking-tight">Cursos Recientes</CardTitle>
-            {!isFullPage && (
+            {!isFullPage && historyItems.length > 0 && (
                 <Button asChild variant="ghost" className="text-primary font-semibold hover:underline">
                     <Link href="/dashboard/history">Ver todo</Link>
                 </Button>
