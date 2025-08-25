@@ -3,7 +3,6 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { Inter } from 'next/font/google';
-import { ThemeProvider } from '@/components/theme-provider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -24,17 +23,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
-      <body className={`${inter.variable} font-sans antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="theme-default"
-          enableSystem={false}
-          disableTransitionOnChange
-          themes={['theme-default', 'theme-navy', 'theme-forest', 'theme-dusk', 'theme-sunrise']}
-        >
+      <body className={`${inter.variable} font-sans antialiased theme-default`}>
           {children}
           <Toaster />
-        </ThemeProvider>
       </body>
     </html>
   );
