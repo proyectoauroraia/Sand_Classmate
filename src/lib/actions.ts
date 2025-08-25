@@ -5,16 +5,19 @@ import { analyzeAndEnrichContent, generateMaterialFromAnalysis } from '@/ai/flow
 import type { AnalysisResult, CheckoutSessionResult, WebpayCommitResult } from '@/lib/types';
 import { z } from 'zod';
 import PptxGenJS from 'pptxgenjs';
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Numbering } from 'docx';
+import { Document, Packer, Paragraph, HeadingLevel, AlignmentType, Numbering } from 'docx';
 import type { GeneratedMaterials } from '@/lib/types';
 import { PDFDocument, rgb, StandardFonts, PageSizes } from 'pdf-lib';
 
 
 const AnalyzeInputSchema = z.object({
   documentDataUri: z.string().refine(
-    (uri) => uri.startsWith('data:application/pdf;base64,'),
-    'Solo se admiten documentos PDF.'
-  ),
+    (uri) => uri.startsWith('data:application/pdf;base64,') || uri.startsWith('data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,'),
+    'Solo se admiten documentos PDF o DOCX.'
+  ).refine(
+      (uri) => Buffer.from(uri.split(',')[1], 'base64').length <= 10 * 1024 * 1024, // 10 MB
+      'El archivo no debe superar los 10MB.'
+  )
 });
 
 const ClassSchema = z.object({
@@ -98,6 +101,7 @@ async function createStyledPdf(title: string, markdownContent: string): Promise<
     // Main Title
     checkY(30);
     y -= drawText(title, margin, y, fontBold, 24, rgb(0, 0.3, 0.5));
+    y -= 15;
 
     const lines = markdownContent.split('\n');
 
@@ -128,7 +132,8 @@ async function createStyledPdf(title: string, markdownContent: string): Promise<
                  checkY(12);
                 y -= drawText(bullet + wrapped, margin + 10, y, font, 12);
             }
-        } else if (trimmedLine.match(/^\s*Respuesta Ideal:/i)) {
+        } else if (trimmedLine.match(/^\s*Respuesta Ideal:/i) || trimmedLine.match(/^\s*Pauta de Corrección:/i)) {
+             y -= 10;
              checkY(12);
              const answerText = trimmedLine.substring(trimmedLine.indexOf(':') + 1).trim();
              const wrappedLines = wrapText(answerText, width - 2 * margin - 20, fontItalic, 11);
@@ -243,7 +248,7 @@ async function createStyledDocx(title: string, markdownContent: string): Promise
                 text: trimmedLine.substring(2),
                 numbering: { reference: "bullet-points", level: 0 },
             }));
-        } else if (trimmedLine.match(/^\s*Respuesta Ideal:/i)) {
+        } else if (trimmedLine.match(/^\s*Respuesta Ideal:/i) || trimmedLine.match(/^\s*Pauta de Corrección:/i)) {
             const answerText = trimmedLine.substring(trimmedLine.indexOf(':') + 1).trim();
             children.push(new Paragraph({ text: answerText, style: "IdealAnswer" }));
         } else if (trimmedLine.length > 0) {
@@ -393,8 +398,8 @@ export async function generateMaterialsActionFromAnalysis(
 
 
 const WEBPAY_API_BASE = "https://webpay3gint.transbank.cl/rswebpaytransaction/api/webpay/v1.2";
-const COMMERCE_CODE = process.env.WEBPAY_PLUS_COMMERCE_CODE!;
-const API_KEY = process.env.WEBPAY_PLUS_API_KEY!;
+const COMMERCE_CODE = process.env.WEBPAY_PLUS_COMMERCE_CODE;
+const API_KEY = process.env.WEBPAY_PLUS_API_KEY;
 
 export async function createCheckoutSessionAction(): Promise<{ data: CheckoutSessionResult | null; error: string | null }> {
     try {

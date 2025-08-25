@@ -66,7 +66,7 @@ export default function ProfilePage() {
                         <CardHeader className="items-center text-center p-6">
                              <div className="relative group w-24 h-24 md:w-32 md:h-32">
                                 <Avatar className="h-full w-full cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                                    <AvatarImage src={previewUrl ?? undefined} alt="Foto de Perfil" className="object-cover" />
+                                    <AvatarImage src={previewUrl ?? "https://placehold.co/128x128.png"} alt="Foto de Perfil" data-ai-hint="person face" className="object-cover" />
                                     <AvatarFallback className="bg-secondary/50 text-muted-foreground">
                                         <UserCircle2 className="h-16 w-16 md:h-20 md:w-20" />
                                     </AvatarFallback>
@@ -181,5 +181,3 @@ export default function ProfilePage() {
         </div>
     );
 }
-
-    

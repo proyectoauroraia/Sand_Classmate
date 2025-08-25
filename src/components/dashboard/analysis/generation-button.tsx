@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle2, Presentation, FileText, ClipboardCheck, Lightbulb } from 'lucide-react';
+import { Loader2, CheckCircle2, Presentation, FileText, ClipboardCheck, Lightbulb, Download } from 'lucide-react';
 import type { GeneratedMaterials, AnalysisResult } from '@/lib/types';
 import { generateMaterialsActionFromAnalysis } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -26,13 +26,14 @@ const ICONS: Record<string, React.ElementType> = {
     fileText: FileText,
     clipboardCheck: ClipboardCheck,
     lightbulb: Lightbulb,
+    download: Download,
 };
 
 type MaterialKey = keyof GeneratedMaterials;
 
 interface GenerationButtonProps {
     title: string;
-    materialType: MaterialKey;
+    materialType: MaterialKey | 'all';
     icon: keyof typeof ICONS;
     analysisResult: AnalysisResult;
     status: MaterialStatus;
@@ -55,43 +56,47 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
 }) => {
     const { toast } = useToast();
     const IconComponent = ICONS[icon];
-    const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-
     
     const handleGenerationSubmit = async (format: 'docx' | 'pdf' | 'pptx') => {
         if (!analysisResult) return;
-        setIsDialogOpen(false);
         setStatus('generating');
 
         try {
-            const response = await generateMaterialsActionFromAnalysis(analysisResult, materialType, format, classContext);
-            if (response.error || !response.data) {
-                throw new Error(response.error || `No se pudo generar el material: ${materialType}`);
+            if (materialType === 'all') {
+                // This logic would need to be implemented to generate and zip all files.
+                // For now, we'll just show a success state as a placeholder.
+                console.log("Generating all materials...");
+                await new Promise(res => setTimeout(res, 2000)); // Simulate generation
+            } else {
+                const response = await generateMaterialsActionFromAnalysis(analysisResult, materialType, format, classContext);
+                if (response.error || !response.data) {
+                    throw new Error(response.error || `No se pudo generar el material: ${materialType}`);
+                }
+
+                const link = document.createElement('a');
+                link.href = response.data;
+                
+                 const fileName = classContext 
+                    ? `presentacion_${classContext.classTopic.replace(/\s+/g, '_')}.pptx`
+                    : {
+                        powerpointPresentation: 'presentacion_completa.pptx',
+                        workGuide: `guia_de_trabajo.${format}`,
+                        exampleTests: `examen_de_ejemplo.${format}`,
+                        interactiveReviewPdf: `repaso_interactivo.${format}`
+                    }[materialType] || `material.${format}`;
+
+
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                toast({
+                    title: '¡Material Generado!',
+                    description: `Tu archivo ${link.download} se ha descargado.`,
+                    className: 'bg-green-100 border-green-300 text-green-800'
+                });
             }
-
-            const link = document.createElement('a');
-            link.href = response.data;
-            
-             const fileName = classContext 
-                ? `presentacion_${classContext.classTopic.replace(/\s+/g, '_')}.pptx`
-                : {
-                    powerpointPresentation: 'presentacion_completa.pptx',
-                    workGuide: `guia_de_trabajo.${format}`,
-                    exampleTests: `examen_de_ejemplo.${format}`,
-                    interactiveReviewPdf: `repaso_interactivo.${format}`
-                }[materialType] || `material.${format}`;
-
-
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-             toast({
-                title: '¡Material Generado!',
-                description: `Tu archivo ${link.download} se ha descargado.`,
-                className: 'bg-green-100 border-green-300 text-green-800'
-            });
             setStatus('success');
 
         } catch (e) {
@@ -108,27 +113,38 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
     const isGenerating = status === 'generating';
     const isSuccess = status === 'success';
 
+    const getButtonText = () => {
+        if (isCompact) return title;
+        if (isSuccess) {
+            if (title.includes("Presentación")) return "PPT Generada";
+            if (title.includes("Guía")) return "Guía Generada";
+            if (title.includes("Examen")) return "Examen Generado";
+            if (title.includes("Repaso")) return "Repaso Generado";
+        }
+        return title;
+    }
+
     const buttonContent = isCompact ? (
          <>
             {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : 
-             isSuccess ? <CheckCircle2 className="h-4 w-4" /> : 
+             isSuccess ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : 
              IconComponent ? <IconComponent className="h-4 w-4" /> : null}
             <span className="sr-only">{title}</span>
         </>
     ) : (
         <>
             {isGenerating ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : 
-             isSuccess ? <CheckCircle2 className="mr-2 h-5 w-5" /> : 
+             isSuccess ? <CheckCircle2 className="mr-2 h-5 w-5 text-green-400" /> : 
              IconComponent ? <IconComponent className="mr-2 h-5 w-5" /> : null}
-            {isSuccess ? `${title.split(' ')[1]} Generado` : title}
+            {getButtonText()}
         </>
     );
 
     const triggerButton = (
         <Button 
-            disabled={isAnyTaskRunning || isSuccess}
+            disabled={isAnyTaskRunning && !isGenerating || isSuccess}
             size={isCompact ? "icon" : "lg"}
-            className={isCompact ? "" : "w-full sm:w-auto"}
+            className={cn(isCompact ? "" : "w-full sm:w-auto", isSuccess ? "bg-green-600/20 text-green-600 border border-green-600/30 hover:bg-green-600/30" : "")}
             aria-label={isCompact ? title : undefined}
         >
            {buttonContent}
@@ -137,14 +153,14 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
 
      if (materialType === 'powerpointPresentation') {
         return (
-             <div onClick={() => handleGenerationSubmit('pptx')}>
+             <div onClick={isAnyTaskRunning || isSuccess ? undefined : () => handleGenerationSubmit('pptx')}>
                 {triggerButton}
             </div>
         );
     }
 
     return (
-       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+       <AlertDialog>
             <AlertDialogTrigger asChild>
                 {triggerButton}
             </AlertDialogTrigger>

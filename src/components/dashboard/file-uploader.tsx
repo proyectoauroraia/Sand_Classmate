@@ -29,39 +29,36 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     const [analysisState, setAnalysisState] = useState<AnalysisState>('idle');
     const [error, setError] = useState<string | null>(null);
 
-    const [fileName, setFileName] = useState<string | null>(null);
+    const [file, setFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
 
-    const handleFileChange = (file: File | null) => {
-        if (file) {
+    const handleFileChange = (selectedFile: File | null) => {
+        if (selectedFile) {
             // Client-side validation for file size and type
-            if (file.size > 10 * 1024 * 1024) { // 10 MB
-                setError('El archivo no debe superar los 10MB.');
-                toast({
-                    variant: "destructive",
-                    title: "Archivo muy grande",
-                    description: "Por favor, sube un archivo de menos de 10MB.",
-                });
+            if (selectedFile.size > 10 * 1024 * 1024) { // 10 MB
+                const errorMsg = 'El archivo no debe superar los 10MB.';
+                setError(errorMsg);
+                toast({ variant: "destructive", title: "Archivo muy grande", description: errorMsg });
+                setFile(null);
+                if(fileInputRef.current) fileInputRef.current.value = "";
                 return;
             }
-             if (!file.type.startsWith('application/pdf')) {
-                setError('Solo se admiten archivos PDF.');
-                toast({
-                    variant: "destructive",
-                    title: "Formato no válido",
-                    description: "Por favor, sube un archivo en formato PDF.",
-                });
+             if (!['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(selectedFile.type)) {
+                const errorMsg = 'Solo se admiten archivos PDF y DOCX.';
+                setError(errorMsg);
+                toast({ variant: "destructive", title: "Formato no válido", description: errorMsg });
+                setFile(null);
+                if(fileInputRef.current) fileInputRef.current.value = "";
                 return;
             }
-            setFileName(file.name);
+            setFile(selectedFile);
             setError(null);
         }
     };
 
     const handleAnalysisSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const file = fileInputRef.current?.files?.[0];
 
         if (!file) {
             setError('Por favor, selecciona un archivo para analizar.');
@@ -126,7 +123,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                         </Alert>
                     )}
                     <div 
-                        className="flex flex-col items-center justify-center py-10 px-6 rounded-lg cursor-pointer transition-colors border-2 border-dashed border-border hover:bg-accent/50 flex-grow"
+                        className="flex flex-col items-center justify-center py-10 px-6 rounded-lg cursor-pointer transition-colors border-2 border-dashed border-border hover:bg-accent/50 flex-grow mt-4"
                         onClick={() => fileInputRef.current?.click()}
                         onDrop={(e) => {
                             e.preventDefault();
@@ -136,22 +133,22 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                     >
                         <PremiumUploadIcon />
                         <p className="text-base font-semibold text-foreground">
-                            {fileName ? fileName : 'Haz clic o arrastra un archivo para subir'}
+                            {file ? file.name : 'Haz clic o arrastra un archivo para subir'}
                         </p>
-                        <p className="text-sm text-muted-foreground mt-1">Se admiten documentos PDF (máx. 10MB)</p>
+                        <p className="text-sm text-muted-foreground mt-1">Se admiten documentos PDF y DOCX (máx. 10MB)</p>
                         <Input 
                             ref={fileInputRef} 
                             id="syllabusFile" 
                             name="syllabusFile" 
                             type="file" 
                             className="hidden" 
-                            accept=".pdf"
+                            accept=".pdf,.docx"
                             onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
                         />
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit" form="analysis-form" disabled={analysisState !== 'idle' || !fileName} size="lg" className="w-full py-7 text-base">
+                    <Button type="submit" form="analysis-form" disabled={analysisState !== 'idle' || !file} size="lg" className="w-full py-7 text-base">
                        <BookOpen className="mr-3 h-5 w-5" />
                         Analizar Contenido
                     </Button>

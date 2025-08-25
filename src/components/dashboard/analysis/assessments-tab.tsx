@@ -23,7 +23,7 @@ export const AssessmentsTab: React.FC<AssessmentsTabProps> = React.memo(({
     isAnyTaskRunning,
 }) => {
     if (!analysisResult.assessments || analysisResult.assessments.length === 0) {
-        return <p className="text-muted-foreground p-4">No se encontraron evaluaciones en el documento.</p>;
+        return <div className="text-muted-foreground p-8 text-center">No se encontraron evaluaciones en el documento.</div>;
     }
     
     return (
@@ -50,12 +50,12 @@ export const AssessmentsTab: React.FC<AssessmentsTabProps> = React.memo(({
                            </CardContent>
                            <CardFooter>
                                 <GenerationButton
-                                    title="Generar Examen"
+                                    title="Generar Examen de Ejemplo"
                                     materialType="exampleTests"
                                     icon="clipboardCheck"
                                     analysisResult={{ ...analysisResult, assessments: [assessment] }}
-                                    status={statuses.exampleTests}
-                                    setStatus={(s) => setStatuses(p => ({...p, exampleTests: s}))}
+                                    status={statuses[`test-${i}`] || 'idle'}
+                                    setStatus={(s) => setStatuses(p => ({...p, [`test-${i}`]: s}))}
                                     isAnyTaskRunning={isAnyTaskRunning}
                                 />
                            </CardFooter>

@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import type { AnalysisResult, GeneratedMaterials } from '@/lib/types';
+import type { AnalysisResult } from '@/lib/types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, RefreshCw, Download, Loader2 } from 'lucide-react';
@@ -11,8 +11,8 @@ import { SummaryTab } from './summary-tab';
 import { StructureTab } from './structure-tab';
 import { AssessmentsTab } from './assessments-tab';
 import { BibliographyTab } from './bibliography-tab';
+import { GenerationButton } from './generation-button';
 
-type MaterialKey = keyof GeneratedMaterials;
 export type MaterialStatus = 'idle' | 'generating' | 'success';
 
 interface AnalysisDisplayProps {
@@ -21,24 +21,9 @@ interface AnalysisDisplayProps {
 }
 
 export function AnalysisDisplay({ analysisResult, onReset }: AnalysisDisplayProps) {
-    const [materialStatuses, setMaterialStatuses] = React.useState<Record<MaterialKey, MaterialStatus>>({
-        powerpointPresentation: 'idle',
-        workGuide: 'idle',
-        exampleTests: 'idle',
-        interactiveReviewPdf: 'idle',
-    });
-    const [isGeneratingAll, setIsGeneratingAll] = React.useState(false);
+    const [materialStatuses, setMaterialStatuses] = React.useState<Record<string, MaterialStatus>>({});
 
-    const isAnyTaskRunning = isGeneratingAll || Object.values(materialStatuses).some(s => s === 'generating');
-
-    const handleGenerateAll = async () => {
-        setIsGeneratingAll(true);
-        // In a real app, you'd trigger all generation actions here.
-        // For this example, we'll just simulate it.
-        console.log("Generating all materials...");
-        // This is a simplified approach. A better one would use a shared generation function.
-        setIsGeneratingAll(false);
-    };
+    const isAnyTaskRunning = Object.values(materialStatuses).some(s => s === 'generating');
 
     return (
         <div className="space-y-6">
@@ -93,10 +78,17 @@ export function AnalysisDisplay({ analysisResult, onReset }: AnalysisDisplayProp
                     <RefreshCw className="mr-2 h-5 w-5" />
                     Analizar Otro Documento
                 </Button>
-                <Button size="lg" onClick={handleGenerateAll} disabled={isAnyTaskRunning} className="w-full sm:w-auto">
-                    {isGeneratingAll ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : <Download className="mr-2 h-5 w-5"/>}
-                    Descargar Todo
-                </Button>
+                {/* 
+                <GenerationButton
+                    title="Descargar Todo"
+                    materialType="all"
+                    icon="download"
+                    analysisResult={analysisResult}
+                    status={materialStatuses.all || 'idle'}
+                    setStatus={(s) => setMaterialStatuses(p => ({...p, all: s}))}
+                    isAnyTaskRunning={isAnyTaskRunning}
+                /> 
+                */}
             </div>
         </div>
     );
