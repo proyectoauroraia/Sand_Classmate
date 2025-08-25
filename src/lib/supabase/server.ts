@@ -1,4 +1,3 @@
-
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
@@ -9,22 +8,19 @@ export function createClient() {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    // This is not a fatal error, as the values might be provided later or in a different environment.
-    // Console logging is sufficient for debugging.
     console.error("Supabase URL or Anon Key is missing on the server. Make sure to set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your environment variables.");
-    // Return a mock/dummy client or handle gracefully
+    // Return a mock client that will fail gracefully
     const dummyClient = createServerClient(
-      'http://localhost:54321',
+      'http://example.supabase.co',
       'dummy-key',
       { cookies: { get: () => undefined, set: () => {}, remove: () => {} } }
     );
     return dummyClient;
   }
 
-
   return createServerClient(
-    supabaseUrl!,
-    supabaseAnonKey!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         get(name: string) {

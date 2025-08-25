@@ -22,28 +22,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     useEffect(() => {
         const supabase = createClient();
+        const checkUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
+            setLoading(false);
+        };
+
+        checkUser();
+
         const { data: authListener } = supabase.auth.onAuthStateChange(
             (event, session) => {
                 setUser(session?.user ?? null);
-                setLoading(false);
                 if (event === 'SIGNED_OUT') {
                     router.replace('/');
                 }
             }
         );
-
-        // Check for initial session as well
-        const checkInitialSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                setUser(session.user);
-            }
-            // Add a small delay to prevent flickering if session is immediately available
-            setTimeout(() => setLoading(false), 100);
-        };
-
-        checkInitialSession();
-
 
         return () => {
             authListener?.subscription.unsubscribe();
@@ -98,17 +92,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         );
     }
     
-    if (!user) {
-        // This should theoretically not be hit if the middleware is working,
-        // but it's a good failsafe.
-        router.replace('/');
-        return (
-             <div className="flex min-h-screen w-full items-center justify-center bg-background">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            </div>
-        );
-    }
-
     return (
         <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
             <div className="hidden border-r bg-card text-card-foreground lg:block">
