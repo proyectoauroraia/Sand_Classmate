@@ -24,24 +24,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     useEffect(() => {
         const supabase = createClient();
 
-        const checkSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            setUser(session?.user ?? null);
-            setLoading(false);
-        };
-        
-        checkSession();
-
         const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
             const currentUser = session?.user ?? null;
             setUser(currentUser);
-             if (event === 'SIGNED_IN') {
-                setLoading(false);
-            }
+            setLoading(false);
             if (event === 'SIGNED_OUT') {
                 router.replace('/');
             }
         });
+
+        // Also check the initial session
+        const checkInitialSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                setLoading(false);
+                router.replace('/');
+            }
+        }
+        
+        checkInitialSession();
+
 
         return () => {
             authListener?.subscription.unsubscribe();
@@ -97,14 +99,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         );
     }
     
-    if (!user && !loading) {
-        router.replace('/');
-        return (
-             <div className="flex min-h-screen w-full items-center justify-center bg-background">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            </div>
-        );
-    }
 
     return (
         <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
