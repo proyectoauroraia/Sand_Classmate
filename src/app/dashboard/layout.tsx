@@ -14,23 +14,24 @@ import { useEffect, useState } from 'react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import type { User } from '@supabase/supabase-js';
 
+// This layout is now only for protected routes like /history, /profile, etc.
+// It enforces authentication.
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
     const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true); // Start in a loading state
+    const [loading, setLoading] = useState(true);
     const supabase = createClient();
 
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             setUser(session?.user ?? null);
-            setLoading(false); // Stop loading once we have a definitive state
+            setLoading(false);
              if (event === 'SIGNED_OUT') {
                 router.push('/');
             }
         });
 
-        // Also check the initial session
         const checkInitialSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             setUser(session?.user ?? null);
@@ -45,7 +46,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }, [supabase, router]);
 
     useEffect(() => {
-        // This effect handles redirection after the loading state is resolved.
         if (!loading && !user) {
             router.push('/');
         }
@@ -66,12 +66,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
     
     if (!user) {
-        // This is a fallback, the useEffect above should have already redirected.
         return null;
     }
 
     const navLinks = [
-        { href: "/dashboard", icon: Home, label: "Inicio" },
+        { href: "/", icon: Home, label: "Inicio" },
         { href: "/dashboard/history", icon: BookOpen, label: "Mi Biblioteca" },
         { href: "/dashboard/profile", icon: UserCircle2, label: "Mi Perfil" },
         { href: "/dashboard/pricing", icon: Gem, label: "Planes" },
@@ -80,7 +79,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const sidebarContent = (
         <div className="flex h-full max-h-screen flex-col gap-2">
             <div className="flex h-[60px] items-center border-b px-6">
-                 <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-foreground">
+                 <Link href="/" className="flex items-center gap-2 font-semibold text-foreground">
                     <Logo />
                 </Link>
             </div>

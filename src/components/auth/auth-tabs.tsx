@@ -42,6 +42,7 @@ export function AuthTabs() {
   const [loading, setLoading] = useState(false);
 
   const getRedirectURL = () => {
+    // We redirect back to the home page after authentication
     return `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`;
   }
 
@@ -83,7 +84,9 @@ export function AuthTabs() {
             password,
         });
         if (error) throw error;
-        router.push('/dashboard');
+        // The onAuthStateChange listener in the main page layout will handle the UI update.
+        // We just need to refresh the page to trigger it.
+        router.refresh(); 
     } catch (error: any) {
         console.error("Authentication Error:", error);
         setError(getFriendlyErrorMessage(error.message));

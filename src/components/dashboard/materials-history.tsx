@@ -42,15 +42,17 @@ export function MaterialsHistory({ isFullPage = false }: { isFullPage?: boolean}
     const displayedHistory = isFullPage ? historyItems : historyItems.slice(0, ITEMS_PER_PAGE);
 
     const handleViewAnalysis = (id: string) => {
-        // TODO: Implement logic to fetch and display the analysis for the given ID.
-        console.log(`Navigating to analysis for ID: ${id}`);
-        // Example navigation: router.push(`/dashboard/analysis/${id}`);
+        // This requires authentication. If the user is not logged in,
+        // we should prompt them to log in.
+        // For now, we'll just log to console.
+        console.log(`Viewing analysis requires login. ID: ${id}`);
+        // In a real app, you would check auth state and maybe show a login dialog.
     };
 
     return (
       <Card className="h-full flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-xl md:text-2xl font-bold tracking-tight">Cursos Recientes</CardTitle>
+            <CardTitle className="text-xl md:text-2xl font-bold tracking-tight">Mis Cursos Guardados</CardTitle>
             {!isFullPage && historyItems.length > 0 && (
                 <Button asChild variant="ghost" className="text-primary font-semibold hover:underline">
                     <Link href="/dashboard/history">Ver todo</Link>
@@ -71,7 +73,7 @@ export function MaterialsHistory({ isFullPage = false }: { isFullPage?: boolean}
                   {displayedHistory.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={isFullPage ? 3: 2} className="h-24 text-center">
-                        Aún no se han analizado cursos.
+                        Inicia sesión para ver tu historial de cursos.
                       </TableCell>
                     </TableRow>
                   ) : (
