@@ -3,7 +3,7 @@
 
 import { analyzeAndEnrichContent, generateMaterialFromAnalysis } from '@/ai/flows/educational-content-flows';
 import { analyzeCv } from '@/ai/flows/profile-analysis-flow';
-import type { AnalysisResult, CheckoutSessionResult, WebpayCommitResult, UserProfile, GeneratedMaterials } from '@/lib/types';
+import type { AnalysisResult, CheckoutSessionResult, WebpayCommitResult, UserProfile, GeneratedMaterials, CvAnalysisResult } from '@/lib/types';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
@@ -528,7 +528,7 @@ export async function updateUserProfileAction(
 
 export async function analyzeCvAction(
   cvDataUri: string
-): Promise<{ data: { bio: string } | null; error: string | null }> {
+): Promise<{ data: CvAnalysisResult | null; error: string | null }> {
   const validation = AnalyzeInputSchema.safeParse({ documentDataUri: cvDataUri });
    if (!validation.success) {
     const error = validation.error.errors[0]?.message || 'Datos de entrada inválidos.';
@@ -536,7 +536,7 @@ export async function analyzeCvAction(
   }
   try {
     const result = await analyzeCv({ cvDataUri });
-    return { data: { bio: result.bio }, error: null };
+    return { data: result, error: null };
   } catch (e) {
     console.error("CV Analysis Action Error:", e);
     const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';

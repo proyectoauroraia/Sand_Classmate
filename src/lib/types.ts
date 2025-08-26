@@ -57,6 +57,12 @@ export type UserProfile = {
     cvUrl?: string;
 };
 
+export type CvAnalysisResult = {
+    bio: string;
+    keyPoints: string[];
+};
+
+
 export type CheckoutSessionResult = {
     token: string;
     url: string;
@@ -75,7 +81,6 @@ export type WebpayCommitResult = {
     transaction_date: string;
     authorization_code?: string;
     payment_type_code: string;
-    response_code: number;
     installments_number: number;
     installments_amount?: number;
     error_message?: string;

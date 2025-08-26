@@ -7,13 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { UploadCloud, UserCircle2, BrainCircuit, Lock, Loader2, Sparkles } from 'lucide-react';
+import { UploadCloud, UserCircle2, BrainCircuit, Lock, Loader2, Sparkles, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@/lib/supabase/client';
 import { updateUserProfileAction, analyzeCvAction } from '@/lib/actions';
 import type { User } from '@supabase/supabase-js';
-import type { UserProfile } from '@/lib/types';
+import type { UserProfile, CvAnalysisResult } from '@/lib/types';
 
 
 export default function ProfilePage() {
@@ -36,6 +36,7 @@ export default function ProfilePage() {
     const [cvFile, setCvFile] = React.useState<File | null>(null);
     const [profileImage, setProfileImage] = React.useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
+    const [cvKeyPoints, setCvKeyPoints] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         const fetchUserAndProfile = async () => {
@@ -88,6 +89,7 @@ export default function ProfilePage() {
             return;
         }
         setAnalyzingCv(true);
+        setCvKeyPoints([]);
         try {
              const dataUri = await new Promise<string>((resolve, reject) => {
                 const reader = new FileReader();
@@ -103,6 +105,7 @@ export default function ProfilePage() {
             }
             
             setBio(data.bio);
+            setCvKeyPoints(data.keyPoints);
             toast({
                 title: "¡CV Analizado!",
                 description: "Hemos autocompletado tu filosofía pedagógica. Revísala y guarda los cambios.",
@@ -278,6 +281,24 @@ export default function ProfilePage() {
                                 </div>
                             </CardContent>
                         </Card>
+                        {cvKeyPoints.length > 0 && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-lg md:text-xl flex items-center gap-3">
+                                        <Star className="h-6 w-6 text-primary" />
+                                        Puntos Clave del Análisis
+                                    </CardTitle>
+                                    <CardDescription>Este es el resumen que la IA utilizará para personalizar tus materiales.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <ul className="space-y-2 list-disc list-inside text-muted-foreground">
+                                        {cvKeyPoints.map((point, index) => (
+                                            <li key={index}>{point}</li>
+                                        ))}
+                                    </ul>
+                                </CardContent>
+                            </Card>
+                        )}
                         <Card>
                             <CardHeader>
                                 <div className="flex items-center gap-3">
