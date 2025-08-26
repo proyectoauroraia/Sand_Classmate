@@ -7,6 +7,9 @@
  */
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { createClient } from '@/lib/supabase/server';
+import type { UserProfile } from '@/lib/types';
+
 
 // Schema for analyzing content
 const AnalyzeContentInputSchema = z.object({
@@ -273,10 +276,35 @@ export async function generateMaterialFromAnalysis(
   input: z.infer<typeof GenerateMaterialInputSchema>
 ): Promise<string> {
     const { analysisResult, materialType, classContext } = input;
+    
+    // Fetch user profile for personalization
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    let userProfile: UserProfile | null = null;
+    if (user) {
+        const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        userProfile = data;
+    }
+
+    const personalizationPrompt = userProfile?.bio
+        ? `
+        **Teacher's Pedagogical Philosophy:**
+        ${userProfile.bio}
+        
+        **IMPORTANT PERSONALIZATION INSTRUCTIONS:**
+        You MUST adapt the tone, examples, and suggested methodologies in the generated material to align with the teacher's pedagogical philosophy. For example, if the philosophy mentions "constructivism" or "Paulo Freire", prioritize active learning, critical thinking questions, and collaborative activities over simple memorization. If it mentions "competency-based learning", focus on practical application and case studies.
+        `
+        : `
+        **No Pedagogical Philosophy Provided:**
+        Generate content using standard, high-quality pedagogical practices.
+        `;
+
 
     const basePrompt = `You are an expert curriculum developer for the field of ${analysisResult.subjectArea}.
         
     You have been provided with a detailed pedagogical analysis of a course document. Use all the information below to generate the requested material.
+    
+    ${personalizationPrompt}
     
     IMPORTANT: All generated content MUST be in Spanish. The markdown output must be entirely in Spanish.
 
@@ -310,5 +338,3 @@ export async function generateMaterialFromAnalysis(
     const { output } = await generationPrompt(input);
     return output?.markdownContent || '';
 }
-
-    
