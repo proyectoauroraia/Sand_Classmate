@@ -60,7 +60,7 @@ export default function ProfilePage() {
                     setCity(profile.city ?? '');
                     setBio(profile.bio ?? '');
                 } else if (error && error.code !== 'PGRST116') { // Ignore 'no rows found' error
-                    console.error("Error fetching profile:", error);
+                    console.error("Error fetching profile:", error.message);
                 } else {
                      setFullName(user.user_metadata?.full_name ?? '');
                 }
