@@ -12,7 +12,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: 'Sand Classmate',
-  description: 'AI-powered course material generation for educators.',
+  description: 'Usa IA para analizar tus programas de estudio o apuntes y genera automáticamente presentaciones, guías de trabajo y evaluaciones para potenciar tus clases.',
 };
 
 export default function RootLayout({
@@ -30,3 +30,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+    

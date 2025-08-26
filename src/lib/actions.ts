@@ -4,10 +4,7 @@
 import { analyzeAndEnrichContent, generateMaterialFromAnalysis } from '@/ai/flows/educational-content-flows';
 import type { AnalysisResult, CheckoutSessionResult, WebpayCommitResult } from '@/lib/types';
 import { z } from 'zod';
-import PptxGenJS from 'pptxgenjs';
-import { Document, Packer, Paragraph, HeadingLevel, AlignmentType, Numbering } from 'docx';
 import type { GeneratedMaterials } from '@/lib/types';
-import { PDFDocument, rgb, StandardFonts, PageSizes } from 'pdf-lib';
 
 
 const AnalyzeInputSchema = z.object({
@@ -57,6 +54,7 @@ const GenerateMaterialInputSchema = z.object({
 
 
 async function createStyledPdf(title: string, markdownContent: string): Promise<string> {
+    const { PDFDocument, rgb, StandardFonts, PageSizes } = await import('pdf-lib');
     const pdfDoc = await PDFDocument.create();
     let page = pdfDoc.addPage(PageSizes.A4);
     const { width, height } = page.getSize();
@@ -171,6 +169,8 @@ async function createStyledPdf(title: string, markdownContent: string): Promise<
 
 
 async function createStyledDocx(title: string, markdownContent: string): Promise<string> {
+    const { Document, Packer, Paragraph, HeadingLevel, AlignmentType } = await import('docx');
+    
     const doc = new Document({
         creator: "Sand Classmate",
         title: title,
@@ -268,6 +268,7 @@ async function createStyledDocx(title: string, markdownContent: string): Promise
 
 
 async function createStyledPptx(markdownContent: string): Promise<string> {
+    const PptxGenJS = (await import('pptxgenjs')).default;
     const pres = new PptxGenJS();
     pres.layout = 'LAYOUT_16x9';
 
@@ -477,3 +478,5 @@ export async function commitWebpayTransactionAction(
         return { data: null, error: `Falló la confirmación del pago: ${errorMessage}` };
     }
 }
+
+    

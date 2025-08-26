@@ -21,7 +21,7 @@
     --secondary-foreground: 0 0% 100%;
 
     --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
+    --muted-foreground: 0 0% 40%; /* Increased contrast from 45.1% */
 
     --accent: 15 82% 95%; /* Light Orange */
     --accent-foreground: 15 82% 40%;
@@ -59,3 +59,5 @@
     @apply bg-background text-foreground;
   }
 }
+
+    
