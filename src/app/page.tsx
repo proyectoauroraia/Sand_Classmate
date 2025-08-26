@@ -121,10 +121,7 @@ export default function HomePage() {
                 <nav className="grid items-start px-4 text-sm font-medium">
                     {navLinks.map((link) => {
                         const isActive = pathname === link.href;
-                         const isProtected = ['/dashboard/history', '/dashboard/profile', '/dashboard/pricing'].includes(link.href);
-                        
-                        if (isProtected && !user) return null;
-
+                        // All links are visible regardless of auth state
                         return (
                          <Link
                             key={link.href}
