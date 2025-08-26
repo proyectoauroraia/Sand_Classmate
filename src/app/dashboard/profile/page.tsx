@@ -173,7 +173,6 @@ export default function ProfilePage() {
         );
     }
     
-
     return (
         <form onSubmit={handleSaveChanges}>
             <div className="space-y-8 p-4 md:p-6 lg:p-8">
