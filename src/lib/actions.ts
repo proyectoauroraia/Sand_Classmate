@@ -1,3 +1,4 @@
+
 'use server';
 
 import { analyzeAndEnrichContent, generateMaterialFromAnalysis } from '@/ai/flows/educational-content-flows';
@@ -483,53 +484,67 @@ export async function commitWebpayTransactionAction(
 export async function updateUserProfileAction(
   formData: FormData
 ): Promise<{ data: UserProfile | null; error: string | null }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { data: null, error: 'No estás autenticado.' };
-  }
-
-  const profileData: Partial<UserProfile> = {
-    fullName: formData.get('fullName') as string,
-    role: formData.get('role') as string,
-    city: formData.get('city') as string,
-    bio: formData.get('bio') as string,
-  };
-  
-  const cvFile = formData.get('cvFile') as File | null;
-  if (cvFile && cvFile.size > 0) {
-      console.log(`CV recibido: ${cvFile.name}, tamaño: ${cvFile.size} bytes`);
-      // Note: File handling (e.g., uploading to Supabase Storage) would go here.
-      // For now, we are just acknowledging receipt of the file.
-  }
-
   try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .upsert({
-            id: user.id,
-            ...profileData,
-        }, { 
-            onConflict: 'id' 
-        })
-        .select()
-        .single();
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-      if (error) throw error;
-      
-      revalidatePath('/dashboard/profile');
-      return { data, error: null };
+    if (!user) {
+      return { data: null, error: 'No estás autenticado.' };
+    }
 
-  } catch (e: any) {
-      console.error("Update Profile Error:", e);
-      let errorMessage = 'Ocurrió un error desconocido.';
-      if (e.message.includes('permission denied')) {
-        errorMessage = 'Error de permisos. Asegúrate de que las políticas RLS están bien configuradas en Supabase para permitir INSERT y UPDATE en la tabla `profiles`.';
-      } else if (e instanceof Error) {
-        errorMessage = e.message;
+    const fullName = formData.get('fullName') as string;
+    if (!fullName || fullName.trim().length === 0) {
+        return { data: null, error: 'El nombre completo es requerido.'};
+    }
+
+    const profileData: Partial<UserProfile> = {
+      fullName,
+      role: formData.get('role') as string,
+      city: formData.get('city') as string,
+      bio: formData.get('bio') as string,
+    };
+    
+    const cvFile = formData.get('cvFile') as File | null;
+    if (cvFile && cvFile.size > 0) {
+      // NOTE: In a real application, you would upload this file to Supabase Storage
+      // and save the URL in the 'cvUrl' field of the profile.
+      // For this step, we are just validating it.
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+
+      if (cvFile.size > maxSize) {
+        return { data: null, error: 'El archivo CV no debe superar los 10MB.' };
       }
-      return { data: null, error: `No se pudo actualizar el perfil: ${errorMessage}` };
+      if (!allowedTypes.includes(cvFile.type)) {
+        return { data: null, error: 'Solo se permiten archivos PDF y DOCX para el CV.' };
+      }
+      console.log(`CV Validado: ${cvFile.name}, tamaño: ${cvFile.size} bytes`);
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .upsert({
+          id: user.id,
+          ...profileData,
+      }, { onConflict: 'id' })
+      .select()
+      .single();
+
+    if (error) {
+      // Provide a more specific error message for RLS issues.
+      if (error.message.includes('permission denied')) {
+        throw new Error('Error de permisos. Asegúrate de que las políticas de RLS en Supabase permiten la operación de UPSERT.');
+      }
+      throw error;
+    }
+    
+    revalidatePath('/dashboard/profile');
+    return { data, error: null };
+
+  } catch (e) {
+      console.error("Update Profile Error:", e);
+      const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido al actualizar el perfil.';
+      return { data: null, error: errorMessage };
   }
 }
 
@@ -550,3 +565,5 @@ export async function analyzeCvAction(
     return { data: null, error: `Falló el análisis del CV: ${errorMessage}` };
   }
 }
+
+    
