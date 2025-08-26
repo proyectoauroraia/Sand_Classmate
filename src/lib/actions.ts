@@ -2,9 +2,10 @@
 'use server';
 
 import { analyzeAndEnrichContent, generateMaterialFromAnalysis } from '@/ai/flows/educational-content-flows';
-import type { AnalysisResult, CheckoutSessionResult, WebpayCommitResult } from '@/lib/types';
+import type { AnalysisResult, CheckoutSessionResult, WebpayCommitResult, UserProfile, GeneratedMaterials } from '@/lib/types';
 import { z } from 'zod';
-import type { GeneratedMaterials } from '@/lib/types';
+import { createClient } from '@/lib/supabase/server';
+import { revalidatePath } from 'next/cache';
 
 
 const AnalyzeInputSchema = z.object({
@@ -479,4 +480,47 @@ export async function commitWebpayTransactionAction(
     }
 }
 
-    
+export async function updateUserProfileAction(
+  formData: FormData
+): Promise<{ data: UserProfile | null; error: string | null }> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { data: null, error: 'No estás autenticado.' };
+  }
+
+  const profileData: Partial<UserProfile> = {
+    fullName: formData.get('fullName') as string,
+    role: formData.get('role') as string,
+    city: formData.get('city') as string,
+    bio: formData.get('bio') as string,
+  };
+  
+  // File handling for CV (to be implemented: upload to Supabase Storage)
+  const cvFile = formData.get('cvFile') as File | null;
+  if (cvFile && cvFile.size > 0) {
+      // In a real app, you would upload the file to Supabase Storage here
+      // and get back a URL to save in the user's profile.
+      // For now, we'll just log that a file was received.
+      console.log(`CV recibido: ${cvFile.name}, tamaño: ${cvFile.size} bytes`);
+      // profileData.cvUrl = '...url from storage...';
+  }
+
+  try {
+      const { data, error } = await supabase.from('profiles').upsert({
+          id: user.id,
+          ...profileData,
+      }, { onConflict: 'id' }).select().single();
+
+      if (error) throw error;
+      
+      revalidatePath('/dashboard/profile');
+      return { data, error: null };
+
+  } catch (e) {
+      console.error("Update Profile Error:", e);
+      const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
+      return { data: null, error: `No se pudo actualizar el perfil: ${errorMessage}` };
+  }
+}

@@ -1,9 +1,5 @@
 
 
-
-
-
-
 export type AnalysisResult = {
   summary: string;
   keyConcepts: string[];
@@ -54,12 +50,11 @@ export type HistoryItem = {
 
 export type UserProfile = {
     id: string;
+    fullName?: string;
+    role?: string;
+    city?: string;
     bio?: string;
     cvUrl?: string;
-    publications?: {
-        title: string;
-        url: string;
-    }[];
 };
 
 export type CheckoutSessionResult = {
