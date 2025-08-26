@@ -96,7 +96,7 @@ export async function analyzeAndEnrichContent(
 
       4.  **Bibliography Analysis:**
           *   List any bibliography mentioned in the document.
-          *   Provide a minimum of 5 **highly relevant, modern recommended bibliographic sources** not mentioned in the document. Prioritize academic sources from the last 5 years (e.g., Scielo, PubMed, Scopus, university books). Each reference MUST be formatted in **APA 7th Edition style**. If no bibliography is mentioned or can be recommended, return an empty object for 'bibliography'.
+          *   Provide a minimum of 5 **highly relevant, modern recommended bibliographic sources** not mentioned in the document. **These recommendations must be in Spanish**. Prioritize academic sources from the last 5 years (e.g., Scielo, PubMed, Scopus, university books). Each reference MUST be formatted in **APA 7th Edition style**. If no bibliography is mentioned or can be recommended, return an empty object for 'bibliography'.
 
       Provide a structured JSON response according to the defined output schema. Ensure all fields are populated accurately and in Spanish.`
   });
