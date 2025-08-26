@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -18,7 +19,7 @@ import { MaterialsHistory } from '@/components/dashboard/materials-history';
 import { AnalysisDisplay } from '@/components/dashboard/analysis/analysis-display';
 import type { AnalysisResult } from '@/lib/types';
 
-export default function Home() {
+export default function HomePage() {
     const router = useRouter();
     const pathname = usePathname();
     const [user, setUser] = useState<User | null>(null);
