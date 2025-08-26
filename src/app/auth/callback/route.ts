@@ -12,10 +12,13 @@ export async function GET(request: Request) {
     const supabase = createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      // Use NEXT_PUBLIC_BASE_URL for redirection to ensure consistency
+      const redirectUrl = new URL(next, process.env.NEXT_PUBLIC_BASE_URL || origin);
+      return NextResponse.redirect(redirectUrl);
     }
   }
 
   // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+  const errorUrl = new URL('/auth/auth-code-error', process.env.NEXT_PUBLIC_BASE_URL || origin);
+  return NextResponse.redirect(errorUrl);
 }
