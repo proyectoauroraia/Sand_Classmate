@@ -7,11 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { UploadCloud, UserCircle2, BrainCircuit, Lock, Loader2 } from 'lucide-react';
+import { UploadCloud, UserCircle2, BrainCircuit, Lock, Loader2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@/lib/supabase/client';
-import { updateUserProfileAction } from '@/lib/actions';
+import { updateUserProfileAction, analyzeCvAction } from '@/lib/actions';
 import type { User } from '@supabase/supabase-js';
 import type { UserProfile } from '@/lib/types';
 
@@ -24,6 +24,7 @@ export default function ProfilePage() {
     // Component State
     const [loading, setLoading] = React.useState(true);
     const [saving, setSaving] = React.useState(false);
+    const [analyzingCv, setAnalyzingCv] = React.useState(false);
     const [user, setUser] = React.useState<User | null>(null);
     
     // Form State
@@ -74,6 +75,48 @@ export default function ProfilePage() {
         if (file) {
             setProfileImage(file);
             setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+
+    const handleAnalyzeCv = async () => {
+        if (!cvFile) {
+            toast({
+                variant: 'destructive',
+                title: "No hay CV",
+                description: "Por favor, selecciona tu CV para analizarlo.",
+            });
+            return;
+        }
+        setAnalyzingCv(true);
+        try {
+             const dataUri = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = (error) => reject(error);
+                reader.readAsDataURL(cvFile);
+            });
+
+            const { data, error } = await analyzeCvAction(dataUri);
+
+            if (error || !data) {
+                throw new Error(error || "El análisis del CV falló.");
+            }
+            
+            setBio(data.bio);
+            toast({
+                title: "¡CV Analizado!",
+                description: "Hemos autocompletado tu filosofía pedagógica. Revísala y guarda los cambios.",
+            });
+
+        } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error inesperado.';
+            toast({
+                variant: 'destructive',
+                title: "Error de Análisis",
+                description: errorMessage,
+            });
+        } finally {
+            setAnalyzingCv(false);
         }
     };
     
@@ -195,10 +238,10 @@ export default function ProfilePage() {
                                     <BrainCircuit className="h-6 w-6 text-primary" />
                                     <CardTitle className="text-lg md:text-xl">Personalización con IA</CardTitle>
                                 </div>
-                                <CardDescription>Sube tu CV y describe tu estilo de enseñanza para que la IA genere contenido adaptado a ti.</CardDescription>
+                                <CardDescription>Sube tu CV y usa la IA para autocompletar tu perfil y estilo de enseñanza.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                <div className="space-y-2">
+                                <div className="space-y-3">
                                     <Label htmlFor="cv-upload">Currículum Vitae (CV)</Label>
                                     <div 
                                         className="flex items-center justify-center w-full"
@@ -215,15 +258,19 @@ export default function ProfilePage() {
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">PDF, DOCX (MAX. 5MB)</p>
                                             </div>
-                                            <Input ref={cvInputRef} id="cvFile" name="cvFile" type="file" className="hidden" onChange={(e) => setCvFile(e.target.files?.[0] || null)} />
+                                            <Input ref={cvInputRef} id="cvFile" name="cvFile" type="file" className="hidden" accept=".pdf,.docx" onChange={(e) => setCvFile(e.target.files?.[0] || null)} />
                                         </label>
                                     </div>
+                                    <Button type="button" variant="outline" className="w-full" onClick={handleAnalyzeCv} disabled={!cvFile || analyzingCv}>
+                                        {analyzingCv ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                                        {analyzingCv ? 'Analizando CV...' : 'Analizar CV para Autocompletar'}
+                                    </Button>
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="bio">Mi Filosofía Pedagógica y Carrera</Label>
                                     <Textarea
                                         id="bio"
-                                        placeholder="Describe tu enfoque pedagógico (ej: constructivista, basado en proyectos), tus áreas de especialización y los hitos más importantes de tu carrera..."
+                                        placeholder="Describe tu enfoque pedagógico (ej: constructivista, basado en proyectos), tus áreas de especialización y los hitos más importantes de tu carrera. O bien, sube tu CV y haz clic en analizar."
                                         rows={8}
                                         value={bio}
                                         onChange={(e) => setBio(e.target.value)}
@@ -252,7 +299,7 @@ export default function ProfilePage() {
                     </div>
                 </div>
                 <div className="flex justify-end pt-4">
-                    <Button type="submit" size="lg" disabled={saving || loading} className="w-full md:w-auto py-6 text-base">
+                    <Button type="submit" size="lg" disabled={saving || loading || analyzingCv} className="w-full md:w-auto py-6 text-base">
                         {saving && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
                         {saving ? 'Guardando...' : 'Guardar Cambios'}
                     </Button>

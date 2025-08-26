@@ -2,6 +2,7 @@
 'use server';
 
 import { analyzeAndEnrichContent, generateMaterialFromAnalysis } from '@/ai/flows/educational-content-flows';
+import { analyzeCv } from '@/ai/flows/profile-analysis-flow';
 import type { AnalysisResult, CheckoutSessionResult, WebpayCommitResult, UserProfile, GeneratedMaterials } from '@/lib/types';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
@@ -522,5 +523,23 @@ export async function updateUserProfileAction(
       console.error("Update Profile Error:", e);
       const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
       return { data: null, error: `No se pudo actualizar el perfil: ${errorMessage}` };
+  }
+}
+
+export async function analyzeCvAction(
+  cvDataUri: string
+): Promise<{ data: { bio: string } | null; error: string | null }> {
+  const validation = AnalyzeInputSchema.safeParse({ documentDataUri: cvDataUri });
+   if (!validation.success) {
+    const error = validation.error.errors[0]?.message || 'Datos de entrada inválidos.';
+    return { data: null, error };
+  }
+  try {
+    const result = await analyzeCv({ cvDataUri });
+    return { data: { bio: result.bio }, error: null };
+  } catch (e) {
+    console.error("CV Analysis Action Error:", e);
+    const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
+    return { data: null, error: `Falló el análisis del CV: ${errorMessage}` };
   }
 }
