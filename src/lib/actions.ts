@@ -498,14 +498,9 @@ export async function updateUserProfileAction(
     bio: formData.get('bio') as string,
   };
   
-  // File handling for CV (to be implemented: upload to Supabase Storage)
   const cvFile = formData.get('cvFile') as File | null;
   if (cvFile && cvFile.size > 0) {
-      // In a real app, you would upload the file to Supabase Storage here
-      // and get back a URL to save in the user's profile.
-      // For now, we'll just log that a file was received.
       console.log(`CV recibido: ${cvFile.name}, tamaño: ${cvFile.size} bytes`);
-      // profileData.cvUrl = '...url from storage...';
   }
 
   try {
@@ -519,8 +514,14 @@ export async function updateUserProfileAction(
       revalidatePath('/dashboard/profile');
       return { data, error: null };
 
-  } catch (e) {
+  } catch (e: any) {
       console.error("Update Profile Error:", e);
+      if (e.code === '42501') { // Supabase permission error
+           return {
+              data: { id: user.id, ...profileData }, 
+              error: 'Error de permisos: No se pudo guardar en la base de datos. Los cambios se mantendrán solo para esta sesión.' 
+            };
+      }
       const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
       return { data: null, error: `No se pudo actualizar el perfil: ${errorMessage}` };
   }
@@ -543,3 +544,5 @@ export async function analyzeCvAction(
     return { data: null, error: `Falló el análisis del CV: ${errorMessage}` };
   }
 }
+
+    

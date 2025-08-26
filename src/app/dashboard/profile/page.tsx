@@ -144,8 +144,9 @@ export default function ProfilePage() {
         if (error) {
             toast({
                 variant: 'destructive',
-                title: "Error al Actualizar",
-                description: error,
+                title: "Error de Permisos",
+                description: "No se pudo guardar en la base de datos. Revisa las políticas RLS en Supabase. Tus cambios se recordarán solo para esta sesión.",
+                duration: 9000,
             });
         } else {
             toast({
@@ -329,3 +330,5 @@ export default function ProfilePage() {
         </form>
     );
 }
+
+    
