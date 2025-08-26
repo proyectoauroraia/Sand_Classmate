@@ -516,12 +516,6 @@ export async function updateUserProfileAction(
 
   } catch (e: any) {
       console.error("Update Profile Error:", e);
-      if (e.code === '42501') { // Supabase permission error
-           return {
-              data: { id: user.id, ...profileData }, 
-              error: 'Error de permisos: No se pudo guardar en la base de datos. Los cambios se mantendrán solo para esta sesión.' 
-            };
-      }
       const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
       return { data: null, error: `No se pudo actualizar el perfil: ${errorMessage}` };
   }
