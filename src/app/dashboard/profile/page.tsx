@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -49,7 +48,7 @@ export default function ProfilePage() {
                 setPreviewUrl(user.user_metadata?.avatar_url ?? null);
 
                 // Fetch profile data from 'profiles' table
-                const { data: profile } = await supabase
+                const { data: profile, error } = await supabase
                     .from('profiles')
                     .select('*')
                     .eq('id', user.id)
@@ -60,8 +59,10 @@ export default function ProfilePage() {
                     setRole(profile.role ?? '');
                     setCity(profile.city ?? '');
                     setBio(profile.bio ?? '');
+                } else if (error && error.code !== 'PGRST116') { // Ignore 'no rows found' error
+                    console.error("Error fetching profile:", error);
                 } else {
-                    setFullName(user.user_metadata?.full_name ?? '');
+                     setFullName(user.user_metadata?.full_name ?? '');
                 }
             }
             setLoading(false);
@@ -144,8 +145,8 @@ export default function ProfilePage() {
         if (error) {
             toast({
                 variant: 'destructive',
-                title: "Error de Permisos",
-                description: "No se pudo guardar en la base de datos. Revisa las políticas RLS en Supabase. Tus cambios se recordarán solo para esta sesión.",
+                title: "Error al Guardar",
+                description: error,
                 duration: 9000,
             });
         } else {
@@ -188,7 +189,7 @@ export default function ProfilePage() {
                         <Card>
                             <CardHeader className="items-center text-center p-6">
                                 <div className="relative group w-24 h-24 md:w-32 md:h-32">
-                                    <Avatar className="h-full w-full cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                                    <Avatar className="h-full w-full cursor-pointer" onClick={()(() => fileInputRef.current?.click())}>
                                         <AvatarImage src={previewUrl ?? undefined} alt="Foto de Perfil" data-ai-hint="person face" className="object-cover" />
                                         <AvatarFallback className="bg-secondary/50 text-muted-foreground">
                                             <UserCircle2 className="h-16 w-16 md:h-20 md:w-20" />
@@ -196,7 +197,7 @@ export default function ProfilePage() {
                                     </Avatar>
                                     <div 
                                         className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                                        onClick={() => fileInputRef.current?.click()}
+                                        onClick={()(() => fileInputRef.current?.click())}
                                     >
                                         <span className="text-white text-xs font-semibold text-center">Cambiar Foto</span>
                                     </div>
@@ -249,7 +250,7 @@ export default function ProfilePage() {
                                     <Label htmlFor="cv-upload">Currículum Vitae (CV)</Label>
                                     <div 
                                         className="flex items-center justify-center w-full"
-                                        onClick={() => cvInputRef.current?.click()}
+                                        onClick={()(() => cvInputRef.current?.click())}
                                     >
                                         <label 
                                             htmlFor="cvFile" 
@@ -330,5 +331,3 @@ export default function ProfilePage() {
         </form>
     );
 }
-
-    

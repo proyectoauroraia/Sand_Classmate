@@ -1,4 +1,3 @@
-
 'use server';
 
 import { analyzeAndEnrichContent, generateMaterialFromAnalysis } from '@/ai/flows/educational-content-flows';
@@ -501,13 +500,21 @@ export async function updateUserProfileAction(
   const cvFile = formData.get('cvFile') as File | null;
   if (cvFile && cvFile.size > 0) {
       console.log(`CV recibido: ${cvFile.name}, tamaño: ${cvFile.size} bytes`);
+      // Note: File handling (e.g., uploading to Supabase Storage) would go here.
+      // For now, we are just acknowledging receipt of the file.
   }
 
   try {
-      const { data, error } = await supabase.from('profiles').upsert({
-          id: user.id,
-          ...profileData,
-      }, { onConflict: 'id' }).select().single();
+      const { data, error } = await supabase
+        .from('profiles')
+        .upsert({
+            id: user.id,
+            ...profileData,
+        }, { 
+            onConflict: 'id' 
+        })
+        .select()
+        .single();
 
       if (error) throw error;
       
@@ -516,7 +523,12 @@ export async function updateUserProfileAction(
 
   } catch (e: any) {
       console.error("Update Profile Error:", e);
-      const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
+      let errorMessage = 'Ocurrió un error desconocido.';
+      if (e.message.includes('permission denied')) {
+        errorMessage = 'Error de permisos. Asegúrate de que las políticas RLS están bien configuradas en Supabase para permitir INSERT y UPDATE en la tabla `profiles`.';
+      } else if (e instanceof Error) {
+        errorMessage = e.message;
+      }
       return { data: null, error: `No se pudo actualizar el perfil: ${errorMessage}` };
   }
 }
@@ -524,7 +536,7 @@ export async function updateUserProfileAction(
 export async function analyzeCvAction(
   cvDataUri: string
 ): Promise<{ data: CvAnalysisResult | null; error: string | null }> {
-  const validation = AnalyzeInputSchema.safeParse({ documentDataUri: cvDataUri });
+  const validation = z.string().startsWith('data:').safeParse(cvDataUri);
    if (!validation.success) {
     const error = validation.error.errors[0]?.message || 'Datos de entrada inválidos.';
     return { data: null, error };
@@ -538,5 +550,3 @@ export async function analyzeCvAction(
     return { data: null, error: `Falló el análisis del CV: ${errorMessage}` };
   }
 }
-
-    
