@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -11,10 +11,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
-
-const mockHistory: HistoryItem[] = [
-    // Real data will be fetched from the backend.
-];
+interface MaterialsHistoryProps {
+    isFullPage?: boolean;
+    onViewAnalysis?: (item: HistoryItem) => void;
+}
 
 const ITEMS_PER_PAGE = 4;
 
@@ -25,35 +25,37 @@ const buttonColors = [
     'bg-primary/60 hover:bg-primary/90',
 ];
 
-export function MaterialsHistory({ isFullPage = false }: { isFullPage?: boolean}) {
+export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: MaterialsHistoryProps) {
     const router = useRouter();
     const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
-
-    // In a real application, you would fetch this data from your backend
-    // React.useEffect(() => {
-    //   async function fetchHistory() {
-    //     // const data = await fetchUserHistory();
-    //     // setHistoryItems(data);
-    //   }
-    //   fetchHistory();
-    // }, []);
+    useEffect(() => {
+      try {
+        const storedHistory = localStorage.getItem('sand_classmate_history');
+        if (storedHistory) {
+          setHistoryItems(JSON.parse(storedHistory));
+        }
+      } catch (error) {
+        console.error("Could not parse history from localStorage", error);
+        setHistoryItems([]);
+      }
+    }, []);
 
     const displayedHistory = isFullPage ? historyItems : historyItems.slice(0, ITEMS_PER_PAGE);
 
-    const handleViewAnalysis = (id: string) => {
-        // This requires authentication. If the user is not logged in,
-        // we should prompt them to log in.
-        // For now, we'll just log to console.
-        console.log(`Viewing analysis requires login. ID: ${id}`);
-        // In a real app, you would check auth state and maybe show a login dialog.
+    const handleViewAnalysisClick = (item: HistoryItem) => {
+        if (onViewAnalysis) {
+            onViewAnalysis(item);
+        } else {
+            console.warn("onViewAnalysis handler is not provided on this page.");
+        }
     };
 
     return (
       <Card className="h-full flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-xl md:text-2xl font-bold tracking-tight">Mis Cursos Guardados</CardTitle>
-            {!isFullPage && historyItems.length > 0 && (
+            {!isFullPage && historyItems.length > ITEMS_PER_PAGE && (
                 <Button asChild variant="ghost" className="text-primary font-semibold hover:underline">
                     <Link href="/dashboard/history">Ver todo</Link>
                 </Button>
@@ -73,7 +75,7 @@ export function MaterialsHistory({ isFullPage = false }: { isFullPage?: boolean}
                   {displayedHistory.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={isFullPage ? 3: 2} className="h-24 text-center">
-                        Inicia sesión para ver tu historial de cursos.
+                        Aquí aparecerán tus análisis guardados.
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -87,7 +89,7 @@ export function MaterialsHistory({ isFullPage = false }: { isFullPage?: boolean}
                           <Button 
                             size="sm" 
                             variant="secondary"
-                            onClick={() => handleViewAnalysis(item.id)}
+                            onClick={() => handleViewAnalysisClick(item)}
                             className={cn('text-secondary-foreground transition-colors',buttonColors[index % buttonColors.length])}
                           >
                             Ver

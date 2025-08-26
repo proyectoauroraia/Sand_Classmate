@@ -3,6 +3,7 @@
 
 
 
+
 export type AnalysisResult = {
   summary: string;
   keyConcepts: string[];
@@ -48,6 +49,7 @@ export type HistoryItem = {
     fileName:string;
     date: string;
     status: 'Completado' | 'Procesando' | 'Fallido';
+    analysis: AnalysisResult;
 };
 
 export type UserProfile = {

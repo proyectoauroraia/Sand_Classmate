@@ -17,7 +17,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { FileUploader } from '@/components/dashboard/file-uploader';
 import { MaterialsHistory } from '@/components/dashboard/materials-history';
 import { AnalysisDisplay } from '@/components/dashboard/analysis/analysis-display';
-import type { AnalysisResult } from '@/lib/types';
+import type { AnalysisResult, HistoryItem } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 
 export default function HomePage() {
     const router = useRouter();
@@ -25,11 +26,53 @@ export default function HomePage() {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const supabase = createClient();
+    const { toast } = useToast();
     
     const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+    const [historyKey, setHistoryKey] = useState(Date.now()); // Used to force-refresh history component
 
     const handleAnalysisComplete = (result: AnalysisResult | null) => {
-        setAnalysisResult(result);
+        if (result) {
+            setAnalysisResult(result);
+            // Save to history
+            try {
+                const newHistoryItem: HistoryItem = {
+                    id: `analysis_${new Date().toISOString()}`,
+                    fileName: result.subjectArea,
+                    date: new Date().toLocaleDateString('es-CL'),
+                    status: 'Completado',
+                    analysis: result,
+                };
+                const existingHistory: HistoryItem[] = JSON.parse(localStorage.getItem('sand_classmate_history') || '[]');
+                const updatedHistory = [newHistoryItem, ...existingHistory];
+                localStorage.setItem('sand_classmate_history', JSON.stringify(updatedHistory));
+                setHistoryKey(Date.now()); // Trigger refresh
+                toast({
+                    title: "Análisis Guardado",
+                    description: `El análisis para "${result.subjectArea}" ha sido guardado en tu historial.`
+                });
+            } catch (error) {
+                console.error("Failed to save to localStorage", error);
+                toast({
+                    variant: "destructive",
+                    title: "Error al Guardar",
+                    description: "No se pudo guardar el análisis en el historial."
+                });
+            }
+        }
+    };
+
+    const handleRestoreAnalysis = (item: HistoryItem) => {
+        if(item.analysis) {
+            setAnalysisResult(item.analysis);
+            window.scrollTo(0, 0); // Scroll to top to see the restored analysis
+        } else {
+             toast({
+                variant: "destructive",
+                title: "Error al Cargar",
+                description: "Los datos de este análisis no están completos y no se pueden restaurar."
+            });
+        }
     };
 
     const handleReset = () => {
@@ -118,7 +161,11 @@ export default function HomePage() {
                     <FileUploader onAnalysisComplete={handleAnalysisComplete} />
                 </div>
                 <div className="lg:col-span-5 flex flex-col h-full">
-                    <MaterialsHistory isFullPage={false} />
+                    <MaterialsHistory 
+                        key={historyKey} 
+                        isFullPage={false} 
+                        onViewAnalysis={handleRestoreAnalysis} 
+                    />
                 </div>
             </div>
         </div>
