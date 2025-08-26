@@ -18,37 +18,45 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const router = useRouter();
     const pathname = usePathname();
     const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true); // Add loading state
+    const [loading, setLoading] = useState(true); // Start in a loading state
     const supabase = createClient();
 
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             setUser(session?.user ?? null);
-            setLoading(false);
+            setLoading(false); // Stop loading once we have a definitive state
+             if (event === 'SIGNED_OUT') {
+                router.push('/');
+            }
         });
 
-        // Check initial session
+        // Also check the initial session
         const checkInitialSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                setUser(session.user);
-            }
+            setUser(session?.user ?? null);
             setLoading(false);
         }
         checkInitialSession();
 
+
         return () => {
             subscription.unsubscribe();
         };
-    }, [supabase.auth, router]);
+    }, [supabase, router]);
 
     useEffect(() => {
+        // This effect handles redirection after the loading state is resolved.
         if (!loading && !user) {
             router.push('/');
         }
     }, [user, loading, router]);
 
 
+    const handleSignOut = async () => {
+        await supabase.auth.signOut();
+        router.push('/');
+    };
+    
     if (loading) {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -58,14 +66,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
     
     if (!user) {
-        // This state should ideally not be reached due to the redirect, but it's a safeguard.
+        // This is a fallback, the useEffect above should have already redirected.
         return null;
-    }
-
-
-    const handleSignOut = async () => {
-        await supabase.auth.signOut();
-        router.push('/');
     }
 
     const navLinks = [
@@ -87,9 +89,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     {navLinks.map((link) => {
                         const isActive = pathname === link.href;
                         return (
-                         <Link 
-                            key={link.href} 
-                            href={link.href} 
+                         <Link
+                            key={link.href}
+                            href={link.href}
                             className={`flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary ${isActive ? 'bg-accent text-accent-foreground font-semibold' : ''}`}
                          >
                             <link.icon className="h-5 w-5" />
