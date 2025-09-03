@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -59,6 +60,9 @@ export default function ProfilePage() {
                     setRole(profile.role ?? '');
                     setCity(profile.city ?? '');
                     setBio(profile.bio ?? '');
+                    if (profile.avatar_url) {
+                        setPreviewUrl(profile.avatar_url);
+                    }
                 } else if (error && error.code !== 'PGRST116') { // Ignore 'no rows found' error
                     console.error("Error fetching profile:", error.message);
                 } else {
@@ -136,7 +140,9 @@ export default function ProfilePage() {
         if (cvFile) {
             formData.append('cvFile', cvFile);
         }
-        // profileImage would be handled similarly, likely uploaded to storage
+        if (profileImage) {
+            formData.append('profileImage', profileImage);
+        }
 
         const { data, error } = await updateUserProfileAction(formData);
 
@@ -154,6 +160,10 @@ export default function ProfilePage() {
                 title: "¡Perfil Actualizado!",
                 description: "Tus cambios han sido guardados exitosamente.",
             });
+            // Update the preview URL with the new one from the server if it exists
+            if (data?.avatar_url) {
+                setPreviewUrl(data.avatar_url);
+            }
         }
     };
 
@@ -204,6 +214,7 @@ export default function ProfilePage() {
                                 <Input 
                                     ref={fileInputRef} 
                                     type="file" 
+                                    name="profileImage"
                                     className="hidden" 
                                     accept="image/png, image/jpeg, image/webp"
                                     onChange={handleProfileImageChange}
@@ -330,3 +341,5 @@ export default function ProfilePage() {
         </form>
     );
 }
+
+    

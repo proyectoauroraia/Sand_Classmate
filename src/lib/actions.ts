@@ -540,30 +540,43 @@ export async function updateUserProfileAction(
     if (!fullName || fullName.trim().length === 0) {
         return { data: null, error: 'El nombre completo es requerido.'};
     }
+    
+    const profileImageFile = formData.get('profileImage') as File | null;
+    let avatarUrl = user.user_metadata.avatar_url;
+
+    if (profileImageFile && profileImageFile.size > 0) {
+        const fileExt = profileImageFile.name.split('.').pop();
+        const filePath = `${user.id}/${Math.random()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(filePath, profileImageFile);
+
+        if (uploadError) {
+            throw new Error(`Error al subir el avatar: ${uploadError.message}`);
+        }
+
+        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+        avatarUrl = urlData.publicUrl;
+
+        // Update user metadata in Supabase Auth
+        const { error: userUpdateError } = await supabase.auth.updateUser({
+            data: { avatar_url: avatarUrl }
+        });
+
+        if (userUpdateError) {
+            throw new Error(`Error al actualizar metadatos del usuario: ${userUpdateError.message}`);
+        }
+    }
+
 
     const profileData: Partial<UserProfile> = {
       fullName,
       role: formData.get('role') as string,
       city: formData.get('city') as string,
       bio: formData.get('bio') as string,
+      avatar_url: avatarUrl
     };
-    
-    const cvFile = formData.get('cvFile') as File | null;
-    if (cvFile && cvFile.size > 0) {
-      // NOTE: In a real application, you would upload this file to Supabase Storage
-      // and save the URL in the 'cvUrl' field of the profile.
-      // For this step, we are just validating it.
-      const maxSize = 10 * 1024 * 1024; // 10MB
-      const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-
-      if (cvFile.size > maxSize) {
-        return { data: null, error: 'El archivo CV no debe superar los 10MB.' };
-      }
-      if (!allowedTypes.includes(cvFile.type)) {
-        return { data: null, error: 'Solo se permiten archivos PDF y DOCX para el CV.' };
-      }
-      console.log(`CV Validado: ${cvFile.name}, tamaño: ${cvFile.size} bytes`);
-    }
 
     const { data, error } = await supabase
       .from('profiles')
@@ -575,7 +588,6 @@ export async function updateUserProfileAction(
       .single();
 
     if (error) {
-      // Provide a more specific error message for RLS issues.
       if (error.message.includes('permission denied')) {
         throw new Error('Error de permisos. Asegúrate de que las políticas de RLS en Supabase permiten la operación de UPSERT.');
       }
@@ -612,3 +624,5 @@ export async function analyzeCvAction(
     return { data: null, error: `Falló el análisis del CV: ${errorMessage}` };
   }
 }
+
+    

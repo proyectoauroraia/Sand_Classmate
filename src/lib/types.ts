@@ -52,6 +52,7 @@ export type UserProfile = {
     city?: string;
     bio?: string;
     cvUrl?: string;
+    avatar_url?: string;
 };
 
 export type CvAnalysisResult = {
@@ -82,3 +83,5 @@ export type WebpayCommitResult = {
     installments_amount?: number;
     error_message?: string;
 };
+
+    
