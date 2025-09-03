@@ -45,9 +45,9 @@ export default function PricingPage() {
 
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-full relative overflow-hidden">
+        <div className="flex flex-col items-center justify-center min-h-full relative overflow-hidden p-4">
             <DuneBackground />
-            <div className="text-center max-w-2xl mx-auto z-10 p-4 md:p-6 lg:p-8">
+            <div className="text-center max-w-2xl mx-auto z-10 pt-4 md:pt-6 lg:pt-8">
                 <h1 
                     className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground"
                     style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
@@ -59,7 +59,7 @@ export default function PricingPage() {
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full max-w-6xl z-10 px-4 md:px-6 lg:px-8 pb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full max-w-6xl z-10 px-4 md:px-6 lg:px-8 py-8">
                 {/* Free Plan */}
                 <Card className="flex flex-col rounded-xl bg-card/80 backdrop-blur-sm border-border/20 shadow-lg">
                     <CardHeader className="pb-4">

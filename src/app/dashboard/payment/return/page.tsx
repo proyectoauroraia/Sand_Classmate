@@ -141,8 +141,10 @@ function PaymentReturnContent() {
 export default function PaymentReturnPage() {
     return (
         // Suspense boundary is required to use useSearchParams in a client component
-        <React.Suspense fallback={<div>Cargando...</div>}>
-            <PaymentReturnContent />
-        </React.Suspense>
+        <div className="relative min-h-screen w-full overflow-hidden">
+            <React.Suspense fallback={<div className="flex min-h-screen w-full items-center justify-center">Cargando...</div>}>
+                <PaymentReturnContent />
+            </React.Suspense>
+        </div>
     );
 }
