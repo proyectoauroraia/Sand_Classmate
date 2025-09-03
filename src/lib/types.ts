@@ -5,10 +5,6 @@ export type AnalysisResult = {
   keyConcepts: string[];
   subjectArea: string;
   
-  coherenceAnalysis: string;
-  strengths: string[];
-  recommendations: string[];
-
   courseStructure?: {
     title: string;
     learningObjectives: string[];

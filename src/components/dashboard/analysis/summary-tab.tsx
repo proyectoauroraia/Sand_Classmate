@@ -3,10 +3,9 @@
 
 import * as React from 'react';
 import type { AnalysisResult } from '@/lib/types';
-import { Calendar, BookCopy, Info, CheckCircle2, GitCommit, Youtube, Link as LinkIcon, Lightbulb, GraduationCap } from 'lucide-react';
+import { BookCopy, Info, Youtube, Link as LinkIcon, GraduationCap } from 'lucide-react';
 import type { MaterialStatus } from './analysis-display';
 import { GenerationButton } from './generation-button';
-import Link from 'next/link';
 
 interface SummaryTabProps {
     analysisResult: AnalysisResult;
@@ -41,54 +40,32 @@ export const SummaryTab: React.FC<SummaryTabProps> = React.memo(({
 }) => {
     return (
         <div className="space-y-6 pt-4">
-            <InfoCard title="Resumen del Documento" icon={Info}>
-                <p className="text-muted-foreground">{analysisResult.summary}</p>
-            </InfoCard>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="lg:col-span-2">
+                    <InfoCard title="Resumen del Documento" icon={Info}>
+                        <p className="text-muted-foreground">{analysisResult.summary}</p>
+                    </InfoCard>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                
-                <InfoCard title="Conceptos Clave" icon={BookCopy}>
-                    {analysisResult.keyConcepts && analysisResult.keyConcepts.length > 0 ? (
-                        <div className="flex flex-wrap gap-2">
-                            {analysisResult.keyConcepts.map((concept, i) => (
-                                <div key={i} className="bg-primary/10 border border-primary/20 text-primary-foreground font-medium px-3 py-1.5 rounded-full text-xs text-center flex items-center justify-center">
-                                    {concept}
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="text-muted-foreground text-sm">No se extrajeron conceptos clave.</p>
-                    )}
-                </InfoCard>
-
-                 <InfoCard title="Análisis de Coherencia" icon={GitCommit}>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{analysisResult.coherenceAnalysis}</p>
-                </InfoCard>
-                 
-                 <InfoCard title="Fortalezas Detectadas" icon={CheckCircle2}>
-                    {analysisResult.strengths && analysisResult.strengths.length > 0 ? (
-                        <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                            {analysisResult.strengths.map((item, i) => <li key={i}>{item}</li>)}
-                        </ul>
-                    ) : (
-                        <p className="text-muted-foreground text-sm">No se detectaron fortalezas específicas.</p>
-                    )}
-                </InfoCard>
-                
-                 <InfoCard title="Recomendaciones de Mejora" icon={GraduationCap}>
-                     {analysisResult.recommendations && analysisResult.recommendations.length > 0 ? (
-                        <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                            {analysisResult.recommendations.map((item, i) => <li key={i}>{item}</li>)}
-                        </ul>
-                     ) : (
-                        <p className="text-muted-foreground text-sm">No hay recomendaciones de mejora por ahora.</p>
-                     )}
-                </InfoCard>
-
+                <div className="lg:col-span-2">
+                     <InfoCard title="Conceptos Clave" icon={BookCopy}>
+                        {analysisResult.keyConcepts && analysisResult.keyConcepts.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                                {analysisResult.keyConcepts.map((concept, i) => (
+                                    <div key={i} className="bg-primary/10 border border-primary/20 text-primary-foreground font-medium px-3 py-1.5 rounded-full text-xs text-center flex items-center justify-center">
+                                        {concept}
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-muted-foreground text-sm">No se extrajeron conceptos clave.</p>
+                        )}
+                    </InfoCard>
+                </div>
             </div>
 
-             <InfoCard title="Recursos Adicionales" icon={Lightbulb}>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <InfoCard title="Recursos Adicionales Sugeridos" icon={GraduationCap}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div>
                         <h4 className="font-semibold text-card-foreground mb-2 flex items-center gap-2"><LinkIcon className="h-4 w-4" /> Enlaces de Interés</h4>
                         <div className="space-y-2">

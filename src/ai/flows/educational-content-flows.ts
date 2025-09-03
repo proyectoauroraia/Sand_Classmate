@@ -48,10 +48,6 @@ const AnalyzeContentOutputSchema = z.object({
     .string()
     .describe('The subject area or field of study identified from the document.'),
   
-  coherenceAnalysis: z.string().describe("Critical analysis on the coherence between learning outcomes, planning, and evaluation methods found in the document."),
-  strengths: z.array(z.string()).describe("A list of strengths found in the provided document's pedagogical structure or content."),
-  recommendations: z.array(z.string()).describe("A list of actionable recommendations to improve the document."),
-
   courseStructure: z.array(UnitSchema).describe("A list of the course units or modules, each with its own title and learning objectives.").optional(),
   assessments: z.array(AssessmentSchema).describe("A list of the course assessments, including type, description, and feedback/learning outcome.").optional(),
   
@@ -73,7 +69,7 @@ export async function analyzeAndEnrichContent(
       name: 'contentAnalysisPrompt',
       input: { schema: AnalyzeContentInputSchema },
       output: { schema: AnalyzeContentOutputSchema },
-      prompt: `You are an expert university pedagogy assistant. Your task is to perform a deep, critical, and structured analysis of the provided educational document (syllabus, exam, course plan, etc.). Your analysis must be coherent, constructive, and based on pedagogical principles like Bloom's Taxonomy.
+      prompt: `You are an expert university pedagogy assistant. Your task is to perform a structured analysis of the provided educational document (syllabus, exam, course plan, etc.). Your analysis must be coherent, constructive, and focused on extracting key information and providing enrichment.
 
       IMPORTANT: All generated text, summaries, titles, and descriptions MUST be in Spanish. All generated URLs must be valid, well-formed (starting with https://), and directly related to the content. Do not include spaces within URLs.
 
@@ -87,17 +83,12 @@ export async function analyzeAndEnrichContent(
           *   **Key Concepts:** List the most critical keywords and concepts.
           *   **Course Structure & Assessments:** Identify units, learning objectives, and assessments as defined in the schema. For each unit, you MUST break it down into a list of individual, specific class topics. For example, a unit on "Cell Biology" might have classes on "The Cell Membrane", "Mitochondria and Energy", and "Protein Synthesis". If no structure is found, return an empty array for 'courseStructure'. If no assessments are found, return an empty array for 'assessments'.
 
-      2.  **Critical Pedagogical Analysis:**
-          *   **Coherence Analysis:** Critically evaluate the alignment between the stated **Learning Outcomes** (or general learning goals) and the **Evaluation Methods** (exams, projects). Does the exam truly measure the analytical and application skills mentioned in the plan, or does it only measure memorization? Identify any misalignments.
-          *   **Strengths:** Identify the strong points of the document. (e.g., "Variedad de formatos de preguntas", "Cobertura temática amplia", "Lenguaje claro").
-          *   **Actionable Recommendations:** Provide concrete recommendations for improvement based on your analysis. Use a pedagogical framework. (e.g., "Incorporar casos clínicos contextualizados para evaluar análisis y aplicación", "Aumentar el peso de preguntas de desarrollo usando la taxonomía de Bloom para pasar de 'recordar' a 'aplicar' o 'analizar'", "Diseñar una rúbrica explícita para respuestas cortas").
-
-      3.  **Content Enrichment (Instead of Weaknesses):**
+      2.  **Content Enrichment:**
           *   **Links of Interest:** Provide a list of 3-4 high-quality links to articles, academic blogs, or institutional pages relevant to the core subject. Provide a clear title for each link. Ensure each URL is a valid, working link.
           *   **Review Videos:** Find 2-3 relevant, high-quality educational videos on YouTube that explain key concepts from the document. Provide the direct URL and a descriptive title for each. Ensure each URL is a valid, working link.
           *   **Active Methodologies:** Suggest 2-3 active learning methodologies or ICTs (Information and Communication Technologies) that a teacher could use to teach this subject. For each, provide a name (e.g., "Aprendizaje Basado en Proyectos (ABP)", "Gamificación con Kahoot") and a brief, practical description of how it could be applied.
 
-      4.  **Bibliography Analysis:**
+      3.  **Bibliography Analysis:**
           *   List any bibliography mentioned in the document.
           *   Provide a minimum of 5 **highly relevant, modern recommended bibliographic sources** not mentioned in the document. **These recommendations must be in Spanish**. Prioritize academic sources from the last 5 years (e.g., Scielo, PubMed, Scopus, university books). Each reference MUST be formatted in **APA 7th Edition style**. If no bibliography is mentioned or can be recommended, return an empty object for 'bibliography'.
 
@@ -115,13 +106,9 @@ const GenerateMaterialInputSchema = z.object({
         summary: z.string(),
         keyConcepts: z.array(z.string()),
         subjectArea: z.string(),
-        coherenceAnalysis: z.string(),
-        strengths: z.array(z.string()),
-        recommendations: z.array(z.string()),
         courseStructure: z.array(UnitSchema).optional(),
         assessments: z.array(AssessmentSchema).optional(),
         bibliography: z.any().optional(),
-        // Weaknesses are removed, so no need to pass them.
     }),
     materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
     // Add context for single-class generation
@@ -209,8 +196,7 @@ Como experto en diseño curricular y pedagogía universitaria, este material ha 
 
 **1. ¿Cómo se construyó este material?**
 
-Este recurso se desarrolló aplicando directamente las recomendaciones del análisis pedagógico previo y las "Sugerencias de Buenas Prácticas" incluidas. Se ha enfocado en:
-*   **Conexión Directa con el Análisis:** El diseño de este material responde a las debilidades y fortalezas detectadas en el documento original. Por ejemplo, si se recomendó "incorporar casos clínicos", este material los incluye para pasar de la memorización a la aplicación práctica.
+Este recurso se desarrolló aplicando directamente las "Sugerencias de Buenas Prácticas" incluidas. Se ha enfocado en:
 *   **Jerarquía Cognitiva (Taxonomía de Bloom):** Se han formulado actividades y preguntas que buscan elevar el nivel cognitivo, transitando desde el simple "recordar" hacia "analizar", "aplicar" o "evaluar", en línea con las demandas de la formación universitaria actual.
 *   **Enfoque en Competencias:** El diseño prioriza la evaluación de competencias y habilidades prácticas sobre la mera repetición de contenido.
 
@@ -254,10 +240,9 @@ const MaterialPrompts = {
         
         **FIRST**, you MUST include the complete "Good Practices for University Exams" guide at the beginning of the document. This is a static, foundational text.
         
-        **SECOND**, after the guide, you will create a new section titled "# Modelo de Examen Mejorado (Basado en Análisis)".
+        **SECOND**, after the guide, you will create a new section titled "# Modelo de Examen Mejorado".
         
         **THIRD**, under this new title, you will generate an improved sample test.
-        - **Crucially, use the 'recommendations' from the analysis to build a better exam.** For example, if the analysis recommended using clinical cases, you MUST incorporate clinical cases. If it recommended moving up Bloom's taxonomy, your questions must require application or analysis, not just memorization.
         - Use H2 (##) to title each section (e.g., "## Caso Clínico 1", "## Preguntas de Aplicación").
         - Use H3 (###) for each question, indicating its type (e.g., "### 1. Pregunta de Análisis (Selección Múltiple)").
         - For multiple-choice questions, list options with a bullet point (*) and mark the correct one with "(Correcta)".
@@ -311,8 +296,6 @@ export async function generateMaterialFromAnalysis(
     **Subject Area:** ${analysisResult.subjectArea}
     **Course Summary:** ${analysisResult.summary}
     **Key Concepts:** ${analysisResult.keyConcepts?.join(', ')}
-    **Coherence Analysis:** ${analysisResult.coherenceAnalysis}
-    **Improvement Recommendations:** ${analysisResult.recommendations?.join(', ')}
     
     **Your Specific Task:**
     Based on all the data above, generate content for the following material: **${materialType}**.

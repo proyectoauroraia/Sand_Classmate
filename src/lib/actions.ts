@@ -35,9 +35,6 @@ const GenerateMaterialInputSchema = z.object({
         summary: z.string().optional(),
         keyConcepts: z.array(z.string()).optional(),
         subjectArea: z.string(),
-        coherenceAnalysis: z.string().optional(),
-        strengths: z.array(z.string()).optional(),
-        recommendations: z.array(z.string()).optional(),
         courseStructure: z.array(UnitSchema).optional(),
         assessments: z.array(z.object({
           type: z.string(),
