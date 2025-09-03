@@ -1,24 +1,107 @@
-Estoy desarrollando una aplicación web con Next.js (usando el App Router) y Supabase para la autenticación. El flujo de autenticación deseado es que un usuario pueda iniciar sesión con su cuenta de Google.
+# Sand Classmate - Documentación Técnica
 
-Problema Central: Se produce un bucle de redirección infinito después de que un usuario se autentica correctamente con Google. El flujo es el siguiente:
+Bienvenido a la documentación para desarrolladores de Sand Classmate. Este documento proporciona una visión general de la arquitectura de la aplicación, las tecnologías utilizadas y los flujos de trabajo clave.
 
-El usuario hace clic en "Iniciar sesión con Google" en la página de inicio (/).
-Es redirigido a la página de autenticación de Google y elige su cuenta.
-Google lo redirige de vuelta a la aplicación, a la ruta de callback (/auth/callback).
-La ruta de callback procesa la sesión correctamente y redirige al usuario al panel de control (/dashboard).
-Inmediatamente al llegar a /dashboard, el usuario es redirigido de vuelta a la página de inicio (/), quedando atrapado en un bucle que le impide acceder a las rutas protegidas.
-Diagnóstico del Problema: La causa raíz parece ser una condición de carrera (race condition) en el componente src/app/dashboard/layout.tsx, que actúa como el guardián de las rutas protegidas. El código del lado del cliente en este layout comprueba el estado de la sesión del usuario antes de que el cliente de Supabase en el navegador haya tenido tiempo de sincronizarse y reconocer la sesión que el servidor acaba de crear. Como resultado, por una fracción de segundo, el layout cree que el usuario no está autenticado y lo redirige preventivamente a la página de inicio.
+## 1. Descripción General del Proyecto
 
-Revisión de la Configuración de Supabase y Google Cloud: Se verificó que las credenciales del cliente OAuth, los orígenes de JavaScript autorizados (http://localhost:3000) y las URIs de redireccionamiento (https://<ID-PROYECTO>.supabase.co/auth/v1/callback) estuvieran correctamente configuradas. Aunque necesarias, estas configuraciones no solucionaron el bucle.
+Sand Classmate es una aplicación web diseñada para docentes universitarios. Su función principal es utilizar IA generativa (Google Gemini a través de Genkit) para analizar documentos académicos (como programas de curso o apuntes) y, a partir de ese análisis, generar materiales educativos de alta calidad como presentaciones de PowerPoint, guías de trabajo y modelos de examen.
 
-Implementación de un Estado de Carga (Loading State): Se añadió un estado loading al DashboardLayout con la intención de mostrar una pantalla de carga y evitar la redirección mientras se obtenía la sesión con supabase.auth.getSession(). Fracasó porque la lógica para gestionar la transición entre el estado de carga y el estado de usuario autenticado seguía siendo susceptible a la condición de carrera.
+El objetivo es actuar como un asistente pedagógico inteligente, optimizando el tiempo del docente y mejorando la calidad de los recursos educativos.
 
-Uso del Listener onAuthStateChange: Se refactorizó el useEffect en DashboardLayout para usar el listener onAuthStateChange de Supabase. La idea era reaccionar a los cambios de sesión en lugar de comprobar activamente. Fracasó porque la implementación aún contenía una lógica de redirección agresiva que se disparaba si el usuario no se detectaba de inmediato en la carga inicial, sin esperar a que el listener confirmara la sesión.
+## 2. Stack Tecnológico
 
-Ajustes en la URL de Callback: Se modificaron las URLs de redirección en el código para usar 127.0.0.1 en lugar de localhost para descartar problemas de cookies entre dominios en el entorno de desarrollo. Esto solucionó errores previos de flow_state_not_found pero no el bucle principal.
+La aplicación está construida sobre un stack moderno de JavaScript:
 
-En resumen, a pesar de múltiples intentos centrados en refactorizar la lógica de protección de rutas en src/app/dashboard/layout.tsx, el problema fundamental de la condición de carrera persiste. La aplicación sigue redirigiendo al usuario al login antes de que la sesión se confirme de manera fiable en el navegador.# Firebase Studio
+- **Framework Frontend:** [Next.js](https://nextjs.org/) (con App Router y Server Components)
+- **Lenguaje:** [TypeScript](https://www.typescriptlang.org/)
+- **Estilos:** [Tailwind CSS](https://tailwindcss.com/)
+- **Componentes UI:** [ShadCN/UI](https://ui.shadcn.com/)
+- **Backend y Autenticación:** [Supabase](https://supabase.com/) (PostgreSQL, Auth, Storage)
+- **Inteligencia Artificial:** [Firebase Genkit](https://firebase.google.com/docs/genkit) (con modelos de Google Gemini)
+- **Formularios:** [React Hook Form](https://react-hook-form.com/) y [Zod](https://zod.dev/) para validación.
 
-This is a NextJS starter in Firebase Studio.
+## 3. Estructura de Archivos Clave
 
-To get started, take a look at src/app/page.tsx.
+El proyecto sigue la estructura estándar de una aplicación Next.js con el App Router:
+
+```
+/src
+├── app/                  # Rutas principales de la aplicación (App Router)
+│   ├── (auth)/           # Rutas de autenticación (callback, etc.)
+│   ├── dashboard/        # Rutas protegidas (perfil, historial, etc.)
+│   ├── layout.tsx        # Layout raíz
+│   └── page.tsx          # Página de inicio y dashboard principal
+├── ai/                   # Lógica de Inteligencia Artificial con Genkit
+│   ├── flows/            # Define los flujos de Genkit para análisis y generación
+│   └── genkit.ts         # Configuración e inicialización de Genkit
+├── components/           # Componentes de React reutilizables
+│   ├── auth/             # Componentes para inicio de sesión y registro
+│   ├── dashboard/        # Componentes específicos del dashboard
+│   └── ui/               # Componentes de ShadCN (Botones, Cards, etc.)
+├── lib/                  # Lógica de soporte, acciones y tipos
+│   ├── actions.ts        # Server Actions de Next.js
+│   ├── supabase/         # Clientes de Supabase (client, server, middleware)
+│   ├── types.ts          # Definiciones de tipos de TypeScript
+│   └── utils.ts          # Funciones de utilidad (ej. cn para Tailwind)
+└── hooks/                # Hooks personalizados de React (ej. useToast)
+```
+
+## 4. Flujos de Trabajo Principales
+
+### 4.1. Autenticación con Supabase
+
+- El flujo de autenticación (inicio de sesión, registro) se gestiona a través del cliente de Supabase (`@supabase/ssr` y `@supabase/auth-helpers-nextjs`).
+- **Middleware (`src/lib/supabase/middleware.ts`):** Refresca la sesión del usuario en cada petición al servidor, manteniendo al usuario autenticado.
+- **Seguridad (RLS):** La base de datos utiliza Row Level Security (RLS) en la tabla `profiles` para asegurar que un usuario solo pueda leer y modificar su propia información. Se utiliza un *trigger* en la base de datos para crear un perfil automáticamente cuando un nuevo usuario se registra.
+
+### 4.2. Flujo de Análisis de Documentos
+
+1.  **Carga del Archivo (`FileUploader`):** El usuario sube un archivo (PDF o DOCX) en el cliente.
+2.  **Conversión a Data URI:** El archivo se convierte a un `data URI` (Base64) en el navegador.
+3.  **Llamada a la Server Action (`analyzeContentAction`):** Se invoca una Server Action, pasando el `data URI`.
+4.  **Ejecución del Flujo de Genkit (`analyzeAndEnrichContent`):** La Server Action llama al flujo de Genkit. Este flujo envía el documento al modelo de IA (Gemini) con un *prompt* diseñado para analizar el contenido desde una perspectiva pedagógica.
+5.  **Respuesta Estructurada:** La IA devuelve una respuesta en formato JSON estructurado (`AnalysisResult`).
+6.  **Visualización en el Cliente (`AnalysisDisplay`):** El resultado se muestra al usuario en el cliente, dividido en pestañas para facilitar la visualización.
+
+### 4.3. Flujo de Generación de Materiales
+
+1.  **Interacción del Usuario (`GenerationButton`):** El usuario hace clic en un botón para generar un material específico (ej. "Generar Presentación").
+2.  **Llamada a la Server Action (`generateMaterialsActionFromAnalysis`):** Se pasa el resultado del análisis previo, el tipo de material deseado y el formato (`docx`, `pdf`, `pptx`).
+3.  **Ejecución del Flujo de Genkit (`generateMaterialFromAnalysis`):** La acción llama a un segundo flujo de Genkit. Este flujo utiliza el análisis y el perfil pedagógico del usuario para generar el contenido del material en formato Markdown.
+4.  **Conversión de Formato:** La Server Action recibe el Markdown y utiliza librerías (`pptxgenjs`, `docx`, `pdf-lib`) para convertirlo al formato de archivo final solicitado.
+5.  **Descarga en el Cliente:** La acción devuelve el archivo final como un `data URI`, que se utiliza para iniciar la descarga en el navegador del usuario.
+
+## 5. Configuración del Entorno de Desarrollo
+
+Para ejecutar este proyecto localmente, un nuevo desarrollador debe seguir estos pasos:
+
+1.  **Clonar el repositorio.**
+2.  **Instalar las dependencias:**
+    ```bash
+    npm install
+    ```
+3.  **Configurar las variables de entorno:**
+    - Crear un archivo `.env.local` en la raíz del proyecto.
+    - Añadir las siguientes variables, reemplazando los valores con las credenciales correspondientes:
+      ```env
+      # Credenciales de Supabase (se encuentran en Project Settings > API)
+      NEXT_PUBLIC_SUPABASE_URL=https://<id-proyecto>.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY=<tu-llave-anon>
+
+      # Clave de API para el modelo de Google Gemini
+      GEMINI_API_KEY=<tu-llave-de-api-de-gemini>
+      
+      # URL base de la aplicación (para desarrollo)
+      NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
+      # Credenciales de Webpay (opcional, para pasarela de pago)
+      WEBPAY_PLUS_COMMERCE_CODE=...
+      WEBPAY_PLUS_API_KEY=...
+      ```
+
+4.  **Ejecutar el proyecto en modo de desarrollo:**
+    ```bash
+    npm run dev
+    ```
+
+La aplicación estará disponible en `http://localhost:3000`.
