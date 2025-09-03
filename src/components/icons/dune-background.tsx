@@ -8,10 +8,16 @@ export function DuneBackground() {
       }}
     >
       <svg
-        className="col-start-1 row-start-1 w-full h-full"
+        className="col-start-1 row-start-1 h-full w-full"
         xmlns="http://www.w3.org/2000/svg"
         preserveAspectRatio="xMidYMid slice"
         viewBox="0 0 1440 800"
+        width="100%"
+        height="100%"
+        style={{
+          display: 'block',
+          maxWidth: '100vw',
+        }}
       >
         <defs>
           <linearGradient id="dune1" x1="50%" y1="0%" x2="50%" y2="100%">
