@@ -71,17 +71,6 @@ export const StructureTab: React.FC<StructureTabProps> = React.memo(({
                         </AccordionItem>
                     ))}
                 </Accordion>
-                <div className="border-t border-border pt-6 mt-6">
-                    <GenerationButton
-                        title="Generar Presentación Completa"
-                        materialType="powerpointPresentation"
-                        icon="presentation"
-                        analysisResult={analysisResult}
-                        status={statuses.powerpointPresentation}
-                        setStatus={(s) => setStatuses(p => ({...p, powerpointPresentation: s}))}
-                        isAnyTaskRunning={isAnyTaskRunning}
-                    />
-                </div>
             </div>
         </div>
     );
