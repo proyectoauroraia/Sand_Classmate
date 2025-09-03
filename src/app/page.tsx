@@ -34,7 +34,8 @@ export default function HomePage() {
     const handleAnalysisComplete = (result: AnalysisResult | null) => {
         if (result) {
             setAnalysisResult(result);
-            // Save to history
+            
+            // This logic will now run only on the client side
             try {
                 const newHistoryItem: HistoryItem = {
                     id: `analysis_${new Date().toISOString()}`,

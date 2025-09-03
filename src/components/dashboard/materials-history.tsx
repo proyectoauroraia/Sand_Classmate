@@ -36,8 +36,10 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
     const [courseFilter, setCourseFilter] = useState('');
 
     const [uniqueCareers, setUniqueCareers] = useState<string[]>([]);
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
+        setIsClient(true);
       try {
         const storedHistory = localStorage.getItem('sand_classmate_history');
         if (storedHistory) {
@@ -66,6 +68,19 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
         setFilteredItems(items);
 
     }, [careerFilter, courseFilter, historyItems]);
+    
+    if (!isClient) {
+        return (
+            <Card className="h-full flex flex-col">
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle className="text-xl md:text-2xl font-bold tracking-tight">Mis Cursos Guardados</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0 flex-grow flex flex-col justify-center items-center">
+                    <p className="text-muted-foreground">Cargando historial...</p>
+                </CardContent>
+            </Card>
+        );
+    }
 
     const displayedHistory = isFullPage ? filteredItems : filteredItems.slice(0, ITEMS_PER_PAGE);
 
