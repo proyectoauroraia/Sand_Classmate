@@ -4,7 +4,7 @@ export function DuneBackground() {
     <svg
       className="absolute inset-0 w-full h-full object-cover -z-10"
       xmlns="http://www.w3.org/2000/svg"
-      preserveAspectRatio="none"
+      preserveAspectRatio="xMidYMid slice"
       viewBox="0 0 1440 800"
     >
       <defs>
