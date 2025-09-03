@@ -82,7 +82,7 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
                     displayedHistory.map((item, index) => (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium py-4">
-                            {item.fileName}
+                            {item.courseName}
                         </TableCell>
                         {isFullPage && <TableCell className="hidden md:table-cell">{item.date}</TableCell>}
                         <TableCell className="text-center">

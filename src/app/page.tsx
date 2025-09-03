@@ -38,7 +38,7 @@ export default function HomePage() {
             try {
                 const newHistoryItem: HistoryItem = {
                     id: `analysis_${new Date().toISOString()}`,
-                    fileName: result.courseName, // Use the correct course name field
+                    courseName: result.courseName, // Use the correct course name field
                     date: new Date().toLocaleDateString('es-CL'),
                     status: 'Completado',
                     analysis: result,

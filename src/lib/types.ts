@@ -39,7 +39,7 @@ export type GeneratedMaterials = {
 
 export type HistoryItem = {
     id: string;
-    fileName:string;
+    courseName:string;
     date: string;
     status: 'Completado' | 'Procesando' | 'Fallido';
     analysis: AnalysisResult;
