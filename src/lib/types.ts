@@ -34,7 +34,7 @@ export type AnalysisResult = {
 }
 
 export type GeneratedMaterials = {
-  powerpointPresentation: string;
+  powerpointPresentation: string; // This will now represent the markdown content for the preview
   workGuide: string;
   exampleTests: string;
   interactiveReviewPdf: string;

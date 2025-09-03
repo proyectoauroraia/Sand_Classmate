@@ -289,35 +289,55 @@ async function createStyledPptx(markdownContent: string): Promise<string> {
 
     const slidesContent = markdownContent.split('\n## ');
     
-    const titleText = slidesContent[0]?.replace('# ', '').trim() || 'Presentación';
+    let titleText = 'Presentación';
+    let contentStartIndex = 0;
+
+    // The first part can be the title slide (starts with #)
+    if (slidesContent[0] && slidesContent[0].startsWith('# ')) {
+        const firstSlideParts = slidesContent[0].split('\n');
+        titleText = firstSlideParts[0].replace('# ', '').trim();
+        contentStartIndex = 1;
+    }
+
     // Title Slide
     const titleSlide = pres.addSlide({ masterName: 'MASTER_SLIDE' });
     titleSlide.addText(titleText, {
-        x: 0.5, y: 1.5, w: 9, h: 1.5, fontSize: 48, bold: true, align: 'center', color: '5A3D2B' // Dark brown/terracotta
+        x: 0.5, y: 1.5, w: 9, h: 1.5, fontSize: 48, bold: true, align: 'center', color: '5A3D2B'
     });
-     titleSlide.addText('Material de curso generado por Sand Classmate', {
-        x: 0.5, y: 2.8, w: 9, h: 1, fontSize: 20, align: 'center', color: '6B4F3A' // Muted brown
+    titleSlide.addText('Material de curso generado por Sand Classmate', {
+        x: 0.5, y: 2.8, w: 9, h: 1, fontSize: 20, align: 'center', color: '6B4F3A'
     });
 
-    if (slidesContent.length > 1) {
-        // Content slides
-        slidesContent.slice(1).forEach((slideContent) => {
-            const slide = pres.addSlide({ masterName: 'MASTER_SLIDE' });
-            const [title, ...contentPoints] = slideContent.split('\n').map(l => l.trim()).filter(line => line);
-
-            slide.addText(title.replace('## ', ''), {
-                x: 0.5, y: 0.25, w: '90%', h: 0.75, fontSize: 32, bold: true, color: '5A3D2B',
+    // Handle the content of the title slide if it exists
+    if (contentStartIndex === 1) {
+        const titleSlideContent = slidesContent[0].split('\n').slice(1).map(l => l.replace(/^\* /, '').trim()).filter(Boolean);
+        if (titleSlideContent.length > 0) {
+             titleSlide.addText(titleSlideContent.join('\n'), {
+                x: 0.75, y: 4.0, w: '85%', h: 1.5, fontSize: 18, color: '3C2A1E', bullet: true
             });
-            
-            const content = contentPoints.map(point => point.replace(/^\* /, '').trim());
-
-            if (content.length > 0) {
-                slide.addText(content.join('\n'), {
-                    x: 0.75, y: 1.5, w: '85%', h: 3.75, fontSize: 20, color: '3C2A1E', bullet: true,
-                });
-            }
-        });
+        }
     }
+
+
+    // Content slides
+    slidesContent.slice(contentStartIndex).forEach((slideContent) => {
+        const slide = pres.addSlide({ masterName: 'MASTER_SLIDE' });
+        const lines = slideContent.split('\n').map(l => l.trim()).filter(Boolean);
+        const title = lines[0] || '';
+        const contentPoints = lines.slice(1);
+
+        slide.addText(title.replace(/^##\s*/, ''), {
+            x: 0.5, y: 0.25, w: '90%', h: 0.75, fontSize: 32, bold: true, color: '5A3D2B',
+        });
+        
+        const content = contentPoints.map(point => point.replace(/^\* /, '').trim());
+
+        if (content.length > 0) {
+            slide.addText(content.join('\n'), {
+                x: 0.75, y: 1.5, w: '85%', h: 3.75, fontSize: 20, color: '3C2A1E', bullet: true,
+            });
+        }
+    });
 
     const pptxBase64 = await pres.write('base64');
     return `data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,${pptxBase64}`;
@@ -349,7 +369,7 @@ export async function analyzeContentAction(
 
 export async function generateMaterialsActionFromAnalysis(
   analysisResult: AnalysisResult,
-  materialType: keyof GeneratedMaterials,
+  materialType: keyof GeneratedMaterials | 'powerpointPresentation',
   format: 'docx' | 'pdf' | 'pptx',
   classContext?: { unitTitle: string; classTopic: string }
 ): Promise<{ data: string | null; error: string | null }> {
@@ -371,19 +391,22 @@ export async function generateMaterialsActionFromAnalysis(
             throw new Error('Sand Classmate no pudo generar contenido para este material. Por favor, inténtalo de nuevo o con un documento diferente.');
         }
 
+        // For presentations, we now only return the markdown content.
+        // The final PPTX generation happens in a separate action after user edits.
+        if (materialType === 'powerpointPresentation') {
+            return { data: markdownContent, error: null };
+        }
+
         let fileDataUri: string;
         
         const titleMap = {
             workGuide: 'Guía de Trabajo',
             exampleTests: 'Examen de Ejemplo',
             interactiveReviewPdf: 'Repaso Interactivo',
-            powerpointPresentation: classContext?.classTopic || analysisResult.subjectArea || 'Presentación'
         };
-        const title = titleMap[materialType];
+        const title = titleMap[materialType as keyof typeof titleMap];
 
-        if (materialType === 'powerpointPresentation') {
-            fileDataUri = await createStyledPptx(markdownContent);
-        } else if (format === 'docx') {
+        if (format === 'docx') {
             fileDataUri = await createStyledDocx(title, markdownContent);
         } else { // pdf
             fileDataUri = await createStyledPdf(title, markdownContent);
@@ -395,6 +418,23 @@ export async function generateMaterialsActionFromAnalysis(
         console.error("Generate Material Error:", e);
         const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
         return { data: null, error: `Falló la generación del material: ${errorMessage}` };
+    }
+}
+
+export async function createPptxAction(
+    markdownContent: string
+): Promise<{ data: string | null; error: string | null }> {
+    try {
+        if (!markdownContent || typeof markdownContent !== 'string') {
+            throw new Error('Contenido de la presentación no es válido.');
+        }
+        const fileDataUri = await createStyledPptx(markdownContent);
+        return { data: fileDataUri, error: null };
+
+    } catch(e) {
+        console.error("Create PPTX Error:", e);
+        const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
+        return { data: null, error: `Falló la creación del PPTX: ${errorMessage}` };
     }
 }
 
@@ -565,5 +605,3 @@ export async function analyzeCvAction(
     return { data: null, error: `Falló el análisis del CV: ${errorMessage}` };
   }
 }
-
-    

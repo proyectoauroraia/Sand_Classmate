@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle2, Presentation, FileText, ClipboardCheck, Lightbulb, Download } from 'lucide-react';
 import type { GeneratedMaterials, AnalysisResult } from '@/lib/types';
-import { generateMaterialsActionFromAnalysis } from '@/lib/actions';
+import { generateMaterialsActionFromAnalysis, createPptxAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { MaterialStatus } from './analysis-display';
 import {
@@ -20,7 +20,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { cn } from '@/lib/utils';
-
+import { PresentationPreview } from './presentation-preview';
 
 const ICONS: Record<string, React.ElementType> = {
     presentation: Presentation,
@@ -34,7 +34,7 @@ type MaterialKey = keyof GeneratedMaterials;
 
 interface GenerationButtonProps {
     title: string;
-    materialType: MaterialKey | 'all';
+    materialType: MaterialKey | 'powerpointPresentation';
     icon: keyof typeof ICONS;
     analysisResult: AnalysisResult;
     status: MaterialStatus;
@@ -57,47 +57,44 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
 }) => {
     const { toast } = useToast();
     const IconComponent = ICONS[icon];
+
+    // State for presentation preview
+    const [showPreview, setShowPreview] = React.useState(false);
+    const [markdownContent, setMarkdownContent] = React.useState<string | null>(null);
     
-    const handleGenerationSubmit = async (format: 'docx' | 'pdf' | 'pptx') => {
+    const handleGenerationSubmit = async (format: 'docx' | 'pdf') => {
         if (!analysisResult) return;
         setStatus('generating');
 
         try {
-            if (materialType === 'all') {
-                // This logic would need to be implemented to generate and zip all files.
-                // For now, we'll just show a success state as a placeholder.
-                console.log("Generating all materials...");
-                await new Promise(res => setTimeout(res, 2000)); // Simulate generation
-            } else {
-                const response = await generateMaterialsActionFromAnalysis(analysisResult, materialType, format, classContext);
-                if (response.error || !response.data) {
-                    throw new Error(response.error || `No se pudo generar el material: ${materialType}`);
-                }
-
-                const link = document.createElement('a');
-                link.href = response.data;
-                
-                 const fileName = classContext 
-                    ? `presentacion_${classContext.classTopic.replace(/\s+/g, '_')}.pptx`
-                    : {
-                        powerpointPresentation: 'presentacion_completa.pptx',
-                        workGuide: `guia_de_trabajo.${format}`,
-                        exampleTests: `examen_de_ejemplo.${format}`,
-                        interactiveReviewPdf: `repaso_interactivo.${format}`
-                    }[materialType] || `material.${format}`;
-
-
-                link.download = fileName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                toast({
-                    title: '¡Material Generado!',
-                    description: `Tu archivo ${link.download} se ha descargado.`,
-                    className: 'bg-green-100 border-green-300 text-green-800'
-                });
+            const response = await generateMaterialsActionFromAnalysis(analysisResult, materialType, format, classContext);
+            if (response.error || !response.data) {
+                throw new Error(response.error || `No se pudo generar el material: ${materialType}`);
             }
+
+            const link = document.createElement('a');
+            link.href = response.data;
+            
+             const fileName = classContext 
+                ? `presentacion_${classContext.classTopic.replace(/\s+/g, '_')}.pptx`
+                : {
+                    powerpointPresentation: 'presentacion_completa.pptx',
+                    workGuide: `guia_de_trabajo.${format}`,
+                    exampleTests: `examen_de_ejemplo.${format}`,
+                    interactiveReviewPdf: `repaso_interactivo.${format}`
+                }[materialType] || `material.${format}`;
+
+
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            toast({
+                title: '¡Material Generado!',
+                description: `Tu archivo ${link.download} se ha descargado.`,
+                className: 'bg-green-100 border-green-300 text-green-800'
+            });
             setStatus('success');
 
         } catch (e) {
@@ -111,6 +108,70 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
         }
     };
     
+    const handlePresentationGeneration = async () => {
+        if (!analysisResult) return;
+        setStatus('generating');
+        
+        try {
+             // Step 1: Generate only the markdown content
+            const response = await generateMaterialsActionFromAnalysis(analysisResult, 'powerpointPresentation', 'pptx', classContext);
+            if (response.error || !response.data) {
+                throw new Error(response.error || 'No se pudo generar el contenido de la presentación.');
+            }
+            
+            // Step 2: Show the preview modal with the generated content
+            setMarkdownContent(response.data);
+            setShowPreview(true);
+            setStatus('idle'); // Reset status as the main task is done, preview is next step
+
+        } catch(e) {
+            const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error inesperado.';
+            toast({
+                variant: 'destructive',
+                title: 'Error al Preparar la Vista Previa',
+                description: errorMessage,
+            });
+            setStatus('idle');
+        }
+    };
+
+    const handleDownloadPptx = async (finalMarkdown: string) => {
+        setStatus('generating');
+        setShowPreview(false); // Close the modal
+        
+        try {
+            const response = await createPptxAction(finalMarkdown);
+             if (response.error || !response.data) {
+                throw new Error(response.error || 'No se pudo crear el archivo PPTX.');
+            }
+
+            const link = document.createElement('a');
+            link.href = response.data;
+            const fileName = classContext 
+                ? `presentacion_${classContext.classTopic.replace(/\s+/g, '_')}.pptx`
+                : 'presentacion_completa.pptx';
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            toast({
+                title: '¡Presentación Descargada!',
+                description: `Tu archivo ${fileName} se ha descargado.`,
+            });
+            setStatus('success');
+
+        } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error inesperado.';
+            toast({
+                variant: "destructive",
+                title: "Falló la Descarga",
+                description: errorMessage,
+            });
+            setStatus('idle');
+        }
+    }
+
     const isGenerating = status === 'generating';
     const isSuccess = status === 'success';
 
@@ -154,9 +215,19 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
 
      if (materialType === 'powerpointPresentation') {
         return (
-             <div onClick={isAnyTaskRunning || isSuccess ? undefined : () => handleGenerationSubmit('pptx')}>
-                {triggerButton}
-            </div>
+            <>
+                <div onClick={isAnyTaskRunning || isSuccess ? undefined : handlePresentationGeneration}>
+                    {triggerButton}
+                </div>
+                {showPreview && markdownContent && (
+                    <PresentationPreview
+                        initialMarkdown={markdownContent}
+                        onClose={() => setShowPreview(false)}
+                        onDownload={handleDownloadPptx}
+                        isLoading={isGenerating}
+                    />
+                )}
+            </>
         );
     }
 

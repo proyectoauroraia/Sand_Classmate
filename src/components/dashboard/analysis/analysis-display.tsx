@@ -78,17 +78,6 @@ export function AnalysisDisplay({ analysisResult, onReset }: AnalysisDisplayProp
                     <RefreshCw className="mr-2 h-5 w-5" />
                     Analizar Otro Documento
                 </Button>
-                {/* 
-                <GenerationButton
-                    title="Descargar Todo"
-                    materialType="all"
-                    icon="download"
-                    analysisResult={analysisResult}
-                    status={materialStatuses.all || 'idle'}
-                    setStatus={(s) => setMaterialStatuses(p => ({...p, all: s}))}
-                    isAnyTaskRunning={isAnyTaskRunning}
-                /> 
-                */}
             </div>
         </div>
     );
