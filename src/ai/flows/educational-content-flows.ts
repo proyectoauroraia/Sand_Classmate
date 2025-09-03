@@ -85,12 +85,12 @@ export async function analyzeAndEnrichContent(
           *   **Key Concepts:** List the most critical keywords and concepts.
           *   **Course Structure & Assessments:** Identify units, learning objectives, and assessments as defined in the schema. For each unit, you MUST break it down into a list of individual, specific class topics. For example, a unit on "Cell Biology" might have classes on "The Cell Membrane", "Mitochondria and Energy", and "Protein Synthesis". If no structure is found, return an empty array for 'courseStructure'. If no assessments are found, return an empty array for 'assessments'.
 
-      2.  **Content Enrichment:**
-          *   **Links of Interest:** Provide a list of 3-4 high-quality links to articles, academic blogs, or institutional pages relevant to the core subject. Provide a clear title for each link. Ensure each URL is a valid, working link.
-          *   **Review Videos:** Find 2-3 relevant, high-quality educational videos on YouTube that explain key concepts from the document. Provide the direct URL and a descriptive title for each. Ensure each URL is a valid, working link.
+      2.  **Content Enrichment (PREMIUM QUALITY REQUIRED):**
+          *   **Links of Interest:** Provide a list of 3-4 high-quality links to articles, academic blogs, or institutional pages relevant to the core subject. Provide a clear title for each link. Ensure each URL is a valid, working link. The links MUST NOT be generic search results.
+          *   **Review Videos:** Find 2-3 relevant, high-quality educational videos on YouTube that explain key concepts from the document. The videos should be from reputable sources (universities, scientific channels). Provide the direct URL and a descriptive title for each. Ensure each URL is a valid, working link.
           *   **Active Methodologies:** Suggest 2-3 active learning methodologies or ICTs (Information and Communication Technologies) that a teacher could use to teach this subject. For each, provide a name (e.g., "Aprendizaje Basado en Proyectos (ABP)", "Gamificación con Kahoot") and a brief, practical description of how it could be applied.
 
-      3.  **Bibliography Analysis:**
+      3.  **Bibliography Analysis (ACADEMIC RIGOR REQUIRED):**
           *   List any bibliography mentioned in the document.
           *   Provide a minimum of 5 **highly relevant, modern recommended bibliographic sources** not mentioned in the document. **These recommendations must be in Spanish**. Prioritize academic sources from the last 5 years (e.g., Scielo, PubMed, Scopus, university books). Each reference MUST be formatted in **APA 7th Edition style**. If no bibliography is mentioned or can be recommended, return an empty object for 'bibliography'.
 
@@ -325,3 +325,4 @@ export async function generateMaterialFromAnalysis(
     const { output } = await generationPrompt(input);
     return output?.markdownContent || '';
 }
+
