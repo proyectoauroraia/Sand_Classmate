@@ -47,7 +47,9 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
         if (onViewAnalysis) {
             onViewAnalysis(item);
         } else {
-            console.warn("onViewAnalysis handler is not provided on this page.");
+            // Fallback for the full history page where the main page context might not exist
+            // This could redirect to a specific view page in the future
+            console.warn("onViewAnalysis handler is not provided on this page. Consider redirecting to restore state.");
         }
     };
 
@@ -66,15 +68,15 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
               <Table>
                 <TableHeader>
                   <TableRow className="bg-primary/10 rounded-lg">
-                    <TableHead className="text-sm text-foreground font-bold">Nombre del Curso</TableHead>
-                    {isFullPage && <TableHead className="hidden md:table-cell text-sm text-foreground font-bold">Fecha</TableHead>}
+                    <TableHead className="text-sm text-foreground font-bold">Asignatura</TableHead>
+                    {isFullPage && <TableHead className="hidden md:table-cell text-sm text-foreground font-bold">Carrera / Área</TableHead>}
                     <TableHead className="text-center text-sm text-foreground font-bold">Ver Análisis</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {displayedHistory.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={isFullPage ? 3: 2} className="h-24 text-center">
+                      <TableCell colSpan={isFullPage ? 3 : 2} className="h-24 text-center">
                         Aquí aparecerán tus análisis guardados.
                       </TableCell>
                     </TableRow>
@@ -82,10 +84,9 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
                     displayedHistory.map((item, index) => (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium py-4">
-                            {/* Fallback for backward compatibility */}
                             {item.courseName || (item as any).fileName || 'Nombre no disponible'}
                         </TableCell>
-                        {isFullPage && <TableCell className="hidden md:table-cell">{item.date}</TableCell>}
+                        {isFullPage && <TableCell className="hidden md:table-cell text-muted-foreground">{item.subjectArea || 'N/A'}</TableCell>}
                         <TableCell className="text-center">
                           <Button 
                             size="sm" 

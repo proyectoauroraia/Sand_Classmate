@@ -2,9 +2,9 @@
 
 export type AnalysisResult = {
   courseName: string;
+  subjectArea: string;
   summary: string;
   keyConcepts: string[];
-  subjectArea: string;
   
   courseStructure?: {
     title: string;
@@ -40,6 +40,7 @@ export type GeneratedMaterials = {
 export type HistoryItem = {
     id: string;
     courseName: string;
+    subjectArea: string;
     date: string;
     status: 'Completado' | 'Procesando' | 'Fallido';
     analysis: AnalysisResult;
