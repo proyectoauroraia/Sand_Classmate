@@ -2,7 +2,7 @@
 export function DuneBackground() {
   return (
     <svg
-      className="absolute inset-0 w-full h-full object-cover -z-10"
+      className="absolute inset-0 -z-10"
       xmlns="http://www.w3.org/2000/svg"
       preserveAspectRatio="xMidYMid slice"
       viewBox="0 0 1440 800"

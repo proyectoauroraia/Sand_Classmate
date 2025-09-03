@@ -107,9 +107,8 @@ function PaymentReturnContent() {
     const Icon = currentStatus.icon;
 
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center bg-background relative overflow-hidden">
-            <DuneBackground />
-             <div className="w-full max-w-lg z-10 p-4">
+        <main className="flex flex-col items-center justify-center min-h-screen p-4">
+             <div className="w-full max-w-lg z-10">
                 <Card className="shadow-2xl shadow-primary/10">
                     <CardHeader className="text-center items-center">
                         <Icon className={`h-16 w-16 mb-4 ${currentStatus.color} ${currentStatus.spin ? 'animate-spin' : ''}`} />
@@ -140,8 +139,10 @@ function PaymentReturnContent() {
 
 export default function PaymentReturnPage() {
     return (
-        // Suspense boundary is required to use useSearchParams in a client component
+        // The main container needs to be relative and overflow-hidden to contain the background
         <div className="relative min-h-screen w-full overflow-hidden">
+            <DuneBackground />
+             {/* Suspense boundary is required to use useSearchParams in a client component */}
             <React.Suspense fallback={<div className="flex min-h-screen w-full items-center justify-center">Cargando...</div>}>
                 <PaymentReturnContent />
             </React.Suspense>
