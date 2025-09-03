@@ -98,7 +98,7 @@ export const SummaryTab: React.FC<SummaryTabProps> = React.memo(({
                     materialType="workGuide"
                     icon="fileText"
                     analysisResult={analysisResult}
-                    status={statuses.workGuide}
+                    status={statuses.workGuide || 'idle'}
                     setStatus={(s) => setStatuses(p => ({...p, workGuide: s}))}
                     isAnyTaskRunning={isAnyTaskRunning}
                 />
@@ -107,7 +107,7 @@ export const SummaryTab: React.FC<SummaryTabProps> = React.memo(({
                     materialType="interactiveReviewPdf"
                     icon="lightbulb"
                     analysisResult={analysisResult}
-                    status={statuses.interactiveReviewPdf}
+                    status={statuses.interactiveReviewPdf || 'idle'}
                     setStatus={(s) => setStatuses(p => ({...p, interactiveReviewPdf: s}))}
                     isAnyTaskRunning={isAnyTaskRunning}
                 />
