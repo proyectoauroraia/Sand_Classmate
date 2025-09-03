@@ -363,6 +363,9 @@ export async function analyzeContentAction(
   } catch (e) {
     console.error("Analysis Action Error:", e);
     const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
+     if (errorMessage.includes('503')) {
+        return { data: null, error: 'El servicio de IA está temporalmente sobrecargado. Por favor, inténtalo de nuevo en unos momentos.' };
+    }
     return { data: null, error: `Falló el análisis del contenido: ${errorMessage}` };
   }
 }
@@ -417,6 +420,9 @@ export async function generateMaterialsActionFromAnalysis(
     } catch(e) {
         console.error("Generate Material Error:", e);
         const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
+         if (errorMessage.includes('503')) {
+            return { data: null, error: 'El servicio de IA está temporalmente sobrecargado. Por favor, inténtalo de nuevo en unos momentos.' };
+        }
         return { data: null, error: `Falló la generación del material: ${errorMessage}` };
     }
 }
@@ -602,6 +608,9 @@ export async function analyzeCvAction(
   } catch (e) {
     console.error("CV Analysis Action Error:", e);
     const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
+     if (errorMessage.includes('503')) {
+        return { data: null, error: 'El servicio de IA está temporalmente sobrecargado. Por favor, inténtalo de nuevo en unos momentos.' };
+    }
     return { data: null, error: `Falló el análisis del CV: ${errorMessage}` };
   }
 }

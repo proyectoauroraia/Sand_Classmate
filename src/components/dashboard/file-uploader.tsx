@@ -39,30 +39,32 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
         let timer: NodeJS.Timeout | null = null;
         if (analysisState === 'analyzing') {
             setProgress(0);
-            const totalDuration = 45000; // 45 seconds total simulation
-            const initialFastDuration = 5000; // First 5s to get to 80%
+            // Simulate a more realistic progress duration (e.g., 60 seconds)
+            const totalDuration = 60000; 
+            const initialFastDuration = 8000; // First 8s to get to 70%
             const remainingDuration = totalDuration - initialFastDuration;
 
             // Fast initial progress
             let startTime = Date.now();
             const animateFast = () => {
                 const elapsedTime = Date.now() - startTime;
-                const newProgress = Math.min(80, (elapsedTime / initialFastDuration) * 80);
+                const newProgress = Math.min(70, (elapsedTime / initialFastDuration) * 70);
                 setProgress(newProgress);
-                if (newProgress < 80) {
+                if (newProgress < 70 && analysisState === 'analyzing') { // Check if still analyzing
                     requestAnimationFrame(animateFast);
                 }
             };
             animateFast();
 
-            // Slower progress for the remainder
+            // Slower progress for the remainder, holds at 95% until completion
             timer = setTimeout(() => {
+                if (analysisState !== 'analyzing') return; // Stop if state changed
                 startTime = Date.now();
                 const animateSlow = () => {
                      const elapsedTime = Date.now() - startTime;
-                     const newProgress = 80 + Math.min(15, (elapsedTime / remainingDuration) * 15); // Goes up to 95%
+                     const newProgress = 70 + Math.min(25, (elapsedTime / remainingDuration) * 25); // Goes up to 95%
                      setProgress(newProgress);
-                     if (newProgress < 95) {
+                     if (newProgress < 95 && analysisState === 'analyzing') {
                          requestAnimationFrame(animateSlow);
                      }
                 };
@@ -153,7 +155,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                         Analizando tu documento...
                     </h2>
                      <p className="text-primary/70 mt-2 mb-6">
-                        Esto puede tardar unos momentos. No cierres esta página.
+                        Esto puede tardar entre 30 y 60 segundos. No cierres esta página.
                     </p>
                     <Progress value={progress} className="w-full h-3 bg-primary/20" />
                     <p className="text-sm font-medium text-primary/90 mt-3">{Math.round(progress)}%</p>
