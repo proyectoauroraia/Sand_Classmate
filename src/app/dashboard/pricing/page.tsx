@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, Loader2 } from 'lucide-react';
-import { DuneBackground } from '@/components/icons/dunes-background';
+import { DuneBackground } from '@/components/icons/dune-background';
 import { createCheckoutSessionAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 
