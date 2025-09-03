@@ -14,8 +14,17 @@ const AnalyzeInputSchema = z.object({
     (uri) => uri.startsWith('data:application/pdf;base64,') || uri.startsWith('data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,'),
     'Solo se admiten documentos PDF o DOCX.'
   ).refine(
-      (uri) => Buffer.from(uri.split(',')[1], 'base64').length <= 10 * 1024 * 1024, // 10 MB
-      'El archivo no debe superar los 10MB.'
+      (uri) => {
+        const parts = uri.split(',');
+        if (parts.length !== 2) return false; // Ensure URI has the expected 'data:<mime>;base64,<data>' structure
+        const base64Data = parts[1];
+        try {
+            return Buffer.from(base64Data, 'base64').length <= 10 * 1024 * 1024; // 10 MB
+        } catch (e) {
+            return false; // Invalid Base64 string
+        }
+      },
+      'El archivo no debe superar los 10MB o tiene un formato de codificación inválido.'
   )
 });
 
@@ -624,5 +633,3 @@ export async function analyzeCvAction(
     return { data: null, error: `Falló el análisis del CV: ${errorMessage}` };
   }
 }
-
-    

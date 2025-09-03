@@ -1,7 +1,7 @@
 
 'use server';
 /**
- * @fileOverview A flow for analyzing a user's CV to extract their pedagogical philosophy.
+ * @fileoverview A flow for analyzing a user's CV to extract their pedagogical philosophy.
  * - analyzeCv: Extracts professional and pedagogical summary from a CV.
  * - AnalyzeCvInput: The input type for the analyzeCv function.
  * - AnalyzeCvOutput: The return type for the analyzeCv function.
