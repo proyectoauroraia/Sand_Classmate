@@ -1,6 +1,7 @@
 
 
 export type AnalysisResult = {
+  courseName: string;
   summary: string;
   keyConcepts: string[];
   subjectArea: string;

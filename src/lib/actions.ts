@@ -32,6 +32,7 @@ const UnitSchema = z.object({
 
 const GenerateMaterialInputSchema = z.object({
     analysisResult: z.object({
+        courseName: z.string(),
         summary: z.string().optional(),
         keyConcepts: z.array(z.string()).optional(),
         subjectArea: z.string(),

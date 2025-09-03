@@ -38,6 +38,7 @@ const AssessmentSchema = z.object({
 
 
 const AnalyzeContentOutputSchema = z.object({
+  courseName: z.string().describe("The specific name of the course or subject (e.g., 'Anatomía Humana I', 'Cálculo Avanzado')."),
   summary: z
     .string()
     .describe('A concise summary of the document\'s key topics and structure.'),
@@ -78,7 +79,8 @@ export async function analyzeAndEnrichContent(
       Follow these steps for your analysis:
 
       1.  **Basic Information Extraction:**
-          *   **Subject Area:** Identify the specific field of study (e.g., Kinesiology, Nutrition, Philosophy).
+          *   **Course Name:** Identify the specific, official name of the course or subject (e.g., "Kinesiología del Sistema Músculo-Esquelético", "Cálculo II", "Historia del Arte Moderno"). This is the primary identifier.
+          *   **Subject Area:** Identify the broader field of study (e.g., Kinesiology, Mathematics, Art History).
           *   **Summary:** Provide a concise summary of the document's main topics and purpose.
           *   **Key Concepts:** List the most critical keywords and concepts.
           *   **Course Structure & Assessments:** Identify units, learning objectives, and assessments as defined in the schema. For each unit, you MUST break it down into a list of individual, specific class topics. For example, a unit on "Cell Biology" might have classes on "The Cell Membrane", "Mitochondria and Energy", and "Protein Synthesis". If no structure is found, return an empty array for 'courseStructure'. If no assessments are found, return an empty array for 'assessments'.
@@ -103,6 +105,7 @@ export async function analyzeAndEnrichContent(
 // Schema for generating a specific material from analysis
 const GenerateMaterialInputSchema = z.object({
     analysisResult: z.object({
+        courseName: z.string(),
         summary: z.string(),
         keyConcepts: z.array(z.string()),
         subjectArea: z.string(),
@@ -293,6 +296,7 @@ export async function generateMaterialFromAnalysis(
     
     IMPORTANT: All generated content MUST be in Spanish. The markdown output must be entirely in Spanish.
 
+    **Course Name:** ${analysisResult.courseName}
     **Subject Area:** ${analysisResult.subjectArea}
     **Course Summary:** ${analysisResult.summary}
     **Key Concepts:** ${analysisResult.keyConcepts?.join(', ')}

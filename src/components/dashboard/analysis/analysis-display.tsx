@@ -31,7 +31,7 @@ export function AnalysisDisplay({ analysisResult, onReset }: AnalysisDisplayProp
                 <CardHeader>
                     <div className="flex items-start gap-3">
                         <BookOpen className="h-6 w-6 text-primary mt-1 flex-shrink-0"/>
-                        <h2 className="text-xl md:text-2xl font-semibold leading-tight">Análisis del Curso: "{analysisResult.subjectArea}"</h2>
+                        <h2 className="text-xl md:text-2xl font-semibold leading-tight">Análisis del Curso: "{analysisResult.courseName}"</h2>
                     </div>
                 </CardHeader>
                 <CardContent>

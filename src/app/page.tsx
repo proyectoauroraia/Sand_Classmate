@@ -38,7 +38,7 @@ export default function HomePage() {
             try {
                 const newHistoryItem: HistoryItem = {
                     id: `analysis_${new Date().toISOString()}`,
-                    fileName: result.subjectArea,
+                    fileName: result.courseName, // Use the correct course name field
                     date: new Date().toLocaleDateString('es-CL'),
                     status: 'Completado',
                     analysis: result,
@@ -49,7 +49,7 @@ export default function HomePage() {
                 setHistoryKey(Date.now()); // Trigger refresh
                 toast({
                     title: "Análisis Guardado",
-                    description: `El análisis para "${result.subjectArea}" ha sido guardado en tu historial.`
+                    description: `El análisis para "${result.courseName}" ha sido guardado en tu historial.`
                 });
             } catch (error) {
                 console.error("Failed to save to localStorage", error);
