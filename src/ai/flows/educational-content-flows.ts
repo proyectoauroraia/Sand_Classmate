@@ -38,10 +38,10 @@ const AssessmentSchema = z.object({
 
 
 const AnalyzeContentOutputSchema = z.object({
-  courseName: z.string().describe("The specific name of the course or subject (e.g., 'Anatomía Humana I', 'Cálculo Avanzado'). This should NOT be the career name."),
+  courseName: z.string().describe("The specific name of the course or subject (e.g., 'Anatomía Humana I', 'Cálculo Avanzado'). This should NOT be the career name. It's the specific subject name."),
   subjectArea: z
     .string()
-    .describe('The subject area, career, or field of study identified from the document (e.g., Kinesiology, Civil Engineering, Art History).'),
+    .describe('The subject area, career, or field of study to which the course belongs (e.g., Kinesiology, Civil Engineering, Art History). This should NOT be the course name.'),
   summary: z
     .string()
     .describe('A concise summary of the document\'s key topics and structure.'),
@@ -78,9 +78,9 @@ export async function analyzeAndEnrichContent(
 
       Follow these steps for your analysis:
 
-      1.  **Basic Information Extraction:**
-          *   **Course Name (Asignatura):** Identify the specific, official name of the course or subject (e.g., "Kinesiología del Sistema Músculo-Esquelético", "Cálculo II", "Historia del Arte Moderno"). This is the specific subject name, NOT the career. This is a crucial field.
-          *   **Subject Area (Carrera/Área):** Identify the broader field of study or career to which the course belongs (e.g., Kinesiology, Civil Engineering, Art History).
+      1.  **Basic Information Extraction (VERY IMPORTANT):**
+          *   **Course Name (Asignatura):** You MUST identify the specific, official name of the course or subject. For example: "Kinesiología del Sistema Músculo-Esquelético", "Cálculo II", "Historia del Arte Moderno". This is the **SPECIFIC SUBJECT NAME**, not the career. This field is crucial.
+          *   **Subject Area (Carrera/Área):** You MUST identify the broader field of study or career to which the course belongs. For example: "Kinesiología", "Ingeniería Civil", "Historia del Arte". This field MUST be different from 'courseName'.
           *   **Summary:** Provide a concise summary of the document's main topics and purpose.
           *   **Key Concepts:** List the most critical keywords and concepts.
           *   **Course Structure & Assessments:** Identify units, learning objectives, and assessments as defined in the schema. For each unit, you MUST break it down into a list of individual, specific class topics. For example, a unit on "Cell Biology" might have classes on "The Cell Membrane", "Mitochondria and Energy", and "Protein Synthesis". If no structure is found, return an empty array for 'courseStructure'. If no assessments are found, return an empty array for 'assessments'.
