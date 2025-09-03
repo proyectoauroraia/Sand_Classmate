@@ -9,7 +9,7 @@ import { Loader2, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { DuneBackground } from '@/components/icons/dunes-background';
+import { DuneBackground } from '@/components/icons/dune-background';
 
 type Status = 'loading' | 'success' | 'failed' | 'user_canceled' | 'error';
 
@@ -51,7 +51,7 @@ const StatusContent = {
     },
 };
 
-export default function PaymentReturnPage() {
+function PaymentReturnContent() {
     const searchParams = useSearchParams();
     const [status, setStatus] = React.useState<Status>('loading');
     const [commitResult, setCommitResult] = React.useState<WebpayCommitResult | null>(null);
@@ -135,5 +135,14 @@ export default function PaymentReturnPage() {
                 </Card>
             </div>
         </main>
+    );
+}
+
+export default function PaymentReturnPage() {
+    return (
+        // Suspense boundary is required to use useSearchParams in a client component
+        <React.Suspense fallback={<div>Cargando...</div>}>
+            <PaymentReturnContent />
+        </React.Suspense>
     );
 }
