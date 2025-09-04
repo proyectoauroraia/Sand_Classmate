@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Home, BookOpen, UserCircle2, Gem, Power, Settings, Loader2, Menu, UploadCloud } from 'lucide-react';
+import { Home, BookOpen, UserCircle2, Gem, Power, Settings, Loader2, Menu } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import type { User } from '@supabase/supabase-js';
@@ -37,7 +37,12 @@ export default function HomePage() {
         if (result) {
             setAnalysisResult(result);
             try {
-                const existingHistory: HistoryItem[] = JSON.parse(localStorage.getItem('sand_classmate_history') || '[]');
+                // Get current history
+                const storedHistory = localStorage.getItem('sand_classmate_history') || '[]';
+                let history: HistoryItem[] = JSON.parse(storedHistory);
+
+                // Remove any existing entry with the same course name
+                history = history.filter(item => item.courseName !== result.courseName);
                 
                 const newHistoryItem: HistoryItem = {
                     id: `analysis_${new Date().toISOString()}`,
@@ -48,9 +53,9 @@ export default function HomePage() {
                     analysis: result,
                 };
                 
-                // Add the new item to the beginning of the list.
-                // The deduplication logic is handled inside the MaterialsHistory component.
-                const updatedHistory = [newHistoryItem, ...existingHistory];
+                // Add the new item to the beginning of the list
+                const updatedHistory = [newHistoryItem, ...history];
+                
                 localStorage.setItem('sand_classmate_history', JSON.stringify(updatedHistory));
                 
                 setHistoryKey(Date.now()); // Trigger refresh of the history component
@@ -116,7 +121,7 @@ export default function HomePage() {
 
     const sidebarContent = (
         <div className="flex flex-col h-full">
-            <div className="flex h-[60px] items-center px-2 mb-4">
+            <div className="h-[60px] flex items-center mb-4">
                <Logo />
             </div>
             <nav className="grid items-start text-sm font-medium gap-2">
@@ -127,8 +132,8 @@ export default function HomePage() {
                         key={link.href}
                         href={link.href}
                         className={cn(
-                            'flex items-center gap-3 rounded-lg px-3 py-3 transition-all text-card-foreground/70 hover:text-card-foreground',
-                            isActive ? 'bg-primary text-primary-foreground font-semibold shadow-sm' : ''
+                            'flex items-center gap-3 rounded-lg px-3 py-3 transition-all text-card-foreground/70 hover:text-card-foreground hover:bg-accent',
+                            isActive ? 'bg-primary text-primary-foreground font-semibold shadow-sm hover:bg-primary/90 hover:text-primary-foreground' : ''
                         )}
                      >
                         <link.icon className="h-5 w-5" />
@@ -148,7 +153,7 @@ export default function HomePage() {
             />
         </div>
     ) : (
-         <div className="space-y-8 py-6 px-4 md:px-6 lg:px-8">
+         <div className="space-y-8">
             <div className="text-left">
                 <h1 
                   className="text-3xl md:text-4xl font-bold tracking-tight text-card-foreground"
@@ -187,14 +192,13 @@ export default function HomePage() {
         <div className="relative min-h-screen w-full bg-card text-card-foreground">
              <div className="flex min-h-screen">
                 {/* Sidebar */}
-                 <div className="hidden lg:block w-[260px] p-6">
+                 <div className="hidden lg:block w-[260px] p-6 border-r border-border/20">
                     {sidebarContent}
                 </div>
 
                 {/* Main Content Area */}
                 <div className="flex-1 flex flex-col">
-                    {/* Top-right user menu */}
-                    <div className="flex h-14 shrink-0 items-center justify-between gap-4 px-4 md:px-6 lg:h-[76px] lg:justify-end">
+                    <header className="flex h-14 shrink-0 items-center justify-between gap-4 px-4 md:px-6 lg:h-[76px] lg:justify-end">
                          <Sheet>
                             <SheetTrigger asChild>
                                 <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
@@ -214,7 +218,7 @@ export default function HomePage() {
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" size="icon" className="rounded-full">
                                             <Avatar className="h-8 w-8">
-                                                <AvatarImage src={user.user_metadata?.avatar_url ?? 'https://placehold.co/40x40.png'} alt="@prof" data-ai-hint="person face" />
+                                                <AvatarImage src={user.user_metadata?.avatar_url ?? undefined} alt="@prof" data-ai-hint="person face" />
                                                 <AvatarFallback>{user.email?.charAt(0)?.toUpperCase() ?? 'U'}</AvatarFallback>
                                             </Avatar>
                                             <span className="sr-only">Toggle user menu</span>
@@ -257,8 +261,8 @@ export default function HomePage() {
                                 </Dialog>
                            )}
                         </div>
-                    </div>
-                     <main className="flex-1 bg-transparent relative">
+                    </header>
+                     <main className="flex-1 bg-transparent relative px-4 md:px-6">
                         {mainContent}
                     </main>
                 </div>
