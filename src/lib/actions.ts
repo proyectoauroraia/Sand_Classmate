@@ -2,8 +2,7 @@
 'use server';
 
 import { analyzeAndEnrichContent, generateMaterialFromAnalysis } from '@/ai/flows/educational-content-flows';
-import { analyzeCv } from '@/ai/flows/profile-analysis-flow';
-import type { AnalysisResult, CheckoutSessionResult, WebpayCommitResult, UserProfile, GeneratedMaterials, CvAnalysisResult } from '@/lib/types';
+import type { AnalysisResult, CheckoutSessionResult, WebpayCommitResult, UserProfile, GeneratedMaterials } from '@/lib/types';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
@@ -670,26 +669,5 @@ export async function updateUserProfileAction(
       console.error("Update Profile Error:", e);
       const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido al actualizar el perfil.';
       return { data: null, error: errorMessage };
-  }
-}
-
-export async function analyzeCvAction(
-  cvDataUri: string
-): Promise<{ data: CvAnalysisResult | null; error: string | null }> {
-  const validation = z.string().startsWith('data:').safeParse(cvDataUri);
-   if (!validation.success) {
-    const error = validation.error.errors[0]?.message || 'Datos de entrada inválidos.';
-    return { data: null, error };
-  }
-  try {
-    const result = await analyzeCv({ cvDataUri });
-    return { data: result, error: null };
-  } catch (e) {
-    console.error("CV Analysis Action Error:", e);
-    const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
-     if (errorMessage.includes('503')) {
-        return { data: null, error: 'El servicio de IA está temporalmente sobrecargado. Por favor, inténtalo de nuevo en unos momentos.' };
-    }
-    return { data: null, error: `Falló el análisis del CV: ${errorMessage}` };
   }
 }

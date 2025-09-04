@@ -7,24 +7,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { UploadCloud, UserCircle2, BrainCircuit, Lock, Loader2, Sparkles, Star } from 'lucide-react';
+import { UserCircle2, BrainCircuit, Lock, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@/lib/supabase/client';
-import { updateUserProfileAction, analyzeCvAction } from '@/lib/actions';
+import { updateUserProfileAction } from '@/lib/actions';
 import type { User } from '@supabase/supabase-js';
-import type { UserProfile, CvAnalysisResult } from '@/lib/types';
 
 
 export default function ProfilePage() {
     const { toast } = useToast();
     const fileInputRef = React.useRef<HTMLInputElement>(null);
-    const cvInputRef = React.useRef<HTMLInputElement>(null);
     
     // Component State
     const [loading, setLoading] = React.useState(true);
     const [saving, setSaving] = React.useState(false);
-    const [analyzingCv, setAnalyzingCv] = React.useState(false);
     const [user, setUser] = React.useState<User | null>(null);
     
     // Form State
@@ -33,10 +30,8 @@ export default function ProfilePage() {
     const [role, setRole] = React.useState('');
     const [city, setCity] = React.useState('');
     const [bio, setBio] = React.useState('');
-    const [cvFile, setCvFile] = React.useState<File | null>(null);
     const [profileImage, setProfileImage] = React.useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
-    const [cvKeyPoints, setCvKeyPoints] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         const fetchUserAndProfile = async () => {
@@ -84,50 +79,6 @@ export default function ProfilePage() {
         }
     };
 
-    const handleAnalyzeCv = async () => {
-        if (!cvFile) {
-            toast({
-                variant: 'destructive',
-                title: "No hay CV",
-                description: "Por favor, selecciona tu CV para analizarlo.",
-            });
-            return;
-        }
-        setAnalyzingCv(true);
-        setCvKeyPoints([]);
-        try {
-             const dataUri = await new Promise<string>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result as string);
-                reader.onerror = (error) => reject(error);
-                reader.readAsDataURL(cvFile);
-            });
-
-            const { data, error } = await analyzeCvAction(dataUri);
-
-            if (error || !data) {
-                throw new Error(error || "El análisis del CV falló.");
-            }
-            
-            setBio(data.bio);
-            setCvKeyPoints(data.keyPoints);
-            toast({
-                title: "¡CV Analizado!",
-                description: "Hemos autocompletado tu filosofía pedagógica. Revísala y guarda los cambios.",
-            });
-
-        } catch (e) {
-            const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error inesperado.';
-            toast({
-                variant: 'destructive',
-                title: "Error de Análisis",
-                description: errorMessage,
-            });
-        } finally {
-            setAnalyzingCv(false);
-        }
-    };
-    
     const handleSaveChanges = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
@@ -137,9 +88,6 @@ export default function ProfilePage() {
         formData.append('role', role);
         formData.append('city', city);
         formData.append('bio', bio);
-        if (cvFile) {
-            formData.append('cvFile', cvFile);
-        }
         if (profileImage) {
             formData.append('profileImage', profileImage);
         }
@@ -253,39 +201,14 @@ export default function ProfilePage() {
                                     <BrainCircuit className="h-6 w-6 text-primary" />
                                     <CardTitle className="text-lg md:text-xl">Personalización con IA</CardTitle>
                                 </div>
-                                <CardDescription>Sube tu CV y usa la IA para autocompletar tu perfil y estilo de enseñanza.</CardDescription>
+                                <CardDescription>Define tu filosofía de enseñanza para que la IA la use al generar materiales.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                <div className="space-y-3">
-                                    <Label htmlFor="cv-upload">Currículum Vitae (CV)</Label>
-                                    <div 
-                                        className="flex items-center justify-center w-full"
-                                        onClick={() => cvInputRef.current?.click()}
-                                    >
-                                        <label 
-                                            htmlFor="cvFile" 
-                                            className="flex flex-col items-center justify-center w-full h-32 border-2 border-border border-dashed rounded-lg cursor-pointer bg-secondary/30 hover:bg-accent/50 transition-colors"
-                                        >
-                                            <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
-                                                <UploadCloud className="w-8 h-8 mb-4 text-muted-foreground" />
-                                                <p className="mb-2 text-sm text-muted-foreground px-2">
-                                                    {cvFile ? cvFile.name : <><span className="font-semibold">Haz clic para subir</span> o arrastra y suelta</>}
-                                                </p>
-                                                <p className="text-xs text-muted-foreground">PDF, DOCX (MAX. 5MB)</p>
-                                            </div>
-                                            <Input ref={cvInputRef} id="cvFile" name="cvFile" type="file" className="hidden" accept=".pdf,.docx" onChange={(e) => setCvFile(e.target.files?.[0] || null)} />
-                                        </label>
-                                    </div>
-                                    <Button type="button" variant="outline" className="w-full" onClick={handleAnalyzeCv} disabled={!cvFile || analyzingCv}>
-                                        {analyzingCv ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                                        {analyzingCv ? 'Analizando CV...' : 'Analizar CV para Autocompletar'}
-                                    </Button>
-                                </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="bio">Mi Filosofía Pedagógica y Carrera</Label>
                                     <Textarea
                                         id="bio"
-                                        placeholder="Describe tu enfoque pedagógico (ej: constructivista, basado en proyectos), tus áreas de especialización y los hitos más importantes de tu carrera. O bien, sube tu CV y haz clic en analizar."
+                                        placeholder="Describe tu enfoque pedagógico (ej: constructivista, basado en proyectos), tus áreas de especialización y los hitos más importantes de tu carrera."
                                         rows={8}
                                         value={bio}
                                         onChange={(e) => setBio(e.target.value)}
@@ -293,24 +216,6 @@ export default function ProfilePage() {
                                 </div>
                             </CardContent>
                         </Card>
-                        {cvKeyPoints.length > 0 && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-lg md:text-xl flex items-center gap-3">
-                                        <Star className="h-6 w-6 text-primary" />
-                                        Puntos Clave del Análisis
-                                    </CardTitle>
-                                    <CardDescription>Este es el resumen que la IA utilizará para personalizar tus materiales.</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <ul className="space-y-2 list-disc list-inside text-muted-foreground">
-                                        {cvKeyPoints.map((point, index) => (
-                                            <li key={index}>{point}</li>
-                                        ))}
-                                    </ul>
-                                </CardContent>
-                            </Card>
-                        )}
                         <Card>
                             <CardHeader>
                                 <div className="flex items-center gap-3">
@@ -332,7 +237,7 @@ export default function ProfilePage() {
                     </div>
                 </div>
                 <div className="flex justify-end pt-4">
-                    <Button type="submit" size="lg" disabled={saving || loading || analyzingCv} className="w-full md:w-auto py-6 text-base">
+                    <Button type="submit" size="lg" disabled={saving || loading} className="w-full md:w-auto py-6 text-base">
                         {saving && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
                         {saving ? 'Guardando...' : 'Guardar Cambios'}
                     </Button>
@@ -341,5 +246,3 @@ export default function ProfilePage() {
         </form>
     );
 }
-
-    
