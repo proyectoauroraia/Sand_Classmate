@@ -623,7 +623,7 @@ export async function updateUserProfileAction(
     }
     
     const profileImageFile = formData.get('profileImage') as File | null;
-    let avatarUrl = user.user_metadata.avatar_url;
+    let avatarUrl: string | undefined = undefined;
 
     if (profileImageFile && profileImageFile.size > 0) {
         const fileExt = profileImageFile.name.split('.').pop();
@@ -639,39 +639,50 @@ export async function updateUserProfileAction(
 
         const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
         avatarUrl = urlData.publicUrl;
-
-        // Update user metadata in Supabase Auth
-        const { error: userUpdateError } = await supabase.auth.updateUser({
-            data: { avatar_url: avatarUrl }
-        });
-
-        if (userUpdateError) {
-            throw new Error(`Error al actualizar metadatos del usuario: ${userUpdateError.message}`);
-        }
     }
 
-
-    const profileData: Partial<UserProfile> = {
+    // Prepare data for the 'profiles' table
+    const profileDataToUpdate: {
+        id: string;
+        fullName: string;
+        role: string;
+        city: string;
+        avatar_url?: string;
+    } = {
+      id: user.id,
       fullName,
       role: formData.get('role') as string,
       city: formData.get('city') as string,
-      avatar_url: avatarUrl
     };
+    
+    // Only add avatar_url to the update object if it's a new URL
+    if (avatarUrl) {
+      profileDataToUpdate.avatar_url = avatarUrl;
+    }
 
-    const { data, error } = await supabase
+    // Upsert data into the 'profiles' table
+    const { data, error: profileUpsertError } = await supabase
       .from('profiles')
-      .upsert({
-          id: user.id,
-          ...profileData,
-      }, { onConflict: 'id' })
+      .upsert(profileDataToUpdate)
       .select()
       .single();
-
-    if (error) {
-      if (error.message.includes('permission denied')) {
+    
+    if (profileUpsertError) {
+      if (profileUpsertError.message.includes('permission denied')) {
         throw new Error('Error de permisos. Asegúrate de que las políticas de RLS en Supabase permiten la operación de UPSERT.');
       }
-      throw error;
+      throw profileUpsertError;
+    }
+    
+    // If a new avatar was uploaded, update the user metadata in Supabase Auth as well
+    if (avatarUrl) {
+        const { error: userUpdateError } = await supabase.auth.updateUser({
+            data: { avatar_url: avatarUrl, full_name: fullName }
+        });
+         if (userUpdateError) {
+            // Log the error but don't block the response, as the profile is already updated
+            console.error(`Error al actualizar metadatos del usuario: ${userUpdateError.message}`);
+        }
     }
     
     revalidatePath('/dashboard/profile');

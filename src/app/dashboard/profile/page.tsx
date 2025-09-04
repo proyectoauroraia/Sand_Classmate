@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +12,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@/lib/supabase/client';
 import { updateUserProfileAction } from '@/lib/actions';
 import type { User } from '@supabase/supabase-js';
-
 
 export default function ProfilePage() {
     const { toast } = useToast();
@@ -39,7 +38,6 @@ export default function ProfilePage() {
             if (user) {
                 setUser(user);
                 setEmail(user.email ?? '');
-                setPreviewUrl(user.user_metadata?.avatar_url ?? null);
 
                 // Fetch profile data from 'profiles' table
                 const { data: profile, error } = await supabase
@@ -47,18 +45,20 @@ export default function ProfilePage() {
                     .select('*')
                     .eq('id', user.id)
                     .single();
-
+                
+                // Set initial state from profile or user metadata
                 if (profile) {
-                    setFullName(profile.fullName ?? user.user_metadata?.full_name ?? '');
+                    setFullName(profile.fullName ?? '');
                     setRole(profile.role ?? '');
                     setCity(profile.city ?? '');
-                    if (profile.avatar_url) {
-                        setPreviewUrl(profile.avatar_url);
-                    }
+                    setPreviewUrl(profile.avatar_url ?? user.user_metadata?.avatar_url ?? null);
                 } else if (error && error.code !== 'PGRST116') { // Ignore 'no rows found' error
                     console.error("Error fetching profile:", error.message);
+                    setFullName(user.user_metadata?.full_name ?? '');
                 } else {
+                     // Fallback to user metadata if no profile exists yet
                      setFullName(user.user_metadata?.full_name ?? '');
+                     setPreviewUrl(user.user_metadata?.avatar_url ?? null);
                 }
             }
             setLoading(false);
@@ -66,7 +66,6 @@ export default function ProfilePage() {
 
         fetchUserAndProfile();
     }, []);
-
 
     const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
