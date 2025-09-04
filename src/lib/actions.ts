@@ -635,13 +635,13 @@ export async function updateUserProfileAction(
         id: string;
         fullName: string;
         role: string;
-        institutions: string[];
+        institutions: string; // Changed to string to send JSON
         avatar_url?: string;
     } = {
       id: user.id,
       fullName,
       role: formData.get('role') as string,
-      institutions: formData.getAll('institutions[]') as string[],
+      institutions: JSON.stringify(formData.getAll('institutions[]')), // Serialize array to JSON string
     };
 
     // Handle image upload and URL generation
