@@ -7,6 +7,8 @@ import type { AnalysisResult, CheckoutSessionResult, WebpayCommitResult, UserPro
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { generateFileHash } from '@/lib/utils';
+import { subDays } from 'date-fns';
 
 
 const AnalyzeInputSchema = z.object({
@@ -19,7 +21,11 @@ const AnalyzeInputSchema = z.object({
         if (parts.length !== 2) return false; // Ensure URI has the expected 'data:<mime>;base64,<data>' structure
         const base64Data = parts[1];
         try {
-            return Buffer.from(base64Data, 'base64').length <= 10 * 1024 * 1024; // 10 MB
+            // The length of a Base64-encoded string is approximately 4/3 of the original data size.
+            // This calculation is a safe and fast approximation.
+            const stringLength = base64Data.length;
+            const sizeInBytes = Math.ceil(stringLength * (3 / 4));
+            return sizeInBytes <= 10 * 1024 * 1024; // 10 MB
         } catch (e) {
             return false; // Invalid Base64 string
         }
@@ -361,10 +367,55 @@ export async function analyzeContentAction(
     return { data: null, error };
   }
   
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { data: null, error: 'No estás autenticado.' };
+  }
+  
+  const fileHash = generateFileHash(documentDataUri);
+  const cacheTtl = subDays(new Date(), 30);
+
+  // 1. Check cache first
+  const { data: cachedData, error: cacheError } = await supabase
+    .from('analysis_cache')
+    .select('analysis_result')
+    .eq('file_hash', fileHash)
+    .eq('user_id', user.id)
+    .gte('created_at', cacheTtl.toISOString())
+    .single();
+
+  if (cacheError && cacheError.code !== 'PGRST116') { // Ignore 'no rows found' error
+    console.error("Cache check error:", cacheError);
+    // Decide if we should proceed or return error. For now, let's proceed.
+  }
+  
+  if (cachedData) {
+    console.log("Returning cached analysis for hash:", fileHash);
+    return { data: cachedData.analysis_result as AnalysisResult, error: null };
+  }
+
+  // 2. If not in cache, run analysis
   try {
     const analysisResult = await analyzeAndEnrichContent({
       documentDataUri,
     });
+    
+    // 3. Save to cache
+    const { error: insertError } = await supabase
+      .from('analysis_cache')
+      .insert({
+        file_hash: fileHash,
+        file_name: 'user_uploaded_file', // Could be enhanced to get real filename
+        analysis_result: analysisResult,
+        user_id: user.id
+      });
+      
+    if (insertError) {
+      console.error("Error saving to cache:", insertError);
+      // Don't block the user, just log the error
+    }
     
     return { data: analysisResult, error: null };
   } catch (e) {
