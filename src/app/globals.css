@@ -21,7 +21,7 @@
     --secondary-foreground: 24 6% 10%;
 
     --muted: 240 5% 90%;
-    --muted-foreground: 30 69% 32% / 0.7;
+    --muted-foreground: 30 60% 45%; /* Adjusted for better contrast */
 
     --accent: 36 80% 90%; /* Light Orange for accents */
     --accent-foreground: 36 80% 30%;
