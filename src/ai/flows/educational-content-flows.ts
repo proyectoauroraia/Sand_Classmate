@@ -221,14 +221,15 @@ const MaterialPrompts = {
         {{#if classContext}}
         - The presentation should focus exclusively on the topic "{{classContext.classTopic}}" within the unit "{{classContext.unitTitle}}".
         - The first H1 (#) should be the main title of the presentation, which is "{{classContext.classTopic}}".
-        - Create 4-6 slides, each with an H2 (##) title.
-        - Under each slide title, create 3-5 bullet points (*) with key information, explanations, or examples related to the slide's topic.
+        - Create at least 10 to 15 slides, each with an H2 (##) title.
+        - Under each slide title, create 3-5 concise bullet points (*) with key information, explanations, or examples related to the slide's topic.
         - Ensure the content is detailed, clear, and specifically tailored for this single class session.
         {{else}}
         - The presentation should cover the entire course.
         - The first H1 (#) should be the main title of the presentation.
-        - Each subsequent H2 (##) should represent a new slide title, usually corresponding to a course unit.
-        - Under each slide title, create 4-6 bullet points (*) summarizing the key information and learning objectives for that topic.
+        - Each subsequent H2 (##) should represent a new slide title, usually corresponding to a course unit or a major topic.
+        - Create at least 10 to 15 slides in total.
+        - Under each slide title, create 3-5 concise bullet points (*) summarizing the key information and learning objectives for that topic.
         - Ensure the content is clear, concise, and well-suited for a presentation format.
         {{/if}}
     `,
@@ -326,5 +327,7 @@ export async function generateMaterialFromAnalysis(
     return output?.markdownContent || '';
 }
 
+
+    
 
     
