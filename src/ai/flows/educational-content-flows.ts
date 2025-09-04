@@ -260,6 +260,11 @@ const MaterialPrompts = {
     `,
 };
 
+// This extends the Zod schema to include the user's name for personalization
+const GenerateMaterialInternalInputSchema = GenerateMaterialInputSchema.extend({
+    userName: z.string().optional(),
+});
+
 
 export async function generateMaterialFromAnalysis(
   input: z.infer<typeof GenerateMaterialInputSchema>
@@ -319,16 +324,17 @@ export async function generateMaterialFromAnalysis(
 
     const generationPrompt = ai.definePrompt({
         name: `generate${materialType}Prompt`,
-        input: { schema: z.any() },
+        input: { schema: GenerateMaterialInternalInputSchema }, // Use the internal schema
         output: { schema: GenerateMaterialOutputSchema },
         prompt: finalPrompt,
     });
+    
+    const internalInput = {
+        ...input,
+        userName: userProfile?.fullName,
+    };
 
-    const { output } = await generationPrompt(input);
+
+    const { output } = await generationPrompt(internalInput);
     return output?.markdownContent || '';
 }
-
-
-    
-
-    

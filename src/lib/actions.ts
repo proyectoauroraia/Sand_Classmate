@@ -290,7 +290,7 @@ const themes = {
 };
 type ThemeKey = keyof typeof themes;
 
-async function createStyledPptx(markdownContent: string, themeKey: ThemeKey): Promise<string> {
+async function createStyledPptx(markdownContent: string, themeKey: ThemeKey, userName?: string): Promise<string> {
     const PptxGenJS = (await import('pptxgenjs')).default;
     const pres = new PptxGenJS();
     pres.layout = 'LAYOUT_16x9';
@@ -305,7 +305,7 @@ async function createStyledPptx(markdownContent: string, themeKey: ThemeKey): Pr
             { 'rect': { x: 0, y: '93%', w: '100%', h: 0.25, fill: { color: theme.accent } } },
             { 'text': {
                 text: 'Generado por Sand Classmate',
-                options: { x: 0, y: '95%', w: '100%', align: 'center', color: theme.title, fontSize: 10 }
+                options: { x: 0, y: '95%', w: '100%', align: 'center', color: theme.text, fontSize: 10 }
             }}
         ],
     });
@@ -314,11 +314,12 @@ async function createStyledPptx(markdownContent: string, themeKey: ThemeKey): Pr
     
     let titleText = 'Presentación';
     let contentStartIndex = 0;
-
+    
+    // Handle the main title from the first slide's H1
     if (slidesContent[0] && slidesContent[0].startsWith('# ')) {
         const firstSlideParts = slidesContent[0].split('\n');
         titleText = firstSlideParts[0].replace('# ', '').trim();
-        contentStartIndex = 1;
+        slidesContent[0] = firstSlideParts.slice(1).join('\n');
     }
 
     // Title Slide
@@ -326,21 +327,21 @@ async function createStyledPptx(markdownContent: string, themeKey: ThemeKey): Pr
     titleSlide.addText(titleText, {
         x: 0.5, y: 1.5, w: 9, h: 1.5, fontSize: 48, bold: true, align: 'center', color: theme.title
     });
-    titleSlide.addText('Material de curso generado por Sand Classmate', {
-        x: 0.5, y: 2.8, w: 9, h: 1, fontSize: 20, align: 'center', color: theme.text
-    });
-
-    if (contentStartIndex === 1) {
-        const titleSlideContent = slidesContent[0].split('\n').slice(1).map(l => l.replace(/^\* /, '').trim()).filter(Boolean);
-        if (titleSlideContent.length > 0) {
-             titleSlide.addText(titleSlideContent.join('\n'), {
-                x: 0.75, y: 4.0, w: '85%', h: 1.5, fontSize: 18, color: theme.text, bullet: true
-            });
-        }
+    
+    let subtitleY = 2.8;
+    if (userName) {
+        titleSlide.addText(`Docente: ${userName}`, {
+            x: 0.5, y: subtitleY, w: 9, h: 0.5, fontSize: 20, align: 'center', color: theme.text, italic: true
+        });
+        subtitleY += 0.5;
     }
 
+    titleSlide.addText('Material de curso generado por Sand Classmate', {
+        x: 0.5, y: subtitleY, w: 9, h: 1, fontSize: 16, align: 'center', color: theme.text
+    });
+
     // Content slides
-    slidesContent.slice(contentStartIndex).forEach((slideContent) => {
+    slidesContent.forEach((slideContent) => {
         const slide = pres.addSlide({ masterName: 'MASTER_SLIDE' });
         const lines = slideContent.split('\n').map(l => l.trim()).filter(Boolean);
         const title = lines[0] || '';
@@ -353,7 +354,7 @@ async function createStyledPptx(markdownContent: string, themeKey: ThemeKey): Pr
         const content = contentPoints.map(point => point.replace(/^\* /, '').trim());
 
         if (content.length > 0) {
-            slide.addText(content.join('\n'), {
+            slide.addText(content, {
                 x: 0.75, y: 1.5, w: '85%', h: 3.75, fontSize: 20, color: theme.text, bullet: true,
             });
         }
@@ -497,10 +498,19 @@ export async function createPptxAction(
     theme: string
 ): Promise<{ data: string | null; error: string | null }> {
     try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        let userName: string | undefined;
+
+        if(user) {
+            const { data: profile } = await supabase.from('profiles').select('fullName').eq('id', user.id).single();
+            userName = profile?.fullName;
+        }
+
         if (!markdownContent || typeof markdownContent !== 'string') {
             throw new Error('Contenido de la presentación no es válido.');
         }
-        const fileDataUri = await createStyledPptx(markdownContent, theme as ThemeKey);
+        const fileDataUri = await createStyledPptx(markdownContent, theme as ThemeKey, userName);
         return { data: fileDataUri, error: null };
 
     } catch(e) {
