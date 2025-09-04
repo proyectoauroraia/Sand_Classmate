@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,17 +20,10 @@ interface MaterialsHistoryProps {
 
 const ITEMS_PER_PAGE = 3;
 
-const buttonColors = [
-    'bg-primary/80 hover:bg-primary',
-    'bg-secondary/80 hover:bg-secondary',
-    'bg-accent-foreground/80 hover:bg-accent-foreground',
-];
-
 export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: MaterialsHistoryProps) {
     const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
     const [filteredItems, setFilteredItems] = useState<HistoryItem[]>([]);
     
-    // Filter states
     const [careerFilter, setCareerFilter] = useState('all');
     const [courseFilter, setCourseFilter] = useState('');
 
@@ -44,7 +37,6 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
             if (storedHistory) {
                 const items: HistoryItem[] = JSON.parse(storedHistory);
 
-                // Deduplicate items, keeping the most recent one (first occurrence)
                 const uniqueItemsMap = new Map<string, HistoryItem>();
                 for (const item of items) {
                     if (!uniqueItemsMap.has(item.courseName)) {
@@ -80,14 +72,9 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
     
     if (!isClient) {
         return (
-            <Card className="h-full flex flex-col">
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="text-xl md:text-2xl font-bold tracking-tight">Mis Cursos Guardados</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0 flex-grow flex flex-col justify-center items-center">
-                    <p className="text-muted-foreground">Cargando historial...</p>
-                </CardContent>
-            </Card>
+            <div className="h-full flex flex-col justify-center items-center">
+                <p className="text-muted-foreground">Cargando historial...</p>
+            </div>
         );
     }
 
@@ -123,56 +110,76 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
         </div>
     );
 
+    if(isFullPage) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Mi Biblioteca de Cursos</CardTitle>
+                    <CardDescription>Aquí puedes ver, filtrar y acceder a todos los análisis de cursos que has guardado.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {renderFilters()}
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Carrera / Área</TableHead>
+                                <TableHead>Asignatura</TableHead>
+                                <TableHead className="text-right">Acción</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {displayedHistory.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={3} className="h-24 text-center">
+                                        {historyItems.length > 0 ? 'No hay resultados para los filtros aplicados.' : 'Aquí aparecerán tus análisis guardados.'}
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                displayedHistory.map((item, index) => (
+                                    <TableRow key={item.id}>
+                                        <TableCell className="font-medium text-muted-foreground">{item.subjectArea || 'N/A'}</TableCell>
+                                        <TableCell className="font-semibold">{item.courseName || 'Nombre no disponible'}</TableCell>
+                                        <TableCell className="text-right">
+                                            <Button size="sm" onClick={() => handleViewAnalysisClick(item)}>
+                                                Ver Análisis
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        )
+    }
+
     return (
-      <Card className="h-full flex flex-col">
-        <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-xl md:text-2xl font-bold tracking-tight">Mis Cursos Guardados</CardTitle>
+        <div>
+            {displayedHistory.length === 0 ? (
+                <div className="text-center text-muted-foreground py-10">
+                    Aquí aparecerán tus análisis guardados.
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {displayedHistory.map((item) => (
+                        <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                            <div>
+                                <p className="font-semibold">{item.courseName}</p>
+                                <p className="text-sm text-muted-foreground">{item.subjectArea}</p>
+                            </div>
+                            <Button size="sm" variant="ghost" onClick={() => handleViewAnalysisClick(item)}>
+                                Ver
+                            </Button>
+                        </div>
+                    ))}
+                </div>
+            )}
             {!isFullPage && historyItems.length > ITEMS_PER_PAGE && (
-                <Button asChild variant="ghost" className="text-primary font-semibold hover:underline">
+                <Button asChild variant="link" className="w-full mt-4">
                     <Link href="/dashboard/history">Ver todo</Link>
                 </Button>
             )}
-        </CardHeader>
-        <CardContent className="pt-0 flex-grow flex flex-col">
-            {isFullPage && renderFilters()}
-            <ScrollArea className="h-full">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-primary/10 rounded-lg">
-                    <TableHead className="text-sm text-foreground font-bold">Carrera / Área</TableHead>
-                    <TableHead className="text-sm text-foreground font-bold">Asignatura</TableHead>
-                    <TableHead className="text-center text-sm text-foreground font-bold">Ver Análisis</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {displayedHistory.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={3} className="h-24 text-center">
-                        {historyItems.length > 0 ? 'No hay resultados para los filtros aplicados.' : 'Aquí aparecerán tus análisis guardados.'}
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    displayedHistory.map((item, index) => (
-                      <TableRow key={item.id}>
-                        <TableCell className="font-medium py-4 text-muted-foreground">{item.subjectArea || 'N/A'}</TableCell>
-                        <TableCell className="font-medium py-4">{item.courseName || 'Nombre no disponible'}</TableCell>
-                        <TableCell className="text-center">
-                          <Button 
-                            size="sm" 
-                            variant="secondary"
-                            onClick={() => handleViewAnalysisClick(item)}
-                            className={cn('text-secondary-foreground transition-colors',buttonColors[index % buttonColors.length])}
-                          >
-                            Ver
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </ScrollArea>
-        </CardContent>
-      </Card>
+        </div>
     );
 }

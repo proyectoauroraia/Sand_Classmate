@@ -4,8 +4,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { AlertCircle, BookOpen } from 'lucide-react';
+import { AlertCircle, BookOpen, UploadCloud } from 'lucide-react';
 import { analyzeContentAction } from '@/lib/actions';
 import type { AnalysisResult } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -17,14 +16,6 @@ type AnalysisState = 'idle' | 'analyzing';
 type FileUploaderProps = {
     onAnalysisComplete: (result: AnalysisResult | null) => void;
 };
-
-const PremiumUploadIcon = () => (
-    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-4 text-primary">
-        <circle cx="32" cy="32" r="30.5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="4 8"/>
-        <path d="M32 22V42M32 22L26 28M32 22L38 28" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-);
-
 
 export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     const [analysisState, setAnalysisState] = useState<AnalysisState>('idle');
@@ -149,34 +140,34 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     
     if (analysisState === 'analyzing') {
         return (
-            <Card className="flex flex-col items-center justify-center text-center p-10 h-full bg-primary/10">
+            <div className="flex flex-col items-center justify-center text-center p-10 h-full bg-primary/5">
                 <div className="w-full max-w-md">
-                     <h2 className="text-xl font-semibold text-primary/80">
+                     <h2 className="text-xl font-semibold text-primary">
                         Analizando tu documento...
                     </h2>
-                     <p className="text-primary/70 mt-2 mb-6">
+                     <p className="text-muted-foreground mt-2 mb-6">
                         Esto puede tardar entre 30 y 60 segundos. No cierres esta página.
                     </p>
-                    <Progress value={progress} className="w-full h-3 bg-primary/20" />
-                    <p className="text-sm font-medium text-primary/90 mt-3">{Math.round(progress)}%</p>
+                    <Progress value={progress} className="w-full h-2 bg-primary/20" />
+                    <p className="text-sm font-medium text-primary mt-3">{Math.round(progress)}%</p>
                 </div>
-            </Card>
+            </div>
         );
     }
 
     return (
-        <Card className="h-full flex flex-col bg-card">
+        <div className="h-full flex flex-col">
             <form id="analysis-form" onSubmit={handleAnalysisSubmit} className="flex-grow flex flex-col">
-                <CardContent className="p-6 flex-grow flex flex-col">
+                <div className="flex-grow flex flex-col">
                     {error && (
-                        <Alert variant="destructive">
+                        <Alert variant="destructive" className="mb-4">
                             <AlertCircle className="h-4 w-4" />
                             <AlertTitle>Error</AlertTitle>
                             <AlertDescription>{error}</AlertDescription>
                         </Alert>
                     )}
                     <div 
-                        className="flex flex-col items-center justify-center py-10 px-6 rounded-lg cursor-pointer transition-colors border-2 border-dashed border-border hover:bg-accent/50 flex-grow mt-4"
+                        className="flex flex-col items-center justify-center py-10 px-6 rounded-lg cursor-pointer transition-colors border-2 border-dashed border-border hover:bg-muted/50 flex-grow"
                         onClick={() => fileInputRef.current?.click()}
                         onDrop={(e) => {
                             e.preventDefault();
@@ -184,7 +175,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                         }}
                         onDragOver={(e) => e.preventDefault()}
                     >
-                        <PremiumUploadIcon />
+                        <UploadCloud className="h-12 w-12 text-muted-foreground mb-4" />
                         <p className="text-base font-semibold text-foreground">
                             {file ? file.name : 'Haz clic o arrastra un archivo para subir'}
                         </p>
@@ -199,14 +190,14 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                             onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
                         />
                     </div>
-                </CardContent>
-                <CardFooter>
-                    <Button type="submit" form="analysis-form" disabled={analysisState !== 'idle' || !file} size="lg" className="w-full py-7 text-base">
-                       <BookOpen className="mr-3 h-5 w-5" />
+                </div>
+                <div className="mt-6">
+                    <Button type="submit" form="analysis-form" disabled={analysisState !== 'idle' || !file} size="lg" className="w-full py-6 text-base">
+                       <BookOpen className="mr-2 h-5 w-5" />
                         Analizar Contenido
                     </Button>
-                </CardFooter>
+                </div>
             </form>
-        </Card>
+        </div>
     );
 }

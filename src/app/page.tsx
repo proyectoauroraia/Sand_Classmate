@@ -13,7 +13,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Logo } from '@/components/logo';
 import { AuthTabs } from '@/components/auth/auth-tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { FileUploader } from '@/components/dashboard/file-uploader';
 import { MaterialsHistory } from '@/components/dashboard/materials-history';
 import type { AnalysisResult, HistoryItem } from '@/lib/types';
@@ -45,18 +45,13 @@ export default function HomePage() {
                     analysis: result,
                 };
                 
+                // Always add the new item. Deduplication will happen in the history component.
                 const existingHistory: HistoryItem[] = JSON.parse(localStorage.getItem('sand_classmate_history') || '[]');
-                
-                // Always add the new item to the beginning. Deduplication will be handled by the display component.
                 const updatedHistory = [newHistoryItem, ...existingHistory];
 
                 localStorage.setItem('sand_classmate_history', JSON.stringify(updatedHistory));
                 setHistoryKey(Date.now()); // Trigger refresh
                 
-                toast({
-                    title: "Análisis Guardado",
-                    description: `El análisis para "${result.courseName}" ha sido guardado en tu historial.`
-                });
             } catch (error) {
                 console.error("Failed to save to localStorage", error);
                 toast({
@@ -127,12 +122,11 @@ export default function HomePage() {
                 <nav className="grid items-start px-4 text-sm font-medium">
                     {navLinks.map((link) => {
                         const isActive = pathname === link.href;
-                        // All links are visible regardless of auth state
                         return (
                          <Link
                             key={link.href}
                             href={link.href}
-                            className={`flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary ${isActive ? 'bg-accent text-accent-foreground font-semibold' : ''}`}
+                            className={`flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary ${isActive ? 'bg-accent text-primary' : ''}`}
                          >
                             <link.icon className="h-5 w-5" />
                             {link.label}
@@ -145,42 +139,54 @@ export default function HomePage() {
     );
     
     const mainContent = analysisResult ? (
-        <div className="p-4 md:p-6 lg:p-12">
+        <div className="p-4 md:p-6 lg:p-8">
             <AnalysisDisplay 
                 analysisResult={analysisResult}
                 onReset={handleReset}
             />
         </div>
     ) : (
-        <div className="space-y-8 p-4 md:p-6 lg:p-12">
+        <div className="space-y-8 p-4 md:p-6 lg:p-8">
             <div className="text-left">
                 <h1 className="text-3xl md:text-4xl font-bold tracking-tight">¿Qué vamos a crear hoy?</h1>
                 <p className="text-muted-foreground mt-2 text-base md:text-lg">
                     Sube tu programa de estudios o apuntes (PDF) y deja que la IA genere presentaciones, guías y más para tus clases.
                 </p>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 <div className="lg:col-span-7 flex flex-col h-full">
-                    <FileUploader onAnalysisComplete={handleAnalysisComplete} />
+                    <Card className="h-full">
+                        <CardContent className="p-6 h-full">
+                            <FileUploader onAnalysisComplete={handleAnalysisComplete} />
+                        </CardContent>
+                    </Card>
                 </div>
                 <div className="lg:col-span-5 flex flex-col h-full">
-                    <MaterialsHistory 
-                        key={historyKey} 
-                        isFullPage={false} 
-                        onViewAnalysis={handleRestoreAnalysis} 
-                    />
+                     <Card className="h-full">
+                        <CardHeader>
+                            <CardTitle>Cursos Recientes</CardTitle>
+                            <CardDescription>Continúa trabajando en tus últimos análisis.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <MaterialsHistory 
+                                key={historyKey} 
+                                isFullPage={false} 
+                                onViewAnalysis={handleRestoreAnalysis} 
+                            />
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </div>
     );
 
     return (
-        <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
+        <div className="grid min-h-screen w-full lg:grid-cols-[260px_1fr]">
             <div className="hidden border-r bg-card text-card-foreground lg:block">
                 {sidebarContent}
             </div>
             <div className="flex flex-col">
-                 <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b bg-muted px-4 md:px-6 lg:h-[60px] lg:justify-end">
+                 <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b bg-background px-4 md:px-6 lg:h-[60px] lg:justify-end">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
@@ -188,7 +194,7 @@ export default function HomePage() {
                                 <span className="sr-only">Toggle navigation menu</span>
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="left" className="flex flex-col p-0 bg-card border-r-0">
+                        <SheetContent side="left" className="flex flex-col p-0 bg-card border-r-0 w-[260px]">
                             {sidebarContent}
                         </SheetContent>
                     </Sheet>
