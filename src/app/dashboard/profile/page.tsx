@@ -2,12 +2,11 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { UserCircle2, BrainCircuit, Lock, Loader2 } from 'lucide-react';
+import { UserCircle2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@/lib/supabase/client';
@@ -129,19 +128,19 @@ export default function ProfilePage() {
     }
     
     return (
-        <form onSubmit={handleSaveChanges}>
-            <div className="space-y-8 p-4 md:p-6 lg:p-8">
-                <div>
-                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Mi Perfil y Configuración</h1>
+        <div className="flex flex-col items-center justify-start h-full p-4 md:p-6 lg:p-8">
+            <div className="w-full max-w-4xl">
+                 <div className="mb-8">
+                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Mi Perfil</h1>
                     <p className="text-muted-foreground mt-1 text-sm md:text-base">
                         Gestiona tu información para mejorar la personalización de la IA.
                     </p>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 items-start">
-                    {/* Left Column: General Info */}
-                    <div className="lg:col-span-1 space-y-6">
-                        <Card className="bg-card/80 backdrop-blur-sm border-border/20 shadow-lg">
-                            <CardHeader className="items-center text-center p-6">
+                <form onSubmit={handleSaveChanges}>
+                    <Card className="bg-card/80 backdrop-blur-sm border-border/20 shadow-lg">
+                        <CardContent className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-start">
+                            {/* Avatar Section */}
+                            <div className="md:col-span-1 flex flex-col items-center text-center">
                                 <div className="relative group w-24 h-24 md:w-32 md:h-32">
                                     <Avatar className="h-full w-full cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                                         <AvatarImage src={previewUrl ?? undefined} alt="Foto de Perfil" data-ai-hint="person face" className="object-cover" />
@@ -165,60 +164,40 @@ export default function ProfilePage() {
                                     onChange={handleProfileImageChange}
                                 />
                                 <div className="pt-4">
-                                    <CardTitle className="text-xl md:text-2xl">{fullName || 'Nombre de Usuario'}</CardTitle>
-                                    <CardDescription className="mt-1 text-sm">{role || 'Rol o Empleo'}</CardDescription>
+                                    <h3 className="text-lg md:text-xl font-semibold">{fullName || 'Nombre de Usuario'}</h3>
+                                    <p className="text-sm text-muted-foreground mt-1">{role || 'Rol o Empleo'}</p>
                                 </div>
-                            </CardHeader>
-                            <CardContent className="space-y-4 px-4 md:px-6">
-                                <div className="space-y-2">
+                            </div>
+                            
+                            {/* Form Fields Section */}
+                            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div className="space-y-2 sm:col-span-2">
                                     <Label htmlFor="fullName">Nombre Completo</Label>
                                     <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} />
                                 </div>
-                                <div className="space-y-2">
+                                <div className="space-y-2 sm:col-span-2">
                                     <Label htmlFor="email">Correo Electrónico</Label>
                                     <Input id="email" type="email" value={email} disabled />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="role">Rol o Empleo</Label>
-                                    <Input id="role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Ej: Académico, Universidad de..." />
+                                    <Input id="role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Ej: Académico, U. de Chile" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="city">Ciudad</Label>
                                     <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ej: Santiago, Chile" />
                                 </div>
-                            </CardContent>
-                        </Card>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <div className="flex justify-end pt-6">
+                        <Button type="submit" size="lg" disabled={saving || loading} className="w-full md:w-auto py-6 text-base">
+                            {saving && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+                            {saving ? 'Guardando...' : 'Guardar Cambios'}
+                        </Button>
                     </div>
-
-                    {/* Right Column: Password */}
-                    <div className="lg:col-span-2 space-y-6">
-                        <Card className="bg-card/80 backdrop-blur-sm border-border/20 shadow-lg">
-                            <CardHeader>
-                                <div className="flex items-center gap-3">
-                                    <Lock className="h-6 w-6 text-primary" />
-                                    <CardTitle className="text-lg md:text-xl">Cambiar Contraseña</CardTitle>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="current-password">Contraseña Actual</Label>
-                                    <Input id="current-password" type="password" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="new-password">Nueva Contraseña</Label>
-                                    <Input id="new-password" type="password" />
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
-                <div className="flex justify-end pt-4">
-                    <Button type="submit" size="lg" disabled={saving || loading} className="w-full md:w-auto py-6 text-base">
-                        {saving && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
-                        {saving ? 'Guardando...' : 'Guardar Cambios'}
-                    </Button>
-                </div>
+                </form>
             </div>
-        </form>
+        </div>
     );
 }
