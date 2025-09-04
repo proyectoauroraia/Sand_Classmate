@@ -50,6 +50,7 @@ export type UserProfile = {
     first_name?: string;
     last_name?: string;
     avatar_url?: string;
+    institutions?: string[];
 };
 
 export type CheckoutSessionResult = {

@@ -2,11 +2,11 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2 } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@/lib/supabase/client';
@@ -27,6 +27,9 @@ export default function ProfilePage() {
     const [firstName, setFirstName] = React.useState('');
     const [lastName, setLastName] = React.useState('');
     const [email, setEmail] = React.useState('');
+    const [institutions, setInstitutions] = React.useState<string[]>([]);
+    const [currentInstitution, setCurrentInstitution] = React.useState('');
+    
     const [profileImage, setProfileImage] = React.useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
@@ -52,11 +55,11 @@ export default function ProfilePage() {
                     setFirstName(profile.first_name ?? '');
                     setLastName(profile.last_name ?? '');
                     setPreviewUrl(profile.avatar_url ?? user.user_metadata?.avatar_url ?? null);
+                    setInstitutions(profile.institutions || []);
                 } else if (error && error.code !== 'PGRST116') {
                     console.error("Error fetching profile:", error.message);
                     toast({ variant: 'destructive', title: 'Error al cargar el perfil', description: error.message });
                 } else {
-                    // This case handles a new user who might have metadata but no profile entry yet
                     setFirstName(user.user_metadata?.first_name ?? '');
                     setLastName(user.user_metadata?.last_name ?? '');
                     setPreviewUrl(user.user_metadata?.avatar_url ?? null);
@@ -75,6 +78,21 @@ export default function ProfilePage() {
             setPreviewUrl(URL.createObjectURL(file));
         }
     };
+    
+    const handleAddInstitution = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && currentInstitution.trim() !== '') {
+            e.preventDefault();
+            if (!institutions.includes(currentInstitution.trim())) {
+                setInstitutions([...institutions, currentInstitution.trim()]);
+            }
+            setCurrentInstitution('');
+        }
+    };
+
+    const handleRemoveInstitution = (institutionToRemove: string) => {
+        setInstitutions(institutions.filter(inst => inst !== institutionToRemove));
+    };
+
 
     const handleSaveChanges = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -83,6 +101,7 @@ export default function ProfilePage() {
         const formData = new FormData();
         formData.append('firstName', firstName);
         formData.append('lastName', lastName);
+        formData.append('institutions', JSON.stringify(institutions));
         
         if (profileImage) {
             formData.append('profileImage', profileImage);
@@ -106,6 +125,9 @@ export default function ProfilePage() {
             });
             if (data?.avatar_url) {
                 setPreviewUrl(data.avatar_url);
+            }
+            if (data?.institutions) {
+                setInstitutions(data.institutions);
             }
         }
     };
@@ -195,6 +217,28 @@ export default function ProfilePage() {
                                         <Input id="email" type="email" value={email} disabled />
                                          <p className="text-xs text-muted-foreground">Tu email de inicio de sesión no se puede cambiar.</p>
                                     </div>
+                                    
+                                     <div className="space-y-2">
+                                        <Label htmlFor="institutions">Mis Casas de Estudio o Universidades</Label>
+                                        <Input 
+                                            id="institutions" 
+                                            placeholder="Añadir institución y presionar Enter..."
+                                            value={currentInstitution}
+                                            onChange={(e) => setCurrentInstitution(e.target.value)}
+                                            onKeyDown={handleAddInstitution}
+                                        />
+                                        <div className="flex flex-wrap gap-2 pt-2">
+                                            {institutions.map((inst, index) => (
+                                                <div key={index} className="flex items-center gap-1 bg-secondary text-secondary-foreground rounded-full px-3 py-1 text-sm">
+                                                    <span>{inst}</span>
+                                                    <button type="button" onClick={() => handleRemoveInstitution(inst)} className="rounded-full hover:bg-muted/50 p-0.5">
+                                                        <X className="h-3 w-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
                                 </CardContent>
                             </Card>
                         </div>

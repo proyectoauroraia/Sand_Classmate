@@ -621,6 +621,15 @@ export async function updateUserProfileAction(
 
     const firstName = formData.get('firstName') as string;
     const lastName = formData.get('lastName') as string;
+    const institutionsStr = formData.get('institutions') as string;
+    let institutions: string[] = [];
+
+    try {
+        institutions = JSON.parse(institutionsStr);
+    } catch(e) {
+        return { data: null, error: 'Formato de instituciones inválido.' };
+    }
+
     if (!firstName || firstName.trim().length === 0) {
         return { data: null, error: 'El nombre es requerido.'};
     }
@@ -633,11 +642,13 @@ export async function updateUserProfileAction(
         id: string;
         first_name: string;
         last_name: string;
+        institutions: string[];
         avatar_url?: string;
     } = {
       id: user.id,
       first_name: firstName,
       last_name: lastName,
+      institutions: institutions,
     };
     
     // This object is for updating the Supabase Auth user_metadata.
