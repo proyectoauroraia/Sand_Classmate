@@ -18,6 +18,7 @@ import { FileUploader } from '@/components/dashboard/file-uploader';
 import { MaterialsHistory } from '@/components/dashboard/materials-history';
 import type { AnalysisResult, HistoryItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { AnalysisDisplay } from '@/components/dashboard/analysis/analysis-display';
 
 export default function HomePage() {
     const router = useRouter();
@@ -46,11 +47,8 @@ export default function HomePage() {
                 
                 const existingHistory: HistoryItem[] = JSON.parse(localStorage.getItem('sand_classmate_history') || '[]');
                 
-                // Remove any existing item with the same courseName to avoid duplicates
-                const filteredHistory = existingHistory.filter(item => item.courseName !== result.courseName);
-                
-                // Add the new item to the beginning of the list
-                const updatedHistory = [newHistoryItem, ...filteredHistory];
+                // Always add the new item to the beginning. Deduplication will be handled by the display component.
+                const updatedHistory = [newHistoryItem, ...existingHistory];
 
                 localStorage.setItem('sand_classmate_history', JSON.stringify(updatedHistory));
                 setHistoryKey(Date.now()); // Trigger refresh

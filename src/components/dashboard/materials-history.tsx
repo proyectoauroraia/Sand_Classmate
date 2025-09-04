@@ -39,21 +39,31 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
 
     useEffect(() => {
         setIsClient(true);
-      try {
-        const storedHistory = localStorage.getItem('sand_classmate_history');
-        if (storedHistory) {
-          const items: HistoryItem[] = JSON.parse(storedHistory);
-          setHistoryItems(items);
-          setFilteredItems(items);
-          
-          const careers = new Set(items.map(item => item.subjectArea).filter(Boolean));
-          setUniqueCareers(['all', ...Array.from(careers)]);
+        try {
+            const storedHistory = localStorage.getItem('sand_classmate_history');
+            if (storedHistory) {
+                const items: HistoryItem[] = JSON.parse(storedHistory);
+
+                // Deduplicate items, keeping the most recent one (first occurrence)
+                const uniqueItemsMap = new Map<string, HistoryItem>();
+                for (const item of items) {
+                    if (!uniqueItemsMap.has(item.courseName)) {
+                        uniqueItemsMap.set(item.courseName, item);
+                    }
+                }
+                const uniqueItems = Array.from(uniqueItemsMap.values());
+                
+                setHistoryItems(uniqueItems);
+                setFilteredItems(uniqueItems);
+                
+                const careers = new Set(uniqueItems.map(item => item.subjectArea).filter(Boolean));
+                setUniqueCareers(['all', ...Array.from(careers)]);
+            }
+        } catch (error) {
+            console.error("Could not parse history from localStorage", error);
+            setHistoryItems([]);
+            setFilteredItems([]);
         }
-      } catch (error) {
-        console.error("Could not parse history from localStorage", error);
-        setHistoryItems([]);
-        setFilteredItems([]);
-      }
     }, []);
 
     useEffect(() => {
