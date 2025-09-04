@@ -51,7 +51,6 @@ export type UserProfile = {
     fullName?: string;
     role?: string;
     city?: string;
-    bio?: string;
     cvUrl?: string;
     avatar_url?: string;
 };

@@ -275,17 +275,18 @@ export async function generateMaterialFromAnalysis(
         userProfile = data;
     }
 
-    const personalizationPrompt = userProfile?.bio
+    const personalizationPrompt = userProfile
         ? `
-        **Teacher's Pedagogical Philosophy:**
-        ${userProfile.bio}
+        **Implicit Teacher's Profile:**
+        - Full Name: ${userProfile.fullName || 'Not provided'}
+        - Role: ${userProfile.role || 'Not provided'}
         
         **IMPORTANT PERSONALIZATION INSTRUCTIONS:**
-        You MUST adapt the tone, examples, and suggested methodologies in the generated material to align with the teacher's pedagogical philosophy. For example, if the philosophy mentions "constructivism" or "Paulo Freire", prioritize active learning, critical thinking questions, and collaborative activities over simple memorization. If it mentions "competency-based learning", focus on practical application and case studies.
+        You MUST adapt the tone, examples, and suggested methodologies in the generated material to align with the teacher's implicit profile based on the analyzed course content and their professional role. For example, if the content is highly technical and for an advanced engineering course, the examples should be complex and practical. If the role is for a university teaching humanities, prioritize critical thinking questions and collaborative activities. The personalization is subtle and based on context, not on an explicit philosophy.
         `
         : `
-        **No Pedagogical Philosophy Provided:**
-        Generate content using standard, high-quality pedagogical practices.
+        **No User Profile Provided:**
+        Generate content using standard, high-quality pedagogical practices suitable for a university-level course.
         `;
 
 

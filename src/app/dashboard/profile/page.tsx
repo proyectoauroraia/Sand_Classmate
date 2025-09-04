@@ -29,7 +29,6 @@ export default function ProfilePage() {
     const [email, setEmail] = React.useState('');
     const [role, setRole] = React.useState('');
     const [city, setCity] = React.useState('');
-    const [bio, setBio] = React.useState('');
     const [profileImage, setProfileImage] = React.useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
@@ -54,7 +53,6 @@ export default function ProfilePage() {
                     setFullName(profile.fullName ?? user.user_metadata?.full_name ?? '');
                     setRole(profile.role ?? '');
                     setCity(profile.city ?? '');
-                    setBio(profile.bio ?? '');
                     if (profile.avatar_url) {
                         setPreviewUrl(profile.avatar_url);
                     }
@@ -87,7 +85,6 @@ export default function ProfilePage() {
         formData.append('fullName', fullName);
         formData.append('role', role);
         formData.append('city', city);
-        formData.append('bio', bio);
         if (profileImage) {
             formData.append('profileImage', profileImage);
         }
@@ -137,7 +134,7 @@ export default function ProfilePage() {
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Mi Perfil y Configuración</h1>
                     <p className="text-muted-foreground mt-1 text-sm md:text-base">
-                        Gestiona tu información y personaliza cómo la IA interactúa contigo.
+                        Gestiona tu información para mejorar la personalización de la IA.
                     </p>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 items-start">
@@ -193,29 +190,8 @@ export default function ProfilePage() {
                         </Card>
                     </div>
 
-                    {/* Right Column: AI Personalization & Password */}
+                    {/* Right Column: Password */}
                     <div className="lg:col-span-2 space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <div className="flex items-center gap-3">
-                                    <BrainCircuit className="h-6 w-6 text-primary" />
-                                    <CardTitle className="text-lg md:text-xl">Personalización con IA</CardTitle>
-                                </div>
-                                <CardDescription>Define tu filosofía de enseñanza para que la IA la use al generar materiales.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                <div className="space-y-2">
-                                    <Label htmlFor="bio">Mi Filosofía Pedagógica y Carrera</Label>
-                                    <Textarea
-                                        id="bio"
-                                        placeholder="Describe tu enfoque pedagógico (ej: constructivista, basado en proyectos), tus áreas de especialización y los hitos más importantes de tu carrera."
-                                        rows={8}
-                                        value={bio}
-                                        onChange={(e) => setBio(e.target.value)}
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
                         <Card>
                             <CardHeader>
                                 <div className="flex items-center gap-3">

@@ -642,7 +642,6 @@ export async function updateUserProfileAction(
       fullName,
       role: formData.get('role') as string,
       city: formData.get('city') as string,
-      bio: formData.get('bio') as string,
       avatar_url: avatarUrl
     };
 
