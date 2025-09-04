@@ -2,6 +2,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Home, BookOpen, UserCircle2, Gem, Power, Settings, Loader2, Menu } from 'lucide-react';
@@ -11,16 +12,27 @@ import type { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, usePathname } from 'next/navigation';
 import { Logo } from '@/components/logo';
-import { AuthTabs } from '@/components/auth/auth-tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { FileUploader } from '@/components/dashboard/file-uploader';
 import { MaterialsHistory } from '@/components/dashboard/materials-history';
 import type { AnalysisResult, HistoryItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { AnalysisDisplay } from '@/components/dashboard/analysis/analysis-display';
 import { cn } from '@/lib/utils';
 import { DuneBackground } from '@/components/icons/dune-background';
+import { Skeleton } from '@/components/ui/skeleton';
+
+// Dynamically import heavy components
+const AuthTabs = dynamic(() => import('@/components/auth/auth-tabs').then(mod => mod.AuthTabs), {
+    loading: () => <div className="flex justify-center items-center h-48"><Loader2 className="h-8 w-8 animate-spin" /></div>,
+    ssr: false
+});
+
+const AnalysisDisplay = dynamic(() => import('@/components/dashboard/analysis/analysis-display').then(mod => mod.AnalysisDisplay), {
+    loading: () => <div className="p-8"><Skeleton className="w-full h-96" /></div>,
+    ssr: false,
+});
+
 
 export default function HomePage() {
     const router = useRouter();
@@ -32,6 +44,8 @@ export default function HomePage() {
     
     const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
     const [historyKey, setHistoryKey] = useState(Date.now()); // Used to force-refresh history component
+    const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+
 
     const handleAnalysisComplete = (result: AnalysisResult | null) => {
         if (result) {
@@ -91,6 +105,9 @@ export default function HomePage() {
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             setUser(session?.user ?? null);
+            if (session?.user && isAuthDialogOpen) {
+              setIsAuthDialogOpen(false); // Close dialog on successful login/signup
+            }
             setLoading(false);
         });
 
@@ -104,7 +121,7 @@ export default function HomePage() {
         return () => {
             subscription.unsubscribe();
         };
-    }, [supabase]);
+    }, [supabase, isAuthDialogOpen]);
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
@@ -174,7 +191,7 @@ export default function HomePage() {
                      <Card className="h-full bg-card/80 backdrop-blur-sm border-border/20 shadow-lg">
                         <CardHeader>
                             <CardTitle>Cursos Recientes</CardTitle>
-                            <CardDescription>Continúa trabajando en tus últimos análisis.</CardDescription>
+                            <CardDescription className="text-muted-foreground">Continúa trabajando en tus últimos análisis.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <MaterialsHistory 
@@ -190,7 +207,7 @@ export default function HomePage() {
     );
 
     return (
-        <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr] bg-background">
+        <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr] bg-card">
             <DuneBackground />
             
             {/* Sidebar for Desktop */}
@@ -199,7 +216,7 @@ export default function HomePage() {
             </div>
 
             <div className="flex flex-col">
-                <header className="flex h-14 items-center gap-4 border-b bg-muted/30 backdrop-blur-sm px-6 lg:h-[60px] lg:px-6">
+                <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b bg-muted/30 backdrop-blur-sm px-4 md:px-6 lg:h-[60px] lg:justify-end">
                     {/* Mobile Menu */}
                     <Sheet>
                         <SheetTrigger asChild>
@@ -248,7 +265,7 @@ export default function HomePage() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : (
-                        <Dialog>
+                        <Dialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen}>
                             <DialogTrigger asChild>
                                 <Button>Ingresar / Registrarse</Button>
                             </DialogTrigger>
@@ -261,14 +278,14 @@ export default function HomePage() {
                                         </DialogDescription>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
-                                        <AuthTabs />
+                                        {isAuthDialogOpen && <AuthTabs />}
                                     </CardContent>
                                 </Card>
                             </DialogContent>
                         </Dialog>
                     )}
                 </header>
-                <main className="flex-1 overflow-y-auto relative">
+                <main className="flex-1 overflow-y-auto relative bg-background">
                     {mainContent}
                 </main>
             </div>

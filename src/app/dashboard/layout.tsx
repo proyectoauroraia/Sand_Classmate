@@ -106,7 +106,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
 
     return (
-        <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr] bg-background">
+        <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr] bg-card">
             <DuneBackground />
             <div className="hidden border-r bg-card/80 backdrop-blur-sm lg:block">
                 {sidebarContent}
@@ -158,7 +158,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
 
                 </header>
-                 <main className="flex-1 overflow-y-auto relative">
+                 <main className="flex-1 overflow-y-auto relative bg-background">
                     {children}
                 </main>
             </div>

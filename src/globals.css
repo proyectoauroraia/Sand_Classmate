@@ -3,168 +3,50 @@
 @tailwind utilities;
 
 @layer base {
-  :root, .theme-default {
-    --background: 24 51% 97%; /* Light Sand */
-    --foreground: 24 51% 20%; /* Dark Brown */
+  :root, .light, .theme-default {
+    --background: 39 88% 95%; /* sand: #FDF7E4 */
+    --foreground: 30 69% 32%; /* accent: #8A4F1A */
     
-    --card: 0 0% 100%;
-    --card-foreground: 24 51% 20%;
+    --card: 42 75% 94%; /* neutral: #FAF3E0 */
+    --card-foreground: 30 69% 32%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 24 51% 20%;
+    --popover: 42 75% 94%;
+    --popover-foreground: 30 69% 32%;
     
-    --primary: 15 82% 56%; /* Bright Orange */
-    --primary-foreground: 0 0% 100%;
+    --primary: 36 80% 58%; /* primary: #E8A541 */
+    --primary-foreground: 30 69% 22%;
 
-    --secondary: 186 39% 28%; /* Dark Teal */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 24 51% 90%; 
+    --secondary-foreground: 24 6% 10%;
 
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
+    --muted: 240 5% 90%;
+    --muted-foreground: 30 60% 45%; /* Adjusted for better contrast */
 
-    --accent: 15 82% 95%; /* Light Orange */
-    --accent-foreground: 15 82% 40%;
+    --accent: 36 80% 90%; /* Light Orange for accents */
+    --accent-foreground: 36 80% 30%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 89.8%;
-    --input: 0 0% 92.3%;
-    --ring: 15 82% 56%;
+    --border: 39 88% 88%; /* Lighter border from sand */
+    --input: 39 88% 90%; /* Lighter input from sand */
+    --ring: 36 80% 58%;
     
-    --chart-1: 186 39% 28%;
+    --chart-1: 221 83% 53%;
     --chart-2: 172 38% 56%;
     --chart-3: 15 82% 56%;
     --chart-4: 43 94% 60%;
     --chart-5: 23 88% 65%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    --sand-bg: hsl(36 52% 90%);
-    --sand-dune-1-start: hsl(35 60% 85%);
-    --sand-dune-1-end: hsl(25 70% 75%);
-    --sand-dune-2-start: hsl(40 70% 80%);
-    --sand-dune-2-end: hsl(30 80% 70%);
-    --sand-dune-3-start: hsl(45 80% 88%);
-    --sand-dune-3-end: hsl(35 90% 80%);
-  }
-
-  .dark.theme-default {
-    --background: 24 51% 10%;
-    --foreground: 0 0% 95%;
-    --card: 24 51% 12%;
-    --card-foreground: 0 0% 95%;
-    --popover: 24 51% 12%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 15 82% 60%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 186 39% 25%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 15 82% 15%;
-    --accent-foreground: 15 82% 80%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 18%;
-    --input: 0 0% 20%;
-    --ring: 15 82% 60%;
-
-     --sand-bg: hsl(25 40% 10%);
-    --sand-dune-1-start: hsl(20 50% 15%);
-    --sand-dune-1-end: hsl(15 60% 20%);
-    --sand-dune-2-start: hsl(30 45% 12%);
-    --sand-dune-2-end: hsl(25 55% 18%);
-    --sand-dune-3-start: hsl(35 55% 8%);
-    --sand-dune-3-end: hsl(30 65% 14%);
-  }
-
-  .theme-navy {
-    --background: 210 50% 98%;
-    --foreground: 215 30% 25%;
-    --primary: 215 41% 45%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 205 30% 35%;
-    --secondary-foreground: 0 0% 100%;
-    --accent: 210 50% 94%;
-    --accent-foreground: 215 41% 35%;
-  }
-  
-  .dark.theme-navy {
-    --background: 215 30% 12%;
-    --foreground: 210 30% 95%;
-    --primary: 215 41% 65%;
-    --primary-foreground: 215 30% 10%;
-    --secondary: 205 30% 25%;
-    --secondary-foreground: 0 0% 100%;
-    --accent: 215 30% 18%;
-    --accent-foreground: 215 41% 80%;
-  }
-  
-  .theme-forest {
-    --background: 110 30% 97%;
-    --foreground: 120 25% 20%;
-    --primary: 120 39% 40%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 100 25% 30%;
-    --secondary-foreground: 0 0% 100%;
-    --accent: 110 30% 94%;
-    --accent-foreground: 120 39% 30%;
-  }
-
-  .dark.theme-forest {
-    --background: 120 25% 10%;
-    --foreground: 110 20% 95%;
-    --primary: 120 39% 60%;
-    --primary-foreground: 120 25% 10%;
-    --secondary: 100 25% 20%;
-    --secondary-foreground: 0 0% 100%;
-    --accent: 120 25% 15%;
-    --accent-foreground: 120 39% 80%;
-  }
-
-  .theme-dusk {
-    --background: 250 40% 97%;
-    --foreground: 250 20% 25%;
-    --primary: 250 50% 60%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 260 30% 40%;
-    --secondary-foreground: 0 0% 100%;
-    --accent: 250 40% 95%;
-    --accent-foreground: 250 50% 50%;
-  }
-
-  .dark.theme-dusk {
-    --background: 250 20% 12%;
-    --foreground: 250 20% 95%;
-    --primary: 250 50% 70%;
-    --primary-foreground: 250 20% 10%;
-    --secondary: 260 30% 25%;
-    --secondary-foreground: 0 0% 100%;
-    --accent: 250 20% 18%;
-    --accent-foreground: 250 50% 85%;
-  }
-
-  .theme-sunrise {
-    --background: 35 60% 96%;
-    --foreground: 25 40% 25%;
-    --primary: 20 90% 60%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 30 70% 50%;
-    --secondary-foreground: 0 0% 100%;
-    --accent: 35 60% 92%;
-    --accent-foreground: 20 90% 50%;
-  }
-
-  .dark.theme-sunrise {
-    --background: 25 40% 10%;
-    --foreground: 35 40% 95%;
-    --primary: 20 90% 65%;
-    --primary-foreground: 25 40% 5%;
-    --secondary: 30 70% 30%;
-    --secondary-foreground: 0 0% 100%;
-    --accent: 25 40% 15%;
-    --accent-foreground: 20 90% 80%;
+    --sand-bg: hsl(39 88% 95%);
+    --sand-dune-1-start: hsl(39 88% 90%);
+    --sand-dune-1-end: hsl(39 88% 85%);
+    --sand-dune-2-start: hsl(39 88% 92%);
+    --sand-dune-2-end: hsl(39 88% 88%);
+    --sand-dune-3-start: hsl(39 88% 95%);
+    --sand-dune-3-end: hsl(39 88% 90%);
   }
 }
 
@@ -173,6 +55,6 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-card text-card-foreground;
   }
 }
