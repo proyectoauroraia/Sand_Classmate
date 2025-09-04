@@ -19,6 +19,7 @@ import { MaterialsHistory } from '@/components/dashboard/materials-history';
 import type { AnalysisResult, HistoryItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { AnalysisDisplay } from '@/components/dashboard/analysis/analysis-display';
+import { cn } from '@/lib/utils';
 
 export default function HomePage() {
     const router = useRouter();
@@ -45,9 +46,14 @@ export default function HomePage() {
                     analysis: result,
                 };
                 
-                // Always add the new item. Deduplication will happen in the history component.
+                // Read, update, then write back. This is safer.
                 const existingHistory: HistoryItem[] = JSON.parse(localStorage.getItem('sand_classmate_history') || '[]');
-                const updatedHistory = [newHistoryItem, ...existingHistory];
+                
+                // Remove existing item with the same courseName to avoid duplicates
+                const filteredHistory = existingHistory.filter(item => item.courseName !== newHistoryItem.courseName);
+                
+                // Add the new item to the beginning
+                const updatedHistory = [newHistoryItem, ...filteredHistory];
 
                 localStorage.setItem('sand_classmate_history', JSON.stringify(updatedHistory));
                 setHistoryKey(Date.now()); // Trigger refresh
@@ -112,30 +118,24 @@ export default function HomePage() {
     ];
 
     const sidebarContent = (
-        <div className="flex h-full max-h-screen flex-col gap-2">
-            <div className="flex h-[60px] items-center border-b px-6">
-                 <Link href="/" className="flex items-center gap-2 font-semibold text-foreground">
-                    <Logo />
+        <nav className="grid items-start text-sm font-medium">
+            {navLinks.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                 <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-3 transition-all',
+                        isActive ? 'bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground hover:text-primary'
+                    )}
+                 >
+                    <link.icon className="h-5 w-5" />
+                    {link.label}
                 </Link>
-            </div>
-            <div className="flex-1 overflow-auto py-4">
-                <nav className="grid items-start px-4 text-sm font-medium">
-                    {navLinks.map((link) => {
-                        const isActive = pathname === link.href;
-                        return (
-                         <Link
-                            key={link.href}
-                            href={link.href}
-                            className={`flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary ${isActive ? 'bg-accent text-primary' : ''}`}
-                         >
-                            <link.icon className="h-5 w-5" />
-                            {link.label}
-                        </Link>
-                        )
-                    })}
-                </nav>
-            </div>
-        </div>
+                )
+            })}
+        </nav>
     );
     
     const mainContent = analysisResult ? (
@@ -146,7 +146,7 @@ export default function HomePage() {
             />
         </div>
     ) : (
-        <div className="space-y-8 p-4 md:p-6 lg:p-8">
+         <div className="space-y-8 p-4 md:p-6 lg:p-8">
             <div className="text-left">
                 <h1 className="text-3xl md:text-4xl font-bold tracking-tight">¿Qué vamos a crear hoy?</h1>
                 <p className="text-muted-foreground mt-2 text-base md:text-lg">
@@ -155,17 +155,17 @@ export default function HomePage() {
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 <div className="lg:col-span-7 flex flex-col h-full">
-                    <Card className="h-full">
+                    <Card className="h-full bg-card/60 border-dashed border-2 border-primary/30">
                         <CardContent className="p-6 h-full">
                             <FileUploader onAnalysisComplete={handleAnalysisComplete} />
                         </CardContent>
                     </Card>
                 </div>
                 <div className="lg:col-span-5 flex flex-col h-full">
-                     <Card className="h-full">
+                     <Card className="h-full bg-card/60">
                         <CardHeader>
                             <CardTitle>Cursos Recientes</CardTitle>
-                            <CardDescription>Continúa trabajando en tus últimos análisis.</CardDescription>
+                            <CardDescription>Continúa trabajando en tus últimos.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <MaterialsHistory 
@@ -181,12 +181,20 @@ export default function HomePage() {
     );
 
     return (
-        <div className="grid min-h-screen w-full lg:grid-cols-[260px_1fr]">
-            <div className="hidden border-r bg-card text-card-foreground lg:block">
-                {sidebarContent}
+        <div className="grid min-h-[80vh] w-full max-w-screen-xl lg:grid-cols-[260px_1fr] bg-card rounded-2xl shadow-2xl overflow-hidden">
+            {/* Sidebar */}
+            <div className="hidden border-r bg-card/50 lg:block p-4">
+                 <div className="flex h-[60px] items-center px-2">
+                    <Logo />
+                </div>
+                <div className="flex-1 overflow-auto py-4">
+                    {sidebarContent}
+                </div>
             </div>
+
+            {/* Main Content Area */}
             <div className="flex flex-col">
-                 <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b bg-background px-4 md:px-6 lg:h-[60px] lg:justify-end">
+                 <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b bg-background/0 px-4 md:px-6 lg:h-[76px] lg:justify-end">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
@@ -194,13 +202,15 @@ export default function HomePage() {
                                 <span className="sr-only">Toggle navigation menu</span>
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="left" className="flex flex-col p-0 bg-card border-r-0 w-[260px]">
-                            {sidebarContent}
+                         <SheetContent side="left" className="flex flex-col p-4 bg-card border-r-0 w-[260px]">
+                             <div className="flex h-[60px] items-center px-2">
+                                <Logo />
+                            </div>
+                            <div className="flex-1 overflow-auto py-4">
+                                {sidebarContent}
+                            </div>
                         </SheetContent>
                     </Sheet>
-                     <div className="w-full flex-1">
-                        {/* Header content can go here, e.g. search bar */}
-                    </div>
 
                     <div className="flex items-center gap-2 md:gap-4">
                        {loading ? (
@@ -253,9 +263,8 @@ export default function HomePage() {
                             </Dialog>
                        )}
                     </div>
-
                 </header>
-                 <main className="flex-1 overflow-y-auto bg-background relative">
+                 <main className="flex-1 overflow-y-auto bg-background/0 relative">
                     {mainContent}
                 </main>
             </div>

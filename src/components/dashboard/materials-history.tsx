@@ -8,9 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { HistoryItem } from '@/lib/types';
-import { useRouter } from 'next/navigation';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
 interface MaterialsHistoryProps {
@@ -18,7 +15,7 @@ interface MaterialsHistoryProps {
     onViewAnalysis?: (item: HistoryItem) => void;
 }
 
-const ITEMS_PER_PAGE = 3;
+const ITEMS_PER_PAGE_DASHBOARD = 3;
 
 export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: MaterialsHistoryProps) {
     const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
@@ -37,8 +34,10 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
             if (storedHistory) {
                 const items: HistoryItem[] = JSON.parse(storedHistory);
 
+                // Use a Map to get the most recent unique item for each courseName
                 const uniqueItemsMap = new Map<string, HistoryItem>();
                 for (const item of items) {
+                    // The list is already sorted with newest first, so the first time we see a courseName, it's the one we keep.
                     if (!uniqueItemsMap.has(item.courseName)) {
                         uniqueItemsMap.set(item.courseName, item);
                     }
@@ -78,7 +77,7 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
         );
     }
 
-    const displayedHistory = isFullPage ? filteredItems : filteredItems.slice(0, ITEMS_PER_PAGE);
+    const displayedHistory = isFullPage ? filteredItems : filteredItems.slice(0, ITEMS_PER_PAGE_DASHBOARD);
 
     const handleViewAnalysisClick = (item: HistoryItem) => {
         if (onViewAnalysis) {
@@ -135,7 +134,7 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                displayedHistory.map((item, index) => (
+                                displayedHistory.map((item) => (
                                     <TableRow key={item.id}>
                                         <TableCell className="font-medium text-muted-foreground">{item.subjectArea || 'N/A'}</TableCell>
                                         <TableCell className="font-semibold">{item.courseName || 'Nombre no disponible'}</TableCell>
@@ -161,12 +160,12 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
                     Aquí aparecerán tus análisis guardados.
                 </div>
             ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {displayedHistory.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                        <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-card hover:bg-accent/50 transition-colors">
                             <div>
-                                <p className="font-semibold">{item.courseName}</p>
-                                <p className="text-sm text-muted-foreground">{item.subjectArea}</p>
+                                <p className="font-semibold text-sm">{item.courseName}</p>
+                                <p className="text-xs text-muted-foreground">{item.subjectArea}</p>
                             </div>
                             <Button size="sm" variant="ghost" onClick={() => handleViewAnalysisClick(item)}>
                                 Ver
@@ -175,7 +174,7 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
                     ))}
                 </div>
             )}
-            {!isFullPage && historyItems.length > ITEMS_PER_PAGE && (
+            {!isFullPage && historyItems.length > ITEMS_PER_PAGE_DASHBOARD && (
                 <Button asChild variant="link" className="w-full mt-4">
                     <Link href="/dashboard/history">Ver todo</Link>
                 </Button>

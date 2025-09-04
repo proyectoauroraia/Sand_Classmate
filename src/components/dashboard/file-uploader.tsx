@@ -140,7 +140,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     
     if (analysisState === 'analyzing') {
         return (
-            <div className="flex flex-col items-center justify-center text-center p-10 h-full bg-primary/5">
+            <div className="flex flex-col items-center justify-center text-center p-10 h-full">
                 <div className="w-full max-w-md">
                      <h2 className="text-xl font-semibold text-primary">
                         Analizando tu documento...
@@ -167,7 +167,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                         </Alert>
                     )}
                     <div 
-                        className="flex flex-col items-center justify-center py-10 px-6 rounded-lg cursor-pointer transition-colors border-2 border-dashed border-border hover:bg-muted/50 flex-grow"
+                        className="flex flex-col items-center justify-center py-10 px-6 rounded-lg cursor-pointer transition-colors flex-grow"
                         onClick={() => fileInputRef.current?.click()}
                         onDrop={(e) => {
                             e.preventDefault();
@@ -175,8 +175,8 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                         }}
                         onDragOver={(e) => e.preventDefault()}
                     >
-                        <UploadCloud className="h-12 w-12 text-muted-foreground mb-4" />
-                        <p className="text-base font-semibold text-foreground">
+                        <UploadCloud className="h-12 w-12 text-primary mb-4" />
+                        <p className="text-base font-semibold text-foreground text-center">
                             {file ? file.name : 'Haz clic o arrastra un archivo para subir'}
                         </p>
                         <p className="text-sm text-muted-foreground mt-1">Se admiten documentos PDF y DOCX (máx. 10MB)</p>
