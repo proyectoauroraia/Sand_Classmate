@@ -136,7 +136,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     
     if (analysisState === 'analyzing') {
         return (
-            <div className="flex flex-col items-center justify-center text-center p-10 h-full">
+            <div className="flex flex-col items-center justify-center text-center p-10 h-full bg-card/80 backdrop-blur-sm border border-border/20 rounded-xl shadow-lg">
                 <div className="w-full max-w-md">
                      <h2 className="text-xl font-semibold text-primary">
                         Analizando tu documento...
@@ -152,7 +152,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     }
 
     return (
-        <div className="h-full flex flex-col p-6 bg-accent/20 border-2 border-dashed border-primary/30 rounded-xl">
+        <div className="h-full flex flex-col p-6 bg-card/80 backdrop-blur-sm border border-border/20 rounded-xl shadow-lg">
             <form id="analysis-form" onSubmit={handleAnalysisSubmit} className="flex-grow flex flex-col">
                 <div 
                     className="flex-grow flex flex-col items-center justify-center text-center cursor-pointer"
@@ -171,7 +171,7 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                         </Alert>
                     )}
                     <UploadCloud className="h-12 w-12 text-primary mb-4" />
-                    <p className="text-base font-semibold text-accent-foreground text-center">
+                    <p className="text-base font-semibold text-card-foreground text-center">
                         {file ? file.name : 'Haz clic o arrastra un archivo para subir'}
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">Se admiten documentos PDF y DOCX (máx. 10MB)</p>

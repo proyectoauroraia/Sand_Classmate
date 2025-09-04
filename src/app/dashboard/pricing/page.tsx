@@ -46,7 +46,6 @@ export default function PricingPage() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-full relative overflow-hidden p-4">
-            <DuneBackground />
             <div className="text-center max-w-2xl mx-auto z-10 pt-4 md:pt-6 lg:pt-8">
                 <h1 
                     className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground"

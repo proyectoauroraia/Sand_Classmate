@@ -109,7 +109,7 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
 
     if(isFullPage) {
         return (
-            <Card>
+            <Card className="bg-card/80 backdrop-blur-sm border-border/20 shadow-lg">
                 <CardHeader>
                     <CardTitle>Mi Biblioteca de Cursos</CardTitle>
                     <CardDescription>Aquí puedes ver, filtrar y acceder a todos los análisis de cursos que has guardado.</CardDescription>

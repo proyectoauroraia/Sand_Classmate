@@ -120,28 +120,29 @@ export default function HomePage() {
     ];
 
     const sidebarContent = (
-        <div className="flex flex-col h-full">
-            <div className="h-[60px] flex items-center mb-4">
-               <Logo />
+        <div className="flex h-full max-h-screen flex-col gap-2">
+            <div className="flex h-[60px] items-center border-b px-6">
+                 <Link href="/" className="flex items-center gap-2 font-semibold text-foreground">
+                    <Logo />
+                </Link>
             </div>
-            <nav className="grid items-start text-sm font-medium gap-2">
-                {navLinks.map((link) => {
-                    const isActive = pathname === link.href;
-                    return (
-                     <Link
-                        key={link.href}
-                        href={link.href}
-                        className={cn(
-                            'flex items-center gap-3 rounded-lg px-3 py-3 transition-all text-card-foreground/70 hover:text-card-foreground hover:bg-accent',
-                            isActive ? 'bg-primary text-primary-foreground font-semibold shadow-sm hover:bg-primary/90 hover:text-primary-foreground' : ''
-                        )}
-                     >
-                        <link.icon className="h-5 w-5" />
-                        {link.label}
-                    </Link>
-                    )
-                })}
-            </nav>
+            <div className="flex-1 overflow-auto py-4">
+                <nav className="grid items-start px-4 text-sm font-medium">
+                    {navLinks.map((link) => {
+                        const isActive = pathname === link.href;
+                        return (
+                         <Link
+                            key={link.href}
+                            href={link.href}
+                            className={`flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary ${isActive ? 'bg-accent text-accent-foreground font-semibold' : ''}`}
+                         >
+                            <link.icon className="h-5 w-5" />
+                            {link.label}
+                        </Link>
+                        )
+                    })}
+                </nav>
+            </div>
         </div>
     );
     
@@ -153,16 +154,16 @@ export default function HomePage() {
             />
         </div>
     ) : (
-         <div className="space-y-8">
-            <div className="text-left">
+         <div className="space-y-8 p-4 md:p-6 lg:p-8">
+            <div className="text-center">
                 <h1 
-                  className="text-3xl md:text-4xl font-bold tracking-tight text-card-foreground"
+                  className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground"
                   style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
                 >
                     ¿Qué vamos a crear hoy?
                 </h1>
-                <p className="text-card-foreground/80 mt-2 text-base md:text-lg">
-                    Sube tu programa de estudios o apuntes (PDF) y deja que la IA genere presentaciones, guías y más para tus clases.
+                <p className="text-muted-foreground mt-4 text-lg">
+                    Sube tu programa de estudios o apuntes (PDF, DOCX) y deja que la IA genere materiales de alta calidad para tus clases.
                 </p>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -170,12 +171,12 @@ export default function HomePage() {
                     <FileUploader onAnalysisComplete={handleAnalysisComplete} />
                 </div>
                 <div className="lg:col-span-5 flex flex-col h-full">
-                    <Card className="h-full bg-transparent border-none shadow-none">
-                        <CardHeader className="px-0">
-                            <CardTitle className="text-card-foreground">Cursos Recientes</CardTitle>
-                            <CardDescription className="text-card-foreground/70">Continúa trabajando en tus últimos.</CardDescription>
+                     <Card className="h-full bg-card/80 backdrop-blur-sm border-border/20 shadow-lg">
+                        <CardHeader>
+                            <CardTitle>Cursos Recientes</CardTitle>
+                            <CardDescription>Continúa trabajando en tus últimos análisis.</CardDescription>
                         </CardHeader>
-                        <CardContent className="px-0">
+                        <CardContent>
                             <MaterialsHistory 
                                 key={historyKey} 
                                 isFullPage={false} 
@@ -189,83 +190,87 @@ export default function HomePage() {
     );
 
     return (
-        <div className="relative min-h-screen w-full bg-card text-card-foreground">
-             <div className="flex min-h-screen">
-                {/* Sidebar */}
-                 <div className="hidden lg:block w-[260px] p-6 border-r border-border/20">
-                    {sidebarContent}
-                </div>
+        <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr] bg-background">
+            <DuneBackground />
+            
+            {/* Sidebar for Desktop */}
+            <div className="hidden border-r bg-card/80 backdrop-blur-sm lg:block">
+                {sidebarContent}
+            </div>
 
-                {/* Main Content Area */}
-                <div className="flex-1 flex flex-col">
-                    <header className="flex h-14 shrink-0 items-center justify-between gap-4 px-4 md:px-6 lg:h-[76px] lg:justify-end">
-                         <Sheet>
-                            <SheetTrigger asChild>
-                                <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
-                                    <Menu className="h-5 w-5" />
-                                    <span className="sr-only">Toggle navigation menu</span>
+            <div className="flex flex-col">
+                <header className="flex h-14 items-center gap-4 border-b bg-muted/30 backdrop-blur-sm px-6 lg:h-[60px] lg:px-6">
+                    {/* Mobile Menu */}
+                    <Sheet>
+                        <SheetTrigger asChild>
+                            <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
+                                <Menu className="h-5 w-5" />
+                                <span className="sr-only">Toggle navigation menu</span>
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="left" className="flex flex-col p-0 bg-card border-r-0">
+                            {sidebarContent}
+                        </SheetContent>
+                    </Sheet>
+                    
+                    <div className="w-full flex-1">
+                       {/* Can add search bar here in the future */}
+                    </div>
+
+                    {/* User Menu */}
+                    {loading ? (
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    ) : user ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="rounded-full">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src={user.user_metadata?.avatar_url ?? undefined} alt="@prof" data-ai-hint="person face" />
+                                        <AvatarFallback>{user.email?.charAt(0)?.toUpperCase() ?? 'U'}</AvatarFallback>
+                                    </Avatar>
+                                    <span className="sr-only">Toggle user menu</span>
                                 </Button>
-                            </SheetTrigger>
-                             <SheetContent side="left" className="flex flex-col p-6 bg-card border-r-0 w-[260px]">
-                                {sidebarContent}
-                            </SheetContent>
-                        </Sheet>
-                        <div className="flex items-center gap-2 md:gap-4">
-                           {loading ? (
-                               <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                           ) : user ? (
-                               <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="rounded-full">
-                                            <Avatar className="h-8 w-8">
-                                                <AvatarImage src={user.user_metadata?.avatar_url ?? undefined} alt="@prof" data-ai-hint="person face" />
-                                                <AvatarFallback>{user.email?.charAt(0)?.toUpperCase() ?? 'U'}</AvatarFallback>
-                                            </Avatar>
-                                            <span className="sr-only">Toggle user menu</span>
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                        <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
-                                            <UserCircle2 className="mr-2 h-4 w-4" />
-                                            Mi Perfil
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
-                                            <Settings className="mr-2 h-4 w-4" />
-                                            Configuración
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                         <DropdownMenuItem onClick={handleSignOut}>
-                                            <Power className="mr-2 h-4 w-4" />
-                                            Cerrar Sesión
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                           ) : (
-                               <Dialog>
-                                    <DialogTrigger asChild>
-                                        <Button>Ingresar</Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-md p-0">
-                                         <Card className="shadow-none border-none">
-                                            <CardHeader className="text-center">
-                                                <DialogTitle className="text-2xl">Bienvenido a Sand Classmate</DialogTitle>
-                                                <DialogDescription>
-                                                    Inicia sesión o crea una cuenta para guardar tu trabajo.
-                                                </DialogDescription>
-                                            </CardHeader>
-                                            <CardContent className="space-y-4">
-                                                <AuthTabs />
-                                            </CardContent>
-                                        </Card>
-                                    </DialogContent>
-                                </Dialog>
-                           )}
-                        </div>
-                    </header>
-                     <main className="flex-1 bg-transparent relative px-4 md:px-6">
-                        {mainContent}
-                    </main>
-                </div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
+                                    <UserCircle2 className="mr-2 h-4 w-4" />
+                                    Mi Perfil
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+                                    <Settings className="mr-2 h-4 w-4" />
+                                    Configuración
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={handleSignOut}>
+                                    <Power className="mr-2 h-4 w-4" />
+                                    Cerrar Sesión
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : (
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button>Ingresar / Registrarse</Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-md p-0">
+                                <Card className="shadow-none border-none">
+                                    <CardHeader className="text-center">
+                                        <DialogTitle className="text-2xl">Bienvenido a Sand Classmate</DialogTitle>
+                                        <DialogDescription>
+                                            Inicia sesión o crea una cuenta para guardar tu trabajo.
+                                        </DialogDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <AuthTabs />
+                                    </CardContent>
+                                </Card>
+                            </DialogContent>
+                        </Dialog>
+                    )}
+                </header>
+                <main className="flex-1 overflow-y-auto relative">
+                    {mainContent}
+                </main>
             </div>
         </div>
     );
