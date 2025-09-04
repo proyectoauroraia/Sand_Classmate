@@ -282,30 +282,40 @@ async function createStyledDocx(title: string, markdownContent: string): Promise
 }
 
 
-async function createStyledPptx(markdownContent: string): Promise<string> {
+const themes = {
+    sand: { bg: "FDFBF6", title: "5A3D2B", text: "3C2A1E", accent: "C0A080" },
+    ocean: { bg: "F0F7FA", title: "003366", text: "005A9C", accent: "66CCFF" },
+    forest: { bg: "F3F7F2", title: "2F4F2F", text: "4A704A", accent: "90B090" },
+    sunrise: { bg: "FFF8F0", title: "E67E22", text: "D35400", accent: "F39C12" },
+    dusk: { bg: "2C3E50", title: "ECF0F1", text: "BDC3C7", accent: "3498DB" },
+};
+type ThemeKey = keyof typeof themes;
+
+async function createStyledPptx(markdownContent: string, themeKey: ThemeKey): Promise<string> {
     const PptxGenJS = (await import('pptxgenjs')).default;
     const pres = new PptxGenJS();
     pres.layout = 'LAYOUT_16x9';
 
-    // Master Slide with a warm, sandy background and professional footer
+    const theme = themes[themeKey] || themes.sand;
+
+    // Master Slide with dynamic theme colors
     pres.defineSlideMaster({
         title: 'MASTER_SLIDE',
-        background: { color: 'FDFBF6' }, // Light sand color
+        background: { color: theme.bg },
         objects: [
-            { 'rect': { x: 0, y: '93%', w: '100%', h: 0.25, fill: { color: 'C0A080' } } }, // Muted terracotta/sand color
+            { 'rect': { x: 0, y: '93%', w: '100%', h: 0.25, fill: { color: theme.accent } } },
             { 'text': {
                 text: 'Generado por Sand Classmate',
-                options: { x: 0, y: '95%', w: '100%', align: 'center', color: '6B4F3A', fontSize: 10 }
+                options: { x: 0, y: '95%', w: '100%', align: 'center', color: theme.title, fontSize: 10 }
             }}
         ],
     });
 
-    const slidesContent = markdownContent.split('\n## ');
+    const slidesContent = markdownContent.split('\n## ').filter(Boolean);
     
     let titleText = 'Presentación';
     let contentStartIndex = 0;
 
-    // The first part can be the title slide (starts with #)
     if (slidesContent[0] && slidesContent[0].startsWith('# ')) {
         const firstSlideParts = slidesContent[0].split('\n');
         titleText = firstSlideParts[0].replace('# ', '').trim();
@@ -315,22 +325,20 @@ async function createStyledPptx(markdownContent: string): Promise<string> {
     // Title Slide
     const titleSlide = pres.addSlide({ masterName: 'MASTER_SLIDE' });
     titleSlide.addText(titleText, {
-        x: 0.5, y: 1.5, w: 9, h: 1.5, fontSize: 48, bold: true, align: 'center', color: '5A3D2B'
+        x: 0.5, y: 1.5, w: 9, h: 1.5, fontSize: 48, bold: true, align: 'center', color: theme.title
     });
     titleSlide.addText('Material de curso generado por Sand Classmate', {
-        x: 0.5, y: 2.8, w: 9, h: 1, fontSize: 20, align: 'center', color: '6B4F3A'
+        x: 0.5, y: 2.8, w: 9, h: 1, fontSize: 20, align: 'center', color: theme.text
     });
 
-    // Handle the content of the title slide if it exists
     if (contentStartIndex === 1) {
         const titleSlideContent = slidesContent[0].split('\n').slice(1).map(l => l.replace(/^\* /, '').trim()).filter(Boolean);
         if (titleSlideContent.length > 0) {
              titleSlide.addText(titleSlideContent.join('\n'), {
-                x: 0.75, y: 4.0, w: '85%', h: 1.5, fontSize: 18, color: '3C2A1E', bullet: true
+                x: 0.75, y: 4.0, w: '85%', h: 1.5, fontSize: 18, color: theme.text, bullet: true
             });
         }
     }
-
 
     // Content slides
     slidesContent.slice(contentStartIndex).forEach((slideContent) => {
@@ -340,14 +348,14 @@ async function createStyledPptx(markdownContent: string): Promise<string> {
         const contentPoints = lines.slice(1);
 
         slide.addText(title.replace(/^##\s*/, ''), {
-            x: 0.5, y: 0.25, w: '90%', h: 0.75, fontSize: 32, bold: true, color: '5A3D2B',
+            x: 0.5, y: 0.25, w: '90%', h: 0.75, fontSize: 32, bold: true, color: theme.title,
         });
         
         const content = contentPoints.map(point => point.replace(/^\* /, '').trim());
 
         if (content.length > 0) {
             slide.addText(content.join('\n'), {
-                x: 0.75, y: 1.5, w: '85%', h: 3.75, fontSize: 20, color: '3C2A1E', bullet: true,
+                x: 0.75, y: 1.5, w: '85%', h: 3.75, fontSize: 20, color: theme.text, bullet: true,
             });
         }
     });
@@ -486,13 +494,14 @@ export async function generateMaterialsActionFromAnalysis(
 }
 
 export async function createPptxAction(
-    markdownContent: string
+    markdownContent: string,
+    theme: string
 ): Promise<{ data: string | null; error: string | null }> {
     try {
         if (!markdownContent || typeof markdownContent !== 'string') {
             throw new Error('Contenido de la presentación no es válido.');
         }
-        const fileDataUri = await createStyledPptx(markdownContent);
+        const fileDataUri = await createStyledPptx(markdownContent, theme as ThemeKey);
         return { data: fileDataUri, error: null };
 
     } catch(e) {
@@ -684,5 +693,3 @@ export async function analyzeCvAction(
     return { data: null, error: `Falló el análisis del CV: ${errorMessage}` };
   }
 }
-
-    

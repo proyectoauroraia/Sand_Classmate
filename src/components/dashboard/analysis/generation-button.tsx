@@ -135,12 +135,12 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
         }
     };
 
-    const handleDownloadPptx = async (finalMarkdown: string) => {
+    const handleDownloadPptx = async (finalMarkdown: string, theme: string) => {
         setStatus('generating');
         setShowPreview(false); // Close the modal
         
         try {
-            const response = await createPptxAction(finalMarkdown);
+            const response = await createPptxAction(finalMarkdown, theme);
              if (response.error || !response.data) {
                 throw new Error(response.error || 'No se pudo crear el archivo PPTX.');
             }
