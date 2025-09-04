@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -11,7 +12,7 @@ const nextConfig: NextConfig = {
             value: 'same-origin',
           },
           {
-            key: 'Cross-Origin-Embedder-Policy',
+            key: 'Cross-origin-Embedder-Policy',
             value: 'require-corp',
           },
         ],
