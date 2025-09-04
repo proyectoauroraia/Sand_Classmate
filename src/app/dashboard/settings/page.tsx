@@ -5,12 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Lock, CheckCircle2, Clipboard, Download } from 'lucide-react';
+import { Lock, CheckCircle2, Clipboard, Download, BrainCircuit } from 'lucide-react';
 
 export default function SettingsPage() {
     const [copied, setCopied] = React.useState(false);
 
-    const codeBlock = `GEMINI_API_KEY="TU_CLAVE_API_GEMINI"`;
+    const codeBlock = `GROQ_API_KEY="TU_CLAVE_API_DE_GROQ"`;
 
     const handleCopy = () => {
         navigator.clipboard.writeText(codeBlock);
@@ -54,15 +54,15 @@ export default function SettingsPage() {
                     </CardFooter>
                 </Card>
 
-                {/* Gemini API Key Card */}
+                {/* Groq API Key Card */}
                 <Card className="bg-card/80 backdrop-blur-sm border-border/20 shadow-lg">
                     <CardHeader>
                         <div className="flex items-center gap-4">
-                             <img src="https://www.gstatic.com/a/images/brand/gemini/gemini-logo-googleg-b-w.svg" alt="Gemini" className="h-8 w-8"/>
+                             <BrainCircuit className="h-8 w-8 text-primary" />
                             <div>
-                                <CardTitle className="text-xl md:text-2xl">Conectar con Google Gemini</CardTitle>
+                                <CardTitle className="text-xl md:text-2xl">Conectar con Llama 3 (vía Groq)</CardTitle>
                                 <CardDescription className="mt-1">
-                                    Para usar las funciones de IA, necesitas una clave de API de Google Gemini.
+                                    Para usar las funciones de IA, necesitas una clave de API de Groq.
                                 </CardDescription>
                             </div>
                         </div>
@@ -70,15 +70,15 @@ export default function SettingsPage() {
                     <CardContent className="space-y-6">
                         <div className="space-y-2">
                             <h3 className="font-semibold text-lg flex items-center gap-2">
-                                1. Obtén tu Clave de API
+                                1. Obtén tu Clave de API de Groq
                             </h3>
                             <p className="text-muted-foreground">
-                                Puedes obtener tu clave de API gratuita de Google AI Studio. Es un proceso rápido que te dará acceso a los modelos de Gemini.
+                                Puedes obtener tu clave de API gratuita desde la consola de Groq. Es un proceso rápido que te dará acceso a Llama 3 y otros modelos de lenguaje.
                             </p>
                             <div className="pt-2">
                                 <Button asChild>
-                                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">
-                                        Obtener Clave de Gemini
+                                    <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer">
+                                        Obtener Clave de Groq
                                         <Download className="ml-2 h-4 w-4" />
                                     </a>
                                 </Button>
