@@ -646,13 +646,13 @@ export async function updateUserProfileAction(
         id: string;
         fullName: string;
         role: string;
-        city: string;
+        institution: string;
         avatar_url?: string;
     } = {
       id: user.id,
       fullName,
       role: formData.get('role') as string,
-      city: formData.get('city') as string,
+      institution: formData.get('institution') as string,
     };
     
     // Only add avatar_url to the update object if it's a new URL

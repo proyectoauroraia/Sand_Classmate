@@ -26,7 +26,7 @@ export default function ProfilePage() {
     const [fullName, setFullName] = React.useState('');
     const [email, setEmail] = React.useState('');
     const [role, setRole] = React.useState('');
-    const [city, setCity] = React.useState('');
+    const [institution, setInstitution] = React.useState('');
     const [profileImage, setProfileImage] = React.useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
@@ -50,7 +50,7 @@ export default function ProfilePage() {
                 if (profile) {
                     setFullName(profile.fullName ?? '');
                     setRole(profile.role ?? '');
-                    setCity(profile.city ?? '');
+                    setInstitution(profile.institution ?? '');
                     setPreviewUrl(profile.avatar_url ?? user.user_metadata?.avatar_url ?? null);
                 } else if (error && error.code !== 'PGRST116') { // Ignore 'no rows found' error
                     console.error("Error fetching profile:", error.message);
@@ -82,7 +82,7 @@ export default function ProfilePage() {
         const formData = new FormData();
         formData.append('fullName', fullName);
         formData.append('role', role);
-        formData.append('city', city);
+        formData.append('institution', institution);
         if (profileImage) {
             formData.append('profileImage', profileImage);
         }
@@ -183,8 +183,8 @@ export default function ProfilePage() {
                                     <Input id="role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Ej: Académico, U. de Chile" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="city">Ciudad</Label>
-                                    <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ej: Santiago, Chile" />
+                                    <Label htmlFor="institution">Institución</Label>
+                                    <Input id="institution" value={institution} onChange={(e) => setInstitution(e.target.value)} placeholder="Ej: Universidad de Chile" />
                                 </div>
                             </div>
                         </CardContent>
