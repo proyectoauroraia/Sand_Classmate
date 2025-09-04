@@ -93,7 +93,6 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
             toast({
                 title: '¡Material Generado!',
                 description: `Tu archivo ${link.download} se ha descargado.`,
-                className: 'bg-green-100 border-green-300 text-green-800'
             });
             setStatus('success');
 

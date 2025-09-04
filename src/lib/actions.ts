@@ -111,7 +111,7 @@ async function createStyledPdf(title: string, markdownContent: string): Promise<
 
     // Main Title
     checkY(30);
-    y -= drawText(title, margin, y, fontBold, 24, rgb(0, 0.3, 0.5));
+    y -= drawText(title, margin, y, fontBold, 24, rgb(0.15, 0.36, 0.38));
     y -= 15;
 
     const lines = markdownContent.split('\n');
@@ -125,7 +125,7 @@ async function createStyledPdf(title: string, markdownContent: string): Promise<
             checkY(18);
             const wrappedLines = wrapText(trimmedLine.substring(3), width - 2 * margin, fontBold, 18);
             for(const wrapped of wrappedLines){
-                y -= drawText(wrapped, margin, y, fontBold, 18, rgb(0.1, 0.4, 0.6));
+                y -= drawText(wrapped, margin, y, fontBold, 18, rgb(0.15, 0.36, 0.38));
             }
         } else if (trimmedLine.startsWith('### ')) {
             y -= 15;
@@ -143,13 +143,13 @@ async function createStyledPdf(title: string, markdownContent: string): Promise<
                  checkY(12);
                 y -= drawText(bullet + wrapped, margin + 10, y, font, 12);
             }
-        } else if (trimmedLine.match(/^\s*Respuesta Ideal:/i) || trimmedLine.match(/^\s*Pauta de Corrección:/i)) {
+        } else if (trimmedLine.match(/^\s*Pauta de Corrección:|Respuesta Ideal:/i)) {
              y -= 10;
-             checkY(12);
+             checkY(11);
              const answerText = trimmedLine.substring(trimmedLine.indexOf(':') + 1).trim();
              const wrappedLines = wrapText(answerText, width - 2 * margin - 20, fontItalic, 11);
               for(const wrapped of wrappedLines){
-                checkY(12);
+                checkY(11);
                 y -= drawText(wrapped, margin + 10, y, fontItalic, 11, rgb(0.3, 0.3, 0.3));
             }
 
@@ -197,7 +197,7 @@ async function createStyledDocx(title: string, markdownContent: string): Promise
                     basedOn: "Normal",
                     next: "Normal",
                     quickFormat: true,
-                    run: { size: 48, bold: true, color: "2E74B5" },
+                    run: { size: 48, bold: true, color: "1E40AF" }, // Blue-700
                     paragraph: { spacing: { after: 240, before: 120 }, alignment: AlignmentType.CENTER },
                 },
                 {
@@ -206,7 +206,7 @@ async function createStyledDocx(title: string, markdownContent: string): Promise
                     basedOn: "Normal",
                     next: "Normal",
                     quickFormat: true,
-                    run: { size: 36, bold: true, color: "333F4F" },
+                    run: { size: 36, bold: true, color: "111827" }, // Gray-900
                     paragraph: { spacing: { before: 240, after: 120 } },
                 },
                  {
@@ -215,14 +215,14 @@ async function createStyledDocx(title: string, markdownContent: string): Promise
                     basedOn: "Normal",
                     next: "Normal",
                     quickFormat: true,
-                    run: { size: 28, bold: true, color: "4F4F4F" },
+                    run: { size: 28, bold: true, color: "374151" }, // Gray-700
                     paragraph: { spacing: { before: 180, after: 80 } },
                 },
                 {
                     id: "IdealAnswer",
                     name: "Ideal Answer",
                     basedOn: "Normal",
-                    run: { size: 22, italics: true, color: "595959"},
+                    run: { size: 22, italics: true, color: "4B5563"}, // Gray-600
                     paragraph: { indent: { left: 720 }, spacing: { before: 60, after: 120 } }
                 }
             ],
@@ -261,7 +261,7 @@ async function createStyledDocx(title: string, markdownContent: string): Promise
                 text: trimmedLine.substring(2),
                 numbering: { reference: "bullet-points", level: 0 },
             }));
-        } else if (trimmedLine.match(/^\s*Respuesta Ideal:/i) || trimmedLine.match(/^\s*Pauta de Corrección:/i)) {
+        } else if (trimmedLine.match(/^\s*Pauta de Corrección:|Respuesta Ideal:/i)) {
             const answerText = trimmedLine.substring(trimmedLine.indexOf(':') + 1).trim();
             children.push(new Paragraph({ text: answerText, style: "IdealAnswer" }));
         } else if (trimmedLine.length > 0) {
@@ -313,7 +313,6 @@ async function createStyledPptx(markdownContent: string, themeKey: ThemeKey, use
     const slidesContent = markdownContent.split('\n## ').filter(Boolean);
     
     let titleText = 'Presentación';
-    let contentStartIndex = 0;
     
     // Handle the main title from the first slide's H1
     if (slidesContent[0] && slidesContent[0].startsWith('# ')) {
@@ -344,17 +343,21 @@ async function createStyledPptx(markdownContent: string, themeKey: ThemeKey, use
     slidesContent.forEach((slideContent) => {
         const slide = pres.addSlide({ masterName: 'MASTER_SLIDE' });
         const lines = slideContent.split('\n').map(l => l.trim()).filter(Boolean);
-        const title = lines[0] || '';
-        const contentPoints = lines.slice(1);
+        
+        // Find title, which could be the first line or might not exist
+        const titleLineIndex = lines.findIndex(l => !l.startsWith('*'));
+        const title = titleLineIndex !== -1 ? lines[titleLineIndex].replace(/^##\s*/, '') : '';
+        
+        const contentPoints = lines.filter(l => l.startsWith('*')).map(point => ({
+            text: point.replace(/^\* /, '').trim()
+        }));
 
-        slide.addText(title.replace(/^##\s*/, ''), {
+        slide.addText(title, {
             x: 0.5, y: 0.25, w: '90%', h: 0.75, fontSize: 32, bold: true, color: theme.title,
         });
         
-        const content = contentPoints.map(point => point.replace(/^\* /, '').trim());
-
-        if (content.length > 0) {
-            slide.addText(content.join('\n'), {
+        if (contentPoints.length > 0) {
+            slide.addText(contentPoints, {
                 x: 0.75, y: 1.5, w: '85%', h: 3.75, fontSize: 20, color: theme.text, bullet: true,
             });
         }
@@ -680,5 +683,3 @@ export async function updateUserProfileAction(
       return { data: null, error: errorMessage };
   }
 }
-
-    

@@ -39,8 +39,15 @@ const parseMarkdownToSlides = (markdown: string): { title: string; content: stri
         let contentLines: string[];
 
         if (index === 0 && chunk.startsWith('# ')) {
-            title = mainTitle;
-            contentLines = lines.slice(1);
+            // Handle the first slide which might contain the H1 title
+            const h1Index = lines.findIndex(line => line.startsWith('# '));
+            if (h1Index !== -1) {
+                title = lines[h1Index].replace('# ', '').trim();
+                contentLines = lines.slice(h1Index + 1);
+            } else {
+                 title = lines[0]?.trim() || `Diapositiva ${index + 1}`;
+                 contentLines = lines.slice(1);
+            }
         } else {
             title = lines[0]?.trim() || `Diapositiva ${index + 1}`;
             contentLines = lines.slice(1);
