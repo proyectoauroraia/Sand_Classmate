@@ -326,3 +326,5 @@ export async function generateMaterialFromAnalysis(
     return output?.markdownContent || '';
 }
 
+
+    
