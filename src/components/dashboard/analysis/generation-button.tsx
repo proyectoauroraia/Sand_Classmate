@@ -2,6 +2,7 @@
 'use client';
 
 import * as React from 'react';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle2, Presentation, FileText, ClipboardCheck, Lightbulb, Download } from 'lucide-react';
 import type { GeneratedMaterials, AnalysisResult } from '@/lib/types';
@@ -20,7 +21,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { cn } from '@/lib/utils';
-import { PresentationPreview } from './presentation-preview';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const PresentationPreview = dynamic(() => import('./presentation-preview').then(mod => mod.PresentationPreview), {
+    loading: () => <div className="p-8"><Skeleton className="w-full h-96" /></div>,
+    ssr: false,
+});
+
 
 const ICONS: Record<string, React.ElementType> = {
     presentation: Presentation,
@@ -215,7 +222,12 @@ export const GenerationButton: React.FC<GenerationButtonProps> = ({
      if (materialType === 'powerpointPresentation') {
         return (
             <>
-                <div onClick={isAnyTaskRunning || isSuccess ? undefined : handlePresentationGeneration}>
+                <div onClick={(e) => {
+                  e.preventDefault();
+                  if (!isAnyTaskRunning && !isSuccess) {
+                    handlePresentationGeneration();
+                  }
+                }}>
                     {triggerButton}
                 </div>
                 {showPreview && markdownContent && (

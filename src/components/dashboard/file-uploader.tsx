@@ -4,8 +4,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { AlertCircle, BookOpen } from 'lucide-react';
+import { AlertCircle, BookOpen, UploadCloud } from 'lucide-react';
 import { analyzeContentAction } from '@/lib/actions';
 import type { AnalysisResult } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -17,14 +16,6 @@ type AnalysisState = 'idle' | 'analyzing';
 type FileUploaderProps = {
     onAnalysisComplete: (result: AnalysisResult | null) => void;
 };
-
-const PremiumUploadIcon = () => (
-    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-4 text-primary">
-        <circle cx="32" cy="32" r="30.5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="4 8"/>
-        <path d="M32 22V42M32 22L26 28M32 22L38 28" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-);
-
 
 export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     const [analysisState, setAnalysisState] = useState<AnalysisState>('idle');
@@ -39,30 +30,27 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
         let timer: NodeJS.Timeout | null = null;
         if (analysisState === 'analyzing') {
             setProgress(0);
-            // Simulate a more realistic progress duration (e.g., 60 seconds)
             const totalDuration = 60000; 
-            const initialFastDuration = 8000; // First 8s to get to 70%
+            const initialFastDuration = 8000; 
             const remainingDuration = totalDuration - initialFastDuration;
 
-            // Fast initial progress
             let startTime = Date.now();
             const animateFast = () => {
                 const elapsedTime = Date.now() - startTime;
                 const newProgress = Math.min(70, (elapsedTime / initialFastDuration) * 70);
                 setProgress(newProgress);
-                if (newProgress < 70 && analysisState === 'analyzing') { // Check if still analyzing
+                if (newProgress < 70 && analysisState === 'analyzing') { 
                     requestAnimationFrame(animateFast);
                 }
             };
             animateFast();
 
-            // Slower progress for the remainder, holds at 95% until completion
             timer = setTimeout(() => {
-                if (analysisState !== 'analyzing') return; // Stop if state changed
+                if (analysisState !== 'analyzing') return; 
                 startTime = Date.now();
                 const animateSlow = () => {
                      const elapsedTime = Date.now() - startTime;
-                     const newProgress = 70 + Math.min(25, (elapsedTime / remainingDuration) * 25); // Goes up to 95%
+                     const newProgress = 70 + Math.min(25, (elapsedTime / remainingDuration) * 25); 
                      setProgress(newProgress);
                      if (newProgress < 95 && analysisState === 'analyzing') {
                          requestAnimationFrame(animateSlow);
@@ -79,7 +67,6 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
 
     const handleFileChange = (selectedFile: File | null) => {
         if (selectedFile) {
-            // Client-side validation for file size and type
             if (selectedFile.size > 10 * 1024 * 1024) { // 10 MB
                 const errorMsg = 'El archivo no debe superar los 10MB.';
                 setError(errorMsg);
@@ -126,14 +113,14 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                 throw new Error(response.error || 'Falló el análisis del contenido.');
             }
             
-            setProgress(100); // Analysis complete
+            setProgress(100); 
             setTimeout(() => {
                 onAnalysisComplete(response.data);
                 toast({
                     title: "¡Análisis Completo!",
                     description: `Hemos analizado tu documento sobre "${response.data.subjectArea}".`,
                 });
-            }, 500); // Short delay to show 100%
+            }, 500);
 
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error inesperado.';
@@ -149,64 +136,62 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     
     if (analysisState === 'analyzing') {
         return (
-            <Card className="flex flex-col items-center justify-center text-center p-10 h-full bg-primary/10">
+            <div className="flex flex-col items-center justify-center text-center p-10 h-full bg-card/80 backdrop-blur-sm border border-border/20 rounded-xl shadow-lg">
                 <div className="w-full max-w-md">
-                     <h2 className="text-xl font-semibold text-primary/80">
+                     <h2 className="text-xl font-semibold text-primary">
                         Analizando tu documento...
                     </h2>
-                     <p className="text-primary/70 mt-2 mb-6">
+                     <p className="text-muted-foreground mt-2 mb-6">
                         Esto puede tardar entre 30 y 60 segundos. No cierres esta página.
                     </p>
-                    <Progress value={progress} className="w-full h-3 bg-primary/20" />
-                    <p className="text-sm font-medium text-primary/90 mt-3">{Math.round(progress)}%</p>
+                    <Progress value={progress} className="w-full h-2 bg-primary/20" />
+                    <p className="text-sm font-medium text-primary mt-3">{Math.round(progress)}%</p>
                 </div>
-            </Card>
+            </div>
         );
     }
 
     return (
-        <Card className="h-full flex flex-col bg-card">
+        <div className="h-full flex flex-col p-6 bg-card/80 backdrop-blur-sm border border-border/20 rounded-xl shadow-lg">
             <form id="analysis-form" onSubmit={handleAnalysisSubmit} className="flex-grow flex flex-col">
-                <CardContent className="p-6 flex-grow flex flex-col">
+                <div 
+                    className="flex-grow flex flex-col items-center justify-center text-center cursor-pointer"
+                    onClick={() => fileInputRef.current?.click()}
+                    onDrop={(e) => {
+                        e.preventDefault();
+                        handleFileChange(e.dataTransfer.files?.[0] || null)
+                    }}
+                    onDragOver={(e) => e.preventDefault()}
+                >
                     {error && (
-                        <Alert variant="destructive">
+                        <Alert variant="destructive" className="mb-4">
                             <AlertCircle className="h-4 w-4" />
                             <AlertTitle>Error</AlertTitle>
                             <AlertDescription>{error}</AlertDescription>
                         </Alert>
                     )}
-                    <div 
-                        className="flex flex-col items-center justify-center py-10 px-6 rounded-lg cursor-pointer transition-colors border-2 border-dashed border-border hover:bg-accent/50 flex-grow mt-4"
-                        onClick={() => fileInputRef.current?.click()}
-                        onDrop={(e) => {
-                            e.preventDefault();
-                            handleFileChange(e.dataTransfer.files?.[0] || null)
-                        }}
-                        onDragOver={(e) => e.preventDefault()}
-                    >
-                        <PremiumUploadIcon />
-                        <p className="text-base font-semibold text-foreground">
-                            {file ? file.name : 'Haz clic o arrastra un archivo para subir'}
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">Se admiten documentos PDF y DOCX (máx. 10MB)</p>
-                        <Input 
-                            ref={fileInputRef} 
-                            id="syllabusFile" 
-                            name="syllabusFile" 
-                            type="file" 
-                            className="hidden" 
-                            accept=".pdf,.docx"
-                            onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
-                        />
-                    </div>
-                </CardContent>
-                <CardFooter>
-                    <Button type="submit" form="analysis-form" disabled={analysisState !== 'idle' || !file} size="lg" className="w-full py-7 text-base">
-                       <BookOpen className="mr-3 h-5 w-5" />
+                    <UploadCloud className="h-12 w-12 text-primary mb-4" />
+                    <p className="text-base font-semibold text-card-foreground text-center">
+                        {file ? file.name : 'Haz clic o arrastra un archivo para subir'}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">Se admiten documentos PDF y DOCX (máx. 10MB)</p>
+                    <Input 
+                        ref={fileInputRef} 
+                        id="syllabusFile" 
+                        name="syllabusFile" 
+                        type="file" 
+                        className="hidden" 
+                        accept=".pdf,.docx"
+                        onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
+                    />
+                </div>
+                <div className="mt-6">
+                    <Button type="submit" form="analysis-form" disabled={analysisState !== 'idle' || !file} size="lg" className="w-full py-6 text-base">
+                       <BookOpen className="mr-2 h-5 w-5" />
                         Analizar Contenido
                     </Button>
-                </CardFooter>
+                </div>
             </form>
-        </Card>
+        </div>
     );
 }

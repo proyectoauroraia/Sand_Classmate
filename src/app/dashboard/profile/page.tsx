@@ -140,7 +140,7 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 items-start">
                     {/* Left Column: General Info */}
                     <div className="lg:col-span-1 space-y-6">
-                        <Card>
+                        <Card className="bg-card/80 backdrop-blur-sm border-border/20 shadow-lg">
                             <CardHeader className="items-center text-center p-6">
                                 <div className="relative group w-24 h-24 md:w-32 md:h-32">
                                     <Avatar className="h-full w-full cursor-pointer" onClick={() => fileInputRef.current?.click()}>
@@ -192,7 +192,7 @@ export default function ProfilePage() {
 
                     {/* Right Column: Password */}
                     <div className="lg:col-span-2 space-y-6">
-                        <Card>
+                        <Card className="bg-card/80 backdrop-blur-sm border-border/20 shadow-lg">
                             <CardHeader>
                                 <div className="flex items-center gap-3">
                                     <Lock className="h-6 w-6 text-primary" />

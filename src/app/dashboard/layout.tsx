@@ -13,6 +13,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import type { User } from '@supabase/supabase-js';
+import { DuneBackground } from '@/components/icons/dune-background';
 
 // This layout is now only for protected routes like /history, /profile, etc.
 // It enforces authentication.
@@ -60,7 +61,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (loading) {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-background">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <DuneBackground />
+                <Loader2 className="h-12 w-12 animate-spin text-primary z-10" />
             </div>
         );
     }
@@ -104,12 +106,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
 
     return (
-        <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
-            <div className="hidden border-r bg-card text-card-foreground lg:block">
+        <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr] bg-card">
+            <DuneBackground />
+            <div className="hidden border-r bg-card/80 backdrop-blur-sm lg:block">
                 {sidebarContent}
             </div>
             <div className="flex flex-col">
-                 <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b bg-muted px-4 md:px-6 lg:h-[60px] lg:justify-end">
+                 <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b bg-muted/30 backdrop-blur-sm px-4 md:px-6 lg:h-[60px] lg:justify-end">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
@@ -155,7 +158,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
 
                 </header>
-                 <main className="flex-1 overflow-y-auto bg-background relative">
+                 <main className="flex-1 overflow-y-auto relative bg-background">
                     {children}
                 </main>
             </div>

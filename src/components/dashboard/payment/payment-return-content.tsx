@@ -108,7 +108,7 @@ export function PaymentReturnContent() {
     return (
         <main className="flex flex-col items-center justify-center min-h-screen p-4">
              <div className="w-full max-w-lg z-10">
-                <Card className="shadow-2xl shadow-primary/10">
+                <Card className="shadow-2xl bg-card/80 backdrop-blur-sm border-border/20">
                     <CardHeader className="text-center items-center">
                         <Icon className={`h-16 w-16 mb-4 ${currentStatus.color} ${currentStatus.spin ? 'animate-spin' : ''}`} />
                         <CardTitle className="text-2xl">{currentStatus.title}</CardTitle>
