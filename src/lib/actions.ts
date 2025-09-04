@@ -628,26 +628,24 @@ export async function updateUserProfileAction(
     const profileImageFile = formData.get('profileImage') as File | null;
     let avatarUrl: string | undefined = undefined;
 
-    const fullName = [firstName, lastName].filter(Boolean).join(' ');
-
-    const userMetaDataToUpdate: { full_name: string; avatar_url?: string } = {
-        full_name: fullName,
-    };
-
+    // This object is for updating the 'profiles' table.
     const profileDataToUpdate: {
         id: string;
         first_name: string;
         last_name: string;
-        phone: string;
-        cv_url: string;
         avatar_url?: string;
     } = {
       id: user.id,
       first_name: firstName,
       last_name: lastName,
-      phone: formData.get('phone') as string,
-      cv_url: formData.get('cvUrl') as string,
     };
+    
+    // This object is for updating the Supabase Auth user_metadata.
+    const userMetaDataToUpdate: { first_name: string, last_name: string, avatar_url?: string } = {
+        first_name: firstName,
+        last_name: lastName,
+    };
+
 
     if (profileImageFile && profileImageFile.size > 0) {
         const fileExt = profileImageFile.name.split('.').pop();

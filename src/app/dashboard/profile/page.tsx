@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UserCircle2, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@/lib/supabase/client';
@@ -27,10 +27,10 @@ export default function ProfilePage() {
     const [firstName, setFirstName] = React.useState('');
     const [lastName, setLastName] = React.useState('');
     const [email, setEmail] = React.useState('');
-    const [phone, setPhone] = React.useState('');
-    const [cvUrl, setCvUrl] = React.useState('');
     const [profileImage, setProfileImage] = React.useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
+
+    const namesAreEditable = !(firstName && lastName);
 
     React.useEffect(() => {
         const fetchUserAndProfile = async () => {
@@ -41,7 +41,6 @@ export default function ProfilePage() {
             if (user) {
                 setUser(user);
                 setEmail(user.email ?? '');
-                setPreviewUrl(user.user_metadata?.avatar_url ?? null);
 
                 const { data: profile, error } = await supabase
                     .from('profiles')
@@ -52,15 +51,15 @@ export default function ProfilePage() {
                 if (profile) {
                     setFirstName(profile.first_name ?? '');
                     setLastName(profile.last_name ?? '');
-                    setPhone(profile.phone ?? '');
-                    setCvUrl(profile.cv_url ?? '');
-                    // Prioritize profile table URL over metadata
-                    if (profile.avatar_url) {
-                        setPreviewUrl(profile.avatar_url);
-                    }
-                } else if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+                    setPreviewUrl(profile.avatar_url ?? user.user_metadata?.avatar_url ?? null);
+                } else if (error && error.code !== 'PGRST116') {
                     console.error("Error fetching profile:", error.message);
                     toast({ variant: 'destructive', title: 'Error al cargar el perfil', description: error.message });
+                } else {
+                    // This case handles a new user who might have metadata but no profile entry yet
+                    setFirstName(user.user_metadata?.first_name ?? '');
+                    setLastName(user.user_metadata?.last_name ?? '');
+                    setPreviewUrl(user.user_metadata?.avatar_url ?? null);
                 }
             }
             setLoading(false);
@@ -84,8 +83,7 @@ export default function ProfilePage() {
         const formData = new FormData();
         formData.append('firstName', firstName);
         formData.append('lastName', lastName);
-        formData.append('phone', phone);
-        formData.append('cvUrl', cvUrl);
+        
         if (profileImage) {
             formData.append('profileImage', profileImage);
         }
@@ -185,25 +183,17 @@ export default function ProfilePage() {
                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                          <div className="space-y-2">
                                             <Label htmlFor="firstName">Nombre</Label>
-                                            <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                                            <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} disabled={!namesAreEditable} />
                                         </div>
                                          <div className="space-y-2">
                                             <Label htmlFor="lastName">Apellido</Label>
-                                            <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                                            <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} disabled={!namesAreEditable} />
                                         </div>
                                      </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="email">Email de Contacto</Label>
                                         <Input id="email" type="email" value={email} disabled />
                                          <p className="text-xs text-muted-foreground">Tu email de inicio de sesión no se puede cambiar.</p>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="phone">Teléfono</Label>
-                                        <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+56 9 1234 5678" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="cvUrl">URL de tu CV o Perfil Profesional (LinkedIn, etc.)</Label>
-                                        <Input id="cvUrl" type="url" value={cvUrl} onChange={(e) => setCvUrl(e.target.value)} placeholder="https://linkedin.com/in/tu-perfil" />
                                     </div>
                                 </CardContent>
                             </Card>
