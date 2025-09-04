@@ -12,12 +12,12 @@ export async function GET(request: Request) {
     const supabase = createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      const redirectUrl = new URL(next, process.env.NEXT_PUBLIC_BASE_URL || origin);
+      const redirectUrl = new URL(next, origin);
       return NextResponse.redirect(redirectUrl);
     }
   }
 
   // return the user to an error page with instructions
-  const errorUrl = new URL('/auth/auth-code-error', process.env.NEXT_PUBLIC_BASE_URL || origin);
+  const errorUrl = new URL('/auth/auth-code-error', origin);
   return NextResponse.redirect(errorUrl);
 }

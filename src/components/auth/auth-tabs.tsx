@@ -42,8 +42,18 @@ export function AuthTabs() {
   const [loading, setLoading] = useState(false);
 
   const getRedirectURL = () => {
-    // We redirect back to the home page after authentication
-    return `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`;
+    // We redirect back to the home page after authentication.
+    // Using location.origin ensures the protocol (http/https) is correct.
+    let url =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}/auth/callback`
+        : 'http://localhost:3000/auth/callback'; // Fallback for server-side rendering
+    
+    // Make sure to include the protocol in the URL.
+    if (!url.startsWith('http')) {
+        url = `https://${url}`;
+    }
+    return url;
   }
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -119,8 +129,8 @@ export function AuthTabs() {
   return (
     <Tabs defaultValue="login" className="w-full">
       <TabsList className="grid w-full grid-cols-2 bg-secondary/50">
-        <TabsTrigger value="login">Login</TabsTrigger>
-        <TabsTrigger value="signup">Sign Up</TabsTrigger>
+        <TabsTrigger value="login">Ingresar</TabsTrigger>
+        <TabsTrigger value="signup">Registrarse</TabsTrigger>
       </TabsList>
       
       {error && (
@@ -136,23 +146,23 @@ export function AuthTabs() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="email-login">Email</Label>
-              <Input id="email-login" type="email" placeholder="professor@university.edu" required value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input id="email-login" type="email" placeholder="profesor@universidad.edu" required value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password-login">Password</Label>
+              <Label htmlFor="password-login">Contraseña</Label>
               <Input id="password-login" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Login
+              Ingresar
             </Button>
             <div className="relative my-2">
               <Separator />
-              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">OR</span>
+              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">O</span>
             </div>
             <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" type="button" disabled={loading}>
                <GoogleIcon className="mr-2" />
-               Sign in with Google
+               Ingresar con Google
             </Button>
           </div>
         </form>
@@ -162,23 +172,23 @@ export function AuthTabs() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="email-signup">Email</Label>
-              <Input id="email-signup" type="email" placeholder="professor@university.edu" required value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input id="email-signup" type="email" placeholder="profesor@universidad.edu" required value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password-signup">Password</Label>
+              <Label htmlFor="password-signup">Contraseña</Label>
               <Input id="password-signup" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create Account
+              Crear Cuenta
             </Button>
             <div className="relative my-2">
               <Separator />
-              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">OR</span>
+              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">O</span>
             </div>
             <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" type="button" disabled={loading}>
               <GoogleIcon className="mr-2" />
-              Sign up with Google
+              Registrarse con Google
             </Button>
           </div>
         </form>
