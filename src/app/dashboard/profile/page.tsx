@@ -34,6 +34,7 @@ export default function ProfilePage() {
 
     React.useEffect(() => {
         const fetchUserAndProfile = async () => {
+            setLoading(true);
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
 
@@ -47,19 +48,18 @@ export default function ProfilePage() {
                     .eq('id', user.id)
                     .single();
                 
+                // Set initial values from user metadata as fallback
+                setFullName(user.user_metadata?.full_name ?? '');
+                setPreviewUrl(user.user_metadata?.avatar_url ?? null);
+
+                // If a profile exists in the DB, overwrite with its more specific data
                 if (profile) {
                     setFullName(profile.fullName ?? user.user_metadata?.full_name ?? '');
                     setRole(profile.role ?? '');
-                    // Ensure institutions is always an array
                     setInstitutions(Array.isArray(profile.institutions) ? profile.institutions : []);
                     setPreviewUrl(profile.avatar_url ?? user.user_metadata?.avatar_url ?? null);
-                } else if (error && error.code !== 'PGRST116') {
+                } else if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
                     console.error("Error fetching profile:", error.message);
-                    setFullName(user.user_metadata?.full_name ?? '');
-                    setPreviewUrl(user.user_metadata?.avatar_url ?? null);
-                } else {
-                     setFullName(user.user_metadata?.full_name ?? '');
-                     setPreviewUrl(user.user_metadata?.avatar_url ?? null);
                 }
             }
             setLoading(false);
@@ -95,7 +95,6 @@ export default function ProfilePage() {
         const formData = new FormData();
         formData.append('fullName', fullName);
         formData.append('role', role);
-        // Convert array to a format that can be sent via FormData
         institutions.forEach(inst => formData.append('institutions[]', inst));
         if (profileImage) {
             formData.append('profileImage', profileImage);
@@ -117,6 +116,7 @@ export default function ProfilePage() {
                 title: "¡Perfil Actualizado!",
                 description: "Tus cambios han sido guardados exitosamente.",
             });
+            // Update preview URL from the returned profile data to ensure it's the stored one
             if (data?.avatar_url) {
                 setPreviewUrl(data.avatar_url);
             }

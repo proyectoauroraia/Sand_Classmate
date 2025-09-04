@@ -625,6 +625,26 @@ export async function updateUserProfileAction(
     const profileImageFile = formData.get('profileImage') as File | null;
     let avatarUrl: string | undefined = undefined;
 
+    // Data object to update user metadata
+    const userMetaDataToUpdate: { full_name: string; avatar_url?: string } = {
+        full_name: fullName,
+    };
+
+    // Data object for the 'profiles' table
+    const profileDataToUpdate: {
+        id: string;
+        fullName: string;
+        role: string;
+        institutions: string[];
+        avatar_url?: string;
+    } = {
+      id: user.id,
+      fullName,
+      role: formData.get('role') as string,
+      institutions: formData.getAll('institutions[]') as string[],
+    };
+
+    // Handle image upload and URL generation
     if (profileImageFile && profileImageFile.size > 0) {
         const fileExt = profileImageFile.name.split('.').pop();
         const filePath = `${user.id}/${Math.random()}.${fileExt}`;
@@ -639,25 +659,13 @@ export async function updateUserProfileAction(
 
         const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
         avatarUrl = urlData.publicUrl;
+        
+        // If a new avatar is uploaded, add it to both update objects
+        profileDataToUpdate.avatar_url = avatarUrl;
+        userMetaDataToUpdate.avatar_url = avatarUrl;
     }
 
-    const profileDataToUpdate: {
-        id: string;
-        fullName: string;
-        role: string;
-        institutions: string[];
-        avatar_url?: string;
-    } = {
-      id: user.id,
-      fullName,
-      role: formData.get('role') as string,
-      institutions: formData.getAll('institutions[]') as string[],
-    };
-    
-    if (avatarUrl) {
-      profileDataToUpdate.avatar_url = avatarUrl;
-    }
-
+    // 1. Update the 'profiles' table
     const { data, error: profileUpsertError } = await supabase
       .from('profiles')
       .upsert(profileDataToUpdate)
@@ -671,13 +679,14 @@ export async function updateUserProfileAction(
       throw profileUpsertError;
     }
     
-    if (avatarUrl) {
-        const { error: userUpdateError } = await supabase.auth.updateUser({
-            data: { avatar_url: avatarUrl, full_name: fullName }
-        });
-         if (userUpdateError) {
-            console.error(`Error al actualizar metadatos del usuario: ${userUpdateError.message}`);
-        }
+    // 2. Update the user metadata in Supabase Auth to ensure consistency
+    const { error: userUpdateError } = await supabase.auth.updateUser({
+        data: userMetaDataToUpdate,
+    });
+
+    if (userUpdateError) {
+        // Log the error but don't block the response, as the primary data is saved.
+        console.error(`Error al sincronizar metadatos del usuario: ${userUpdateError.message}`);
     }
     
     revalidatePath('/dashboard/profile');
