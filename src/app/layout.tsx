@@ -7,7 +7,7 @@ import { Inter } from 'next/font/google';
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-sans',
+  variable: '--font-inter',
 });
 
 export const metadata: Metadata = {
@@ -22,8 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
         {children}
         <Toaster />
       </body>
