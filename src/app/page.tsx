@@ -36,10 +36,7 @@ export default function HomePage() {
     const handleAnalysisComplete = (result: AnalysisResult | null) => {
         if (result) {
             setAnalysisResult(result);
-            
             try {
-                 // The logic to ensure uniqueness is now inside MaterialsHistory component
-                 // We just add the new analysis here.
                 const existingHistory: HistoryItem[] = JSON.parse(localStorage.getItem('sand_classmate_history') || '[]');
                 
                 const newHistoryItem: HistoryItem = {
@@ -51,10 +48,12 @@ export default function HomePage() {
                     analysis: result,
                 };
                 
+                // Add the new item to the beginning of the list.
+                // The deduplication logic is handled inside the MaterialsHistory component.
                 const updatedHistory = [newHistoryItem, ...existingHistory];
-
                 localStorage.setItem('sand_classmate_history', JSON.stringify(updatedHistory));
-                setHistoryKey(Date.now()); // Trigger refresh
+                
+                setHistoryKey(Date.now()); // Trigger refresh of the history component
                 
             } catch (error) {
                 console.error("Failed to save to localStorage", error);
