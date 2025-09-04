@@ -1,5 +1,4 @@
 
-
 export type AnalysisResult = {
   courseName: string;
   subjectArea: string;
@@ -48,10 +47,11 @@ export type HistoryItem = {
 
 export type UserProfile = {
     id: string;
-    fullName?: string;
-    role?: string;
-    institutions?: string[];
-    cvUrl?: string;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    phone?: string;
+    cv_url?: string;
     avatar_url?: string;
 };
 

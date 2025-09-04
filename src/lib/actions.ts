@@ -506,8 +506,10 @@ export async function createPptxAction(
         let userName: string | undefined;
 
         if(user) {
-            const { data: profile } = await supabase.from('profiles').select('fullName').eq('id', user.id).single();
-            userName = profile?.fullName;
+            const { data: profile } = await supabase.from('profiles').select('first_name, last_name').eq('id', user.id).single();
+            if(profile) {
+                 userName = [profile.first_name, profile.last_name].filter(Boolean).join(' ');
+            }
         }
 
         if (!markdownContent || typeof markdownContent !== 'string') {
@@ -617,41 +619,43 @@ export async function updateUserProfileAction(
       return { data: null, error: 'No estás autenticado.' };
     }
 
-    const fullName = formData.get('fullName') as string;
-    if (!fullName || fullName.trim().length === 0) {
-        return { data: null, error: 'El nombre completo es requerido.'};
+    const firstName = formData.get('firstName') as string;
+    const lastName = formData.get('lastName') as string;
+    if (!firstName || firstName.trim().length === 0) {
+        return { data: null, error: 'El nombre es requerido.'};
     }
     
     const profileImageFile = formData.get('profileImage') as File | null;
     let avatarUrl: string | undefined = undefined;
 
-    // Data object to update user metadata
+    const fullName = [firstName, lastName].filter(Boolean).join(' ');
+
     const userMetaDataToUpdate: { full_name: string; avatar_url?: string } = {
         full_name: fullName,
     };
 
-    // Data object for the 'profiles' table
     const profileDataToUpdate: {
         id: string;
-        fullName: string;
-        role: string;
-        institutions: string; // Changed to string to send JSON
+        first_name: string;
+        last_name: string;
+        phone: string;
+        cv_url: string;
         avatar_url?: string;
     } = {
       id: user.id,
-      fullName,
-      role: formData.get('role') as string,
-      institutions: JSON.stringify(formData.getAll('institutions[]')), // Serialize array to JSON string
+      first_name: firstName,
+      last_name: lastName,
+      phone: formData.get('phone') as string,
+      cv_url: formData.get('cvUrl') as string,
     };
 
-    // Handle image upload and URL generation
     if (profileImageFile && profileImageFile.size > 0) {
         const fileExt = profileImageFile.name.split('.').pop();
         const filePath = `${user.id}/${Math.random()}.${fileExt}`;
 
         const { error: uploadError } = await supabase.storage
             .from('avatars')
-            .upload(filePath, profileImageFile);
+            .upload(filePath, profileImageFile, { upsert: true });
 
         if (uploadError) {
             throw new Error(`Error al subir el avatar: ${uploadError.message}`);
@@ -660,7 +664,6 @@ export async function updateUserProfileAction(
         const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
         avatarUrl = urlData.publicUrl;
         
-        // If a new avatar is uploaded, add it to both update objects
         profileDataToUpdate.avatar_url = avatarUrl;
         userMetaDataToUpdate.avatar_url = avatarUrl;
     }
@@ -685,7 +688,6 @@ export async function updateUserProfileAction(
     });
 
     if (userUpdateError) {
-        // Log the error but don't block the response, as the primary data is saved.
         console.error(`Error al sincronizar metadatos del usuario: ${userUpdateError.message}`);
     }
     

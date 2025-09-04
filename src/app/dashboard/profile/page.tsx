@@ -2,17 +2,17 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UserCircle2, Loader2, X, PlusCircle } from 'lucide-react';
+import { UserCircle2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@/lib/supabase/client';
 import { updateUserProfileAction } from '@/lib/actions';
 import type { User } from '@supabase/supabase-js';
-import { Badge } from '@/components/ui/badge';
+import type { UserProfile } from '@/lib/types';
 
 export default function ProfilePage() {
     const { toast } = useToast();
@@ -24,11 +24,11 @@ export default function ProfilePage() {
     const [user, setUser] = React.useState<User | null>(null);
     
     // Form State
-    const [fullName, setFullName] = React.useState('');
+    const [firstName, setFirstName] = React.useState('');
+    const [lastName, setLastName] = React.useState('');
     const [email, setEmail] = React.useState('');
-    const [role, setRole] = React.useState('');
-    const [institutions, setInstitutions] = React.useState<string[]>([]);
-    const [currentInstitution, setCurrentInstitution] = React.useState('');
+    const [phone, setPhone] = React.useState('');
+    const [cvUrl, setCvUrl] = React.useState('');
     const [profileImage, setProfileImage] = React.useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
@@ -41,32 +41,33 @@ export default function ProfilePage() {
             if (user) {
                 setUser(user);
                 setEmail(user.email ?? '');
+                setPreviewUrl(user.user_metadata?.avatar_url ?? null);
 
                 const { data: profile, error } = await supabase
                     .from('profiles')
                     .select('*')
                     .eq('id', user.id)
-                    .single();
+                    .single<UserProfile>();
                 
-                // Set initial values from user metadata as fallback
-                setFullName(user.user_metadata?.full_name ?? '');
-                setPreviewUrl(user.user_metadata?.avatar_url ?? null);
-
-                // If a profile exists in the DB, overwrite with its more specific data
                 if (profile) {
-                    setFullName(profile.fullName ?? user.user_metadata?.full_name ?? '');
-                    setRole(profile.role ?? '');
-                    setInstitutions(Array.isArray(profile.institutions) ? profile.institutions : []);
-                    setPreviewUrl(profile.avatar_url ?? user.user_metadata?.avatar_url ?? null);
+                    setFirstName(profile.first_name ?? '');
+                    setLastName(profile.last_name ?? '');
+                    setPhone(profile.phone ?? '');
+                    setCvUrl(profile.cv_url ?? '');
+                    // Prioritize profile table URL over metadata
+                    if (profile.avatar_url) {
+                        setPreviewUrl(profile.avatar_url);
+                    }
                 } else if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
                     console.error("Error fetching profile:", error.message);
+                    toast({ variant: 'destructive', title: 'Error al cargar el perfil', description: error.message });
                 }
             }
             setLoading(false);
         };
 
         fetchUserAndProfile();
-    }, []);
+    }, [toast]);
 
     const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
@@ -75,27 +76,16 @@ export default function ProfilePage() {
             setPreviewUrl(URL.createObjectURL(file));
         }
     };
-    
-    const handleAddInstitution = () => {
-        if (currentInstitution && !institutions.includes(currentInstitution)) {
-            setInstitutions([...institutions, currentInstitution]);
-            setCurrentInstitution('');
-        }
-    };
-
-    const handleRemoveInstitution = (instToRemove: string) => {
-        setInstitutions(institutions.filter(inst => inst !== instToRemove));
-    };
-
 
     const handleSaveChanges = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
 
         const formData = new FormData();
-        formData.append('fullName', fullName);
-        formData.append('role', role);
-        institutions.forEach(inst => formData.append('institutions[]', inst));
+        formData.append('firstName', firstName);
+        formData.append('lastName', lastName);
+        formData.append('phone', phone);
+        formData.append('cvUrl', cvUrl);
         if (profileImage) {
             formData.append('profileImage', profileImage);
         }
@@ -116,15 +106,17 @@ export default function ProfilePage() {
                 title: "¡Perfil Actualizado!",
                 description: "Tus cambios han sido guardados exitosamente.",
             });
-            // Update preview URL from the returned profile data to ensure it's the stored one
             if (data?.avatar_url) {
                 setPreviewUrl(data.avatar_url);
             }
-             if (data?.institutions && Array.isArray(data.institutions)) {
-                setInstitutions(data.institutions);
-            }
         }
     };
+    
+    const getInitials = () => {
+        const first = firstName ? firstName.charAt(0) : '';
+        const last = lastName ? lastName.charAt(0) : '';
+        return `${first}${last}`.toUpperCase() || email.charAt(0).toUpperCase();
+    }
 
     if (loading) {
         return (
@@ -158,8 +150,8 @@ export default function ProfilePage() {
                                  <div className="relative group w-24 h-24 md:w-32 md:h-32 mx-auto">
                                     <Avatar className="h-full w-full cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                                         <AvatarImage src={previewUrl ?? undefined} alt="Foto de Perfil" data-ai-hint="person face" className="object-cover" />
-                                        <AvatarFallback className="bg-secondary/50 text-muted-foreground">
-                                            <UserCircle2 className="h-16 w-16 md:h-20 md:w-20" />
+                                        <AvatarFallback className="bg-secondary/50 text-muted-foreground text-3xl">
+                                            {getInitials()}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div 
@@ -178,50 +170,40 @@ export default function ProfilePage() {
                                     onChange={handleProfileImageChange}
                                 />
                                 <div className="pt-4">
-                                    <h3 className="text-lg md:text-xl font-semibold">{fullName || 'Nombre de Usuario'}</h3>
-                                    <p className="text-sm text-muted-foreground mt-1">{role || 'Rol o Empleo'}</p>
+                                    <h3 className="text-lg md:text-xl font-semibold">{[firstName, lastName].filter(Boolean).join(' ') || 'Nombre Apellido'}</h3>
+                                    <p className="text-sm text-muted-foreground mt-1">{email}</p>
                                 </div>
                             </Card>
                         </div>
                         <div className="md:col-span-2">
                              <Card className="bg-card/80 backdrop-blur-sm border-border/20 shadow-lg">
-                                <CardContent className="p-6 md:p-8 space-y-6">
-                                     <div className="space-y-2">
-                                        <Label htmlFor="fullName">Nombre Completo</Label>
-                                        <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-                                    </div>
+                                <CardHeader>
+                                    <CardTitle>Información Personal</CardTitle>
+                                    <CardDescription>Esta información es privada y no se compartirá sin tu permiso.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                         <div className="space-y-2">
+                                            <Label htmlFor="firstName">Nombre</Label>
+                                            <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                                        </div>
+                                         <div className="space-y-2">
+                                            <Label htmlFor="lastName">Apellido</Label>
+                                            <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                                        </div>
+                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="email">Correo Electrónico</Label>
+                                        <Label htmlFor="email">Email de Contacto</Label>
                                         <Input id="email" type="email" value={email} disabled />
+                                         <p className="text-xs text-muted-foreground">Tu email de inicio de sesión no se puede cambiar.</p>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="role">Rol o Empleo</Label>
-                                        <Input id="role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Ej: Académico, U. de Chile" />
+                                        <Label htmlFor="phone">Teléfono</Label>
+                                        <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+56 9 1234 5678" />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="institution">Mis Casas de Estudio o Universidades</Label>
-                                        <div className="flex gap-2">
-                                            <Input 
-                                                id="institution"
-                                                value={currentInstitution}
-                                                onChange={(e) => setCurrentInstitution(e.target.value)}
-                                                placeholder="Ej: Universidad de Chile"
-                                                onKeyDown={(e) => { if(e.key === 'Enter') { e.preventDefault(); handleAddInstitution(); } }}
-                                            />
-                                            <Button type="button" variant="secondary" onClick={handleAddInstitution} aria-label="Añadir institución">
-                                                <PlusCircle className="h-5 w-5" />
-                                            </Button>
-                                        </div>
-                                        <div className="flex flex-wrap gap-2 pt-2">
-                                            {institutions.map((inst) => (
-                                                <Badge key={inst} variant="secondary" className="flex items-center gap-1.5 pr-1">
-                                                    {inst}
-                                                    <button type="button" onClick={() => handleRemoveInstitution(inst)} className="rounded-full hover:bg-destructive/20 p-0.5">
-                                                      <X className="h-3 w-3" />
-                                                    </button>
-                                                </Badge>
-                                            ))}
-                                        </div>
+                                        <Label htmlFor="cvUrl">URL de tu CV o Perfil Profesional (LinkedIn, etc.)</Label>
+                                        <Input id="cvUrl" type="url" value={cvUrl} onChange={(e) => setCvUrl(e.target.value)} placeholder="https://linkedin.com/in/tu-perfil" />
                                     </div>
                                 </CardContent>
                             </Card>

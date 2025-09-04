@@ -260,12 +260,6 @@ const MaterialPrompts = {
     `,
 };
 
-// This extends the Zod schema to include the user's name for personalization
-const GenerateMaterialInternalInputSchema = GenerateMaterialInputSchema.extend({
-    userName: z.string().optional(),
-});
-
-
 export async function generateMaterialFromAnalysis(
   input: z.infer<typeof GenerateMaterialInputSchema>
 ): Promise<string> {
@@ -283,8 +277,7 @@ export async function generateMaterialFromAnalysis(
     const personalizationPrompt = userProfile
         ? `
         **Implicit Teacher's Profile:**
-        - Full Name: ${userProfile.fullName || 'Not provided'}
-        - Role: ${userProfile.role || 'Not provided'}
+        - Full Name: ${[userProfile.first_name, userProfile.last_name].filter(Boolean).join(' ')}
         
         **IMPORTANT PERSONALIZATION INSTRUCTIONS:**
         You MUST adapt the tone, examples, and suggested methodologies in the generated material to align with the teacher's implicit profile based on the analyzed course content and their professional role. For example, if the content is highly technical and for an advanced engineering course, the examples should be complex and practical. If the role is for a university teaching humanities, prioritize critical thinking questions and collaborative activities. The personalization is subtle and based on context, not on an explicit philosophy.
@@ -324,17 +317,11 @@ export async function generateMaterialFromAnalysis(
 
     const generationPrompt = ai.definePrompt({
         name: `generate${materialType}Prompt`,
-        input: { schema: GenerateMaterialInternalInputSchema }, // Use the internal schema
+        input: { schema: GenerateMaterialInputSchema },
         output: { schema: GenerateMaterialOutputSchema },
         prompt: finalPrompt,
     });
-    
-    const internalInput = {
-        ...input,
-        userName: userProfile?.fullName,
-    };
 
-
-    const { output } = await generationPrompt(internalInput);
+    const { output } = await generationPrompt(input);
     return output?.markdownContent || '';
 }
