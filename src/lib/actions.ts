@@ -641,26 +641,23 @@ export async function updateUserProfileAction(
         avatarUrl = urlData.publicUrl;
     }
 
-    // Prepare data for the 'profiles' table
     const profileDataToUpdate: {
         id: string;
         fullName: string;
         role: string;
-        institution: string;
+        institutions: string[];
         avatar_url?: string;
     } = {
       id: user.id,
       fullName,
       role: formData.get('role') as string,
-      institution: formData.get('institution') as string,
+      institutions: formData.getAll('institutions[]') as string[],
     };
     
-    // Only add avatar_url to the update object if it's a new URL
     if (avatarUrl) {
       profileDataToUpdate.avatar_url = avatarUrl;
     }
 
-    // Upsert data into the 'profiles' table
     const { data, error: profileUpsertError } = await supabase
       .from('profiles')
       .upsert(profileDataToUpdate)
@@ -674,13 +671,11 @@ export async function updateUserProfileAction(
       throw profileUpsertError;
     }
     
-    // If a new avatar was uploaded, update the user metadata in Supabase Auth as well
     if (avatarUrl) {
         const { error: userUpdateError } = await supabase.auth.updateUser({
             data: { avatar_url: avatarUrl, full_name: fullName }
         });
          if (userUpdateError) {
-            // Log the error but don't block the response, as the profile is already updated
             console.error(`Error al actualizar metadatos del usuario: ${userUpdateError.message}`);
         }
     }

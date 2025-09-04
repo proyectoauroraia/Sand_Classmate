@@ -50,7 +50,7 @@ export type UserProfile = {
     id: string;
     fullName?: string;
     role?: string;
-    institution?: string;
+    institutions?: string[];
     cvUrl?: string;
     avatar_url?: string;
 };
