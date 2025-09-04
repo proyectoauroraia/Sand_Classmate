@@ -354,7 +354,7 @@ async function createStyledPptx(markdownContent: string, themeKey: ThemeKey, use
         const content = contentPoints.map(point => point.replace(/^\* /, '').trim());
 
         if (content.length > 0) {
-            slide.addText(content, {
+            slide.addText(content.join('\n'), {
                 x: 0.75, y: 1.5, w: '85%', h: 3.75, fontSize: 20, color: theme.text, bullet: true,
             });
         }
@@ -680,3 +680,5 @@ export async function updateUserProfileAction(
       return { data: null, error: errorMessage };
   }
 }
+
+    
