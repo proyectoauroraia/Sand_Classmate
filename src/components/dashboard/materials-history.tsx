@@ -18,13 +18,12 @@ interface MaterialsHistoryProps {
     onViewAnalysis?: (item: HistoryItem) => void;
 }
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 3;
 
 const buttonColors = [
     'bg-primary/80 hover:bg-primary',
     'bg-secondary/80 hover:bg-secondary',
     'bg-accent-foreground/80 hover:bg-accent-foreground',
-    'bg-primary/60 hover:bg-primary/90',
 ];
 
 export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: MaterialsHistoryProps) {

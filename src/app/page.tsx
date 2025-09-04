@@ -16,7 +16,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { FileUploader } from '@/components/dashboard/file-uploader';
 import { MaterialsHistory } from '@/components/dashboard/materials-history';
-import { AnalysisDisplay } from '@/components/dashboard/analysis/analysis-display';
 import type { AnalysisResult, HistoryItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
@@ -35,7 +34,6 @@ export default function HomePage() {
         if (result) {
             setAnalysisResult(result);
             
-            // This logic will now run only on the client side
             try {
                 const newHistoryItem: HistoryItem = {
                     id: `analysis_${new Date().toISOString()}`,
@@ -45,10 +43,18 @@ export default function HomePage() {
                     status: 'Completado',
                     analysis: result,
                 };
+                
                 const existingHistory: HistoryItem[] = JSON.parse(localStorage.getItem('sand_classmate_history') || '[]');
-                const updatedHistory = [newHistoryItem, ...existingHistory];
+                
+                // Remove any existing item with the same courseName to avoid duplicates
+                const filteredHistory = existingHistory.filter(item => item.courseName !== result.courseName);
+                
+                // Add the new item to the beginning of the list
+                const updatedHistory = [newHistoryItem, ...filteredHistory];
+
                 localStorage.setItem('sand_classmate_history', JSON.stringify(updatedHistory));
                 setHistoryKey(Date.now()); // Trigger refresh
+                
                 toast({
                     title: "Análisis Guardado",
                     description: `El análisis para "${result.courseName}" ha sido guardado en tu historial.`
