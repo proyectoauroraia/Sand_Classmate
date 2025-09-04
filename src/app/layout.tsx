@@ -22,11 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" suppressHydrationWarning>
-       <body className="bg-[#2F2B2B]">
-        <div className="min-h-screen p-4 sm:p-6 md:p-8 flex items-center justify-center">
+       <body className={`${inter.variable} font-sans`}>
             {children}
-        </div>
-        <Toaster />
+            <Toaster />
       </body>
     </html>
   );

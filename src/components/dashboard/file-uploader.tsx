@@ -30,30 +30,27 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
         let timer: NodeJS.Timeout | null = null;
         if (analysisState === 'analyzing') {
             setProgress(0);
-            // Simulate a more realistic progress duration (e.g., 60 seconds)
             const totalDuration = 60000; 
-            const initialFastDuration = 8000; // First 8s to get to 70%
+            const initialFastDuration = 8000; 
             const remainingDuration = totalDuration - initialFastDuration;
 
-            // Fast initial progress
             let startTime = Date.now();
             const animateFast = () => {
                 const elapsedTime = Date.now() - startTime;
                 const newProgress = Math.min(70, (elapsedTime / initialFastDuration) * 70);
                 setProgress(newProgress);
-                if (newProgress < 70 && analysisState === 'analyzing') { // Check if still analyzing
+                if (newProgress < 70 && analysisState === 'analyzing') { 
                     requestAnimationFrame(animateFast);
                 }
             };
             animateFast();
 
-            // Slower progress for the remainder, holds at 95% until completion
             timer = setTimeout(() => {
-                if (analysisState !== 'analyzing') return; // Stop if state changed
+                if (analysisState !== 'analyzing') return; 
                 startTime = Date.now();
                 const animateSlow = () => {
                      const elapsedTime = Date.now() - startTime;
-                     const newProgress = 70 + Math.min(25, (elapsedTime / remainingDuration) * 25); // Goes up to 95%
+                     const newProgress = 70 + Math.min(25, (elapsedTime / remainingDuration) * 25); 
                      setProgress(newProgress);
                      if (newProgress < 95 && analysisState === 'analyzing') {
                          requestAnimationFrame(animateSlow);
@@ -70,7 +67,6 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
 
     const handleFileChange = (selectedFile: File | null) => {
         if (selectedFile) {
-            // Client-side validation for file size and type
             if (selectedFile.size > 10 * 1024 * 1024) { // 10 MB
                 const errorMsg = 'El archivo no debe superar los 10MB.';
                 setError(errorMsg);
@@ -117,14 +113,14 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                 throw new Error(response.error || 'Falló el análisis del contenido.');
             }
             
-            setProgress(100); // Analysis complete
+            setProgress(100); 
             setTimeout(() => {
                 onAnalysisComplete(response.data);
                 toast({
                     title: "¡Análisis Completo!",
                     description: `Hemos analizado tu documento sobre "${response.data.subjectArea}".`,
                 });
-            }, 500); // Short delay to show 100%
+            }, 500);
 
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error inesperado.';
@@ -156,9 +152,17 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
     }
 
     return (
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col p-6 bg-accent/20 border-2 border-dashed border-primary/30 rounded-xl">
             <form id="analysis-form" onSubmit={handleAnalysisSubmit} className="flex-grow flex flex-col">
-                <div className="flex-grow flex flex-col">
+                <div 
+                    className="flex-grow flex flex-col items-center justify-center text-center cursor-pointer"
+                    onClick={() => fileInputRef.current?.click()}
+                    onDrop={(e) => {
+                        e.preventDefault();
+                        handleFileChange(e.dataTransfer.files?.[0] || null)
+                    }}
+                    onDragOver={(e) => e.preventDefault()}
+                >
                     {error && (
                         <Alert variant="destructive" className="mb-4">
                             <AlertCircle className="h-4 w-4" />
@@ -166,30 +170,20 @@ export function FileUploader({ onAnalysisComplete }: FileUploaderProps) {
                             <AlertDescription>{error}</AlertDescription>
                         </Alert>
                     )}
-                    <div 
-                        className="flex flex-col items-center justify-center py-10 px-6 rounded-lg cursor-pointer transition-colors flex-grow"
-                        onClick={() => fileInputRef.current?.click()}
-                        onDrop={(e) => {
-                            e.preventDefault();
-                            handleFileChange(e.dataTransfer.files?.[0] || null)
-                        }}
-                        onDragOver={(e) => e.preventDefault()}
-                    >
-                        <UploadCloud className="h-12 w-12 text-primary mb-4" />
-                        <p className="text-base font-semibold text-foreground text-center">
-                            {file ? file.name : 'Haz clic o arrastra un archivo para subir'}
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">Se admiten documentos PDF y DOCX (máx. 10MB)</p>
-                        <Input 
-                            ref={fileInputRef} 
-                            id="syllabusFile" 
-                            name="syllabusFile" 
-                            type="file" 
-                            className="hidden" 
-                            accept=".pdf,.docx"
-                            onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
-                        />
-                    </div>
+                    <UploadCloud className="h-12 w-12 text-primary mb-4" />
+                    <p className="text-base font-semibold text-accent-foreground text-center">
+                        {file ? file.name : 'Haz clic o arrastra un archivo para subir'}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">Se admiten documentos PDF y DOCX (máx. 10MB)</p>
+                    <Input 
+                        ref={fileInputRef} 
+                        id="syllabusFile" 
+                        name="syllabusFile" 
+                        type="file" 
+                        className="hidden" 
+                        accept=".pdf,.docx"
+                        onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
+                    />
                 </div>
                 <div className="mt-6">
                     <Button type="submit" form="analysis-form" disabled={analysisState !== 'idle' || !file} size="lg" className="w-full py-6 text-base">

@@ -34,10 +34,8 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
             if (storedHistory) {
                 const items: HistoryItem[] = JSON.parse(storedHistory);
 
-                // Use a Map to get the most recent unique item for each courseName
                 const uniqueItemsMap = new Map<string, HistoryItem>();
                 for (const item of items) {
-                    // The list is already sorted with newest first, so the first time we see a courseName, it's the one we keep.
                     if (!uniqueItemsMap.has(item.courseName)) {
                         uniqueItemsMap.set(item.courseName, item);
                     }
@@ -162,12 +160,12 @@ export function MaterialsHistory({ isFullPage = false, onViewAnalysis }: Materia
             ) : (
                 <div className="space-y-3">
                     {displayedHistory.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-card hover:bg-accent/50 transition-colors">
+                        <div key={item.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-colors">
                             <div>
                                 <p className="font-semibold text-sm">{item.courseName}</p>
                                 <p className="text-xs text-muted-foreground">{item.subjectArea}</p>
                             </div>
-                            <Button size="sm" variant="ghost" onClick={() => handleViewAnalysisClick(item)}>
+                            <Button size="sm" variant="link" className="text-accent-foreground" onClick={() => handleViewAnalysisClick(item)}>
                                 Ver
                             </Button>
                         </div>
