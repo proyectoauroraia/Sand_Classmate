@@ -1,7 +1,8 @@
 
 'use server';
 
-import { analyzeAndEnrichContent, generateMaterialFromAnalysis } from '@/ai/flows/educational-content-flows';
+import { analyzeAndEnrichContent } from '@/ai/flows/analyze';
+import { generateMaterialFromAnalysis } from '@/ai/flows/generate';
 import type { AnalysisResult, CheckoutSessionResult, WebpayCommitResult, UserProfile, GeneratedMaterials } from '@/lib/types';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
@@ -10,62 +11,142 @@ import { generateFileHash } from '@/lib/utils';
 import { subDays } from 'date-fns';
 
 
-const AnalyzeInputSchema = z.object({
-  documentDataUri: z.string().refine(
-    (uri) => uri.startsWith('data:application/pdf;base64,') || uri.startsWith('data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,'),
-    'Solo se admiten documentos PDF o DOCX.'
-  ).refine(
-      (uri) => {
-        const parts = uri.split(',');
-        if (parts.length !== 2) return false; // Ensure URI has the expected 'data:<mime>;base64,<data>' structure
-        const base64Data = parts[1];
-        try {
-            // The length of a Base64-encoded string is approximately 4/3 of the original data size.
-            // This calculation is a safe and fast approximation.
-            const stringLength = base64Data.length;
-            const sizeInBytes = Math.ceil(stringLength * (3 / 4));
-            return sizeInBytes <= 10 * 1024 * 1024; // 10 MB
-        } catch (e) {
-            return false; // Invalid Base64 string
+export async function startAnalysisAction({ fileKey }: { fileKey: string }): Promise<{ analysisId: string | null, error: string | null }> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { analysisId: null, error: 'Unauthorized' };
+  }
+
+  // 1) Verifica cuota (RPC/servidor) - Asumiendo que esta función existe en la DB
+  const { data: canUse, error: rpcError } = await supabase.rpc('can_consume_analysis', {});
+  if (rpcError) {
+      console.error('RPC can_consume_analysis error:', rpcError);
+      return { analysisId: null, error: 'No se pudo verificar tu cuota de uso.' };
+  }
+  if (!canUse) {
+    return { analysisId: null, error: 'Has alcanzado tu límite diario de análisis. Mejora tu plan para analizar más documentos.' };
+  }
+
+  // 2) Crea analysis
+  const { data: analysis, error: insErr } = await supabase
+    .from('analyses')
+    .insert({ owner_id: user.id, file_key: fileKey, status: 'queued' })
+    .select('id')
+    .single();
+
+  if (insErr) {
+    console.error('Insert analysis error:', insErr);
+    return { analysisId: null, error: 'No se pudo iniciar el proceso de análisis.' };
+  }
+
+  // No esperamos a que termine, solo iniciamos. El cliente deberá consultar el estado.
+  // En un entorno real, esto se ejecutaría en un worker separado (e.g., Supabase Edge Function).
+  // Por ahora, lo ejecutamos de forma asíncrona sin esperar el resultado.
+  (async () => {
+    try {
+      await supabase.from('analyses').update({ status: 'processing' }).eq('id', analysis.id);
+
+      const result = await analyzeAndEnrichContent({ fileKey });
+
+      await supabase.from('analyses').update({
+        status: 'done',
+        summary: result.summary,
+        key_concepts: result.keyConcepts,
+        course_structure: result.courseStructure,
+        assessments: result.assessments,
+        bibliography: result.bibliography,
+        links_of_interest: result.linksOfInterest,
+        review_videos: result.reviewVideos,
+        active_methodologies: result.activeMethodologies,
+        tokens: result.tokens,
+        prompt_version: result.promptVersion,
+      }).eq('id', analysis.id);
+
+      // 3) incrementa contador - Asumiendo que esta función existe en la DB
+      await supabase.rpc('increment_analyses', {});
+    } catch (e) {
+      console.error('Background analysis error:', e);
+      await supabase.from('analyses').update({ status: 'error' }).eq('id', analysis.id);
+    }
+  })();
+  
+  revalidatePath('/dashboard/history');
+  return { analysisId: analysis.id, error: null };
+}
+
+
+// The old action is kept for reference but is no longer used by the file uploader.
+export async function analyzeContentAction(
+  documentDataUri: string
+): Promise<{ data: AnalysisResult | null; error: string | null }> {
+    return { data: null, error: "This action is deprecated. Use startAnalysisAction instead."};
+}
+
+
+export async function generateMaterialsActionFromAnalysis(
+  analysisResult: AnalysisResult,
+  materialType: keyof GeneratedMaterials | 'powerpointPresentation',
+  format: 'docx' | 'pdf' | 'pptx',
+  classContext?: { unitTitle: string; classTopic: string }
+): Promise<{ data: string | null; error: string | null }> {
+    const validation = z.object({
+        analysisResult: z.any(),
+        materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
+        format: z.enum(['docx', 'pdf', 'pptx']),
+        classContext: z.object({
+            unitTitle: z.string(),
+            classTopic: z.string(),
+        }).optional(),
+    }).safeParse({ analysisResult, materialType, format, classContext });
+
+    if (!validation.success) {
+        const error = validation.error.errors[0]?.message || 'Datos de entrada inválidos para la generación.';
+        console.error("Generate Material Validation Error:", validation.error.format());
+        return { data: null, error };
+    }
+
+    try {
+        const markdownContent = await generateMaterialFromAnalysis({
+            analysisResult,
+            materialType,
+            classContext,
+        });
+
+        if (!markdownContent) {
+            throw new Error('Sand Classmate no pudo generar contenido para este material. Por favor, inténtalo de nuevo o con un documento diferente.');
         }
-      },
-      'El archivo no debe superar los 10MB o tiene un formato de codificación inválido.'
-  )
-});
 
-const ClassSchema = z.object({
-    topic: z.string(),
-});
+        if (materialType === 'powerpointPresentation') {
+            return { data: markdownContent, error: null };
+        }
 
-const UnitSchema = z.object({
-    title: z.string(),
-    learningObjectives: z.array(z.string()),
-    classes: z.array(ClassSchema),
-});
+        let fileDataUri: string;
+        
+        const titleMap = {
+            workGuide: 'Guía de Trabajo',
+            exampleTests: 'Examen de Ejemplo',
+            interactiveReviewPdf: 'Repaso Interactivo',
+        };
+        const title = titleMap[materialType as keyof typeof titleMap];
 
+        if (format === 'docx') {
+            fileDataUri = await createStyledDocx(title, markdownContent);
+        } else { // pdf
+            fileDataUri = await createStyledPdf(title, markdownContent);
+        }
+        
+        return { data: fileDataUri, error: null };
 
-const GenerateMaterialInputSchema = z.object({
-    analysisResult: z.object({
-        courseName: z.string(),
-        summary: z.string().optional(),
-        keyConcepts: z.array(z.string()).optional(),
-        subjectArea: z.string(),
-        courseStructure: z.array(UnitSchema).optional(),
-        assessments: z.array(z.object({
-          type: z.string(),
-          description: z.string(),
-          feedback: z.string(),
-        })).optional(),
-        bibliography: z.any().optional(),
-    }),
-    materialType: z.enum(['powerpointPresentation', 'workGuide', 'exampleTests', 'interactiveReviewPdf']),
-    format: z.enum(['docx', 'pdf', 'pptx']),
-    classContext: z.object({
-        unitTitle: z.string(),
-        classTopic: z.string(),
-    }).optional(),
-});
-
+    } catch(e) {
+        console.error("Generate Material Error:", e);
+        const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
+         if (errorMessage.includes('503')) {
+            return { data: null, error: 'El servicio de IA está temporalmente sobrecargado. Por favor, inténtalo de nuevo en unos momentos.' };
+        }
+        return { data: null, error: `Falló la generación del material: ${errorMessage}` };
+    }
+}
 
 async function createStyledPdf(title: string, markdownContent: string): Promise<string> {
     const { PDFDocument, rgb, StandardFonts, PageSizes } = await import('pdf-lib');
@@ -368,134 +449,6 @@ async function createStyledPptx(markdownContent: string, themeKey: ThemeKey, use
 }
 
 
-export async function analyzeContentAction(
-  documentDataUri: string
-): Promise<{ data: AnalysisResult | null; error: string | null }> {
-  const validation = AnalyzeInputSchema.safeParse({ documentDataUri });
-  if (!validation.success) {
-    const error = validation.error.errors[0]?.message || 'Datos de entrada inválidos.';
-    console.error("Analysis Action Validation Error:", validation.error.format());
-    return { data: null, error };
-  }
-  
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { data: null, error: 'No estás autenticado.' };
-  }
-  
-  const fileHash = generateFileHash(documentDataUri);
-  const cacheTtl = subDays(new Date(), 30);
-
-  // 1. Check cache first
-  const { data: cachedData, error: cacheError } = await supabase
-    .from('analysis_cache')
-    .select('analysis_result')
-    .eq('file_hash', fileHash)
-    .eq('user_id', user.id)
-    .gte('created_at', cacheTtl.toISOString())
-    .single();
-
-  if (cacheError && cacheError.code !== 'PGRST116') { // Ignore 'no rows found' error
-    console.error("Cache check error:", cacheError);
-    // Decide if we should proceed or return error. For now, let's proceed.
-  }
-  
-  if (cachedData) {
-    console.log("Returning cached analysis for hash:", fileHash);
-    return { data: cachedData.analysis_result as AnalysisResult, error: null };
-  }
-
-  // 2. If not in cache, run analysis
-  try {
-    const analysisResult = await analyzeAndEnrichContent({
-      documentDataUri,
-    });
-    
-    // 3. Save to cache
-    const { error: insertError } = await supabase
-      .from('analysis_cache')
-      .insert({
-        file_hash: fileHash,
-        file_name: 'user_uploaded_file', // Could be enhanced to get real filename
-        analysis_result: analysisResult,
-        user_id: user.id
-      });
-      
-    if (insertError) {
-      console.error("Error saving to cache:", insertError);
-      // Don't block the user, just log the error
-    }
-    
-    return { data: analysisResult, error: null };
-  } catch (e) {
-    console.error("Analysis Action Error:", e);
-    const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
-     if (errorMessage.includes('503')) {
-        return { data: null, error: 'El servicio de IA está temporalmente sobrecargado. Por favor, inténtalo de nuevo en unos momentos.' };
-    }
-    return { data: null, error: `Falló el análisis del contenido: ${errorMessage}` };
-  }
-}
-
-export async function generateMaterialsActionFromAnalysis(
-  analysisResult: AnalysisResult,
-  materialType: keyof GeneratedMaterials | 'powerpointPresentation',
-  format: 'docx' | 'pdf' | 'pptx',
-  classContext?: { unitTitle: string; classTopic: string }
-): Promise<{ data: string | null; error: string | null }> {
-    const validation = GenerateMaterialInputSchema.safeParse({ analysisResult, materialType, format, classContext });
-    if (!validation.success) {
-        const error = validation.error.errors[0]?.message || 'Datos de entrada inválidos para la generación.';
-        console.error("Generate Material Validation Error:", validation.error.format());
-        return { data: null, error };
-    }
-
-    try {
-        const markdownContent = await generateMaterialFromAnalysis({
-            analysisResult,
-            materialType,
-            classContext,
-        });
-
-        if (!markdownContent) {
-            throw new Error('Sand Classmate no pudo generar contenido para este material. Por favor, inténtalo de nuevo o con un documento diferente.');
-        }
-
-        // For presentations, we now only return the markdown content.
-        // The final PPTX generation happens in a separate action after user edits.
-        if (materialType === 'powerpointPresentation') {
-            return { data: markdownContent, error: null };
-        }
-
-        let fileDataUri: string;
-        
-        const titleMap = {
-            workGuide: 'Guía de Trabajo',
-            exampleTests: 'Examen de Ejemplo',
-            interactiveReviewPdf: 'Repaso Interactivo',
-        };
-        const title = titleMap[materialType as keyof typeof titleMap];
-
-        if (format === 'docx') {
-            fileDataUri = await createStyledDocx(title, markdownContent);
-        } else { // pdf
-            fileDataUri = await createStyledPdf(title, markdownContent);
-        }
-        
-        return { data: fileDataUri, error: null };
-
-    } catch(e) {
-        console.error("Generate Material Error:", e);
-        const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
-         if (errorMessage.includes('503')) {
-            return { data: null, error: 'El servicio de IA está temporalmente sobrecargado. Por favor, inténtalo de nuevo en unos momentos.' };
-        }
-        return { data: null, error: `Falló la generación del material: ${errorMessage}` };
-    }
-}
-
 export async function createPptxAction(
     markdownContent: string,
     theme: string
@@ -525,88 +478,6 @@ export async function createPptxAction(
     }
 }
 
-
-const WEBPAY_API_BASE = "https://webpay3gint.transbank.cl/rswebpaytransaction/api/webpay/v1.2";
-const COMMERCE_CODE = process.env.WEBPAY_PLUS_COMMERCE_CODE;
-const API_KEY = process.env.WEBPAY_PLUS_API_KEY;
-
-export async function createCheckoutSessionAction(): Promise<{ data: CheckoutSessionResult | null; error: string | null }> {
-    try {
-        if (!COMMERCE_CODE || !API_KEY) {
-            throw new Error("Las credenciales de Webpay no están configuradas en el servidor.");
-        }
-
-        const buy_order = `O-${Math.floor(Math.random() * 10000) + 1}`;
-        const session_id = `S-${Math.floor(Math.random() * 10000) + 1}`;
-        const amount = 12000;
-        const return_url = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/dashboard/payment/return`;
-
-        const headers = {
-            "Tbk-Api-Key-Id": COMMERCE_CODE,
-            "Tbk-Api-Key-Secret": API_KEY,
-            "Content-Type": "application/json",
-        };
-
-        const response = await fetch(`${WEBPAY_API_BASE}/transactions`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({ buy_order, session_id, amount, return_url }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error_message || 'Error al crear la transacción en Webpay');
-        }
-
-        return { data, error: null };
-
-    } catch (e) {
-        console.error("Create Checkout Session Error:", e);
-        const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
-        return { data: null, error: `No se pudo crear la sesión de pago: ${errorMessage}` };
-    }
-}
-
-export async function commitWebpayTransactionAction(
-  token: string
-): Promise<{ data: WebpayCommitResult | null; error: string | null }> {
-    try {
-        if (!token) {
-            throw new Error("Token de Webpay no proporcionado.");
-        }
-         if (!COMMERCE_CODE || !API_KEY) {
-            throw new Error("Las credenciales de Webpay no están configuradas en el servidor.");
-        }
-        
-        const headers = {
-            "Tbk-Api-Key-Id": COMMERCE_CODE,
-            "Tbk-Api-Key-Secret": API_KEY,
-            "Content-Type": "application/json",
-        };
-
-        const response = await fetch(`${WEBPAY_API_BASE}/transactions/${token}`, {
-            method: 'PUT',
-            headers,
-        });
-
-        const data: WebpayCommitResult = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error_message || 'Error al confirmar la transacción en Webpay');
-        }
-        
-        // If payment is authorized, you would update your database here.
-        // For example: await updateUserToPremium(userId);
-        
-        return { data, error: null };
-
-    } catch (e) {
-        console.error("Commit Webpay Transaction Error:", e);
-        const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
-        return { data: null, error: `Falló la confirmación del pago: ${errorMessage}` };
-    }
-}
 
 export async function updateUserProfileAction(
   formData: FormData

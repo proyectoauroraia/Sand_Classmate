@@ -1,4 +1,5 @@
 
+
 export type AnalysisResult = {
   courseName: string;
   subjectArea: string;
@@ -27,6 +28,10 @@ export type AnalysisResult = {
   linksOfInterest: { title: string; url: string }[];
   reviewVideos: { title: string; url: string }[];
   activeMethodologies: { name: string; description: string }[];
+
+  // Fields from the new async flow
+  tokens?: number;
+  promptVersion?: string;
 }
 
 export type GeneratedMaterials = {
@@ -36,6 +41,27 @@ export type GeneratedMaterials = {
   interactiveReviewPdf: string;
 };
 
+// Represents a row in the new `analyses` table
+export type AnalysisHistoryItem = {
+    id: string;
+    owner_id: string;
+    file_key: string;
+    status: 'queued' | 'processing' | 'done' | 'error';
+    summary?: {
+      summary: string;
+      topics: string[];
+      learningOutcomes: string[];
+    } | null,
+    tokens?: number | null;
+    prompt_version?: string | null;
+    created_at: string;
+    // Helper fields to be populated by client
+    courseName?: string; 
+    subjectArea?: string;
+};
+
+
+// Old history item, to be deprecated
 export type HistoryItem = {
     id: string;
     courseName: string;
@@ -51,6 +77,8 @@ export type UserProfile = {
     last_name?: string;
     avatar_url?: string;
     institutions?: string[];
+    premium?: boolean;
+    premium_advanced?: boolean;
 };
 
 export type CheckoutSessionResult = {
@@ -75,3 +103,4 @@ export type WebpayCommitResult = {
     installments_amount?: number;
     error_message?: string;
 };
+

@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, Loader2 } from 'lucide-react';
 import { DuneBackground } from '@/components/icons/dune-background';
-import { createCheckoutSessionAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 
 const CheckListItem = ({ children }: { children: React.ReactNode }) => (
@@ -26,9 +25,11 @@ export default function PricingPage() {
         e.preventDefault();
         setIsPremiumLoading(true);
         try {
-            const { data, error } = await createCheckoutSessionAction();
-            if (error || !data?.url) {
-                throw new Error(error || 'No se pudo iniciar el proceso de pago.');
+            const response = await fetch('/api/payments/init', { method: 'POST' });
+            const data = await response.json();
+            
+            if (!response.ok || !data?.url) {
+                throw new Error(data.error || 'No se pudo iniciar el proceso de pago.');
             }
             // Redirect to payment gateway
             router.push(data.url);
