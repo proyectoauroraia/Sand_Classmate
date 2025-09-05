@@ -1,7 +1,17 @@
-import {genkit} from 'genkit';
-import {groq} from 'groq';
+import { genkit, configureGenkit, llama3 } from '@genkit-ai/core';
+import { groq } from 'genkitx-groq';
+import { defineModel } from '@genkit-ai/ai/model';
 
-export const ai = genkit({
-  plugins: [groq({apiKey: process.env.GROQ_API_KEY})],
-  model: 'groq/llama3-70b-8192',
+configureGenkit({
+  plugins: [
+    groq({
+      apiKey: process.env.GROQ_API_KEY,
+    }),
+  ],
+  logLevel: 'debug',
+  enableTracingAndMetrics: true,
 });
+
+export const model = llama3;
+
+export const ai = genkit;

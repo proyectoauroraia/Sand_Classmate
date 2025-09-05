@@ -73,7 +73,7 @@ export default function SettingsPage() {
                                 1. Obtén tu Clave de API de Groq
                             </h3>
                             <p className="text-muted-foreground">
-                                Puedes obtener tu clave de API gratuita desde la consola de Groq. Es un proceso rápido que te dará acceso a Llama 3 y otros modelos de lenguaje.
+                                Puedes obtener tu clave de API gratuita desde la consola de Groq. Es un proceso rápido que te dará acceso a los modelos de Llama.
                             </p>
                             <div className="pt-2">
                                 <Button asChild>

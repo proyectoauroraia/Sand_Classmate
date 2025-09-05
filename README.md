@@ -4,7 +4,7 @@ Bienvenido a la documentación para desarrolladores de Sand Classmate. Este docu
 
 ## 1. Descripción General del Proyecto
 
-Sand Classmate es una aplicación web diseñada para docentes universitarios. Su función principal es utilizar IA generativa (Llama 3 a través de Genkit y Groq) para analizar documentos académicos (como programas de curso o apuntes) y, a partir de ese análisis, generar materiales educativos de alta calidad como presentaciones de PowerPoint, guías de trabajo y modelos de examen.
+Sand Classmate es una aplicación web diseñada para docentes universitarios. Su función principal es utilizar IA generativa (Llama 3 a través de Groq y Genkit) para analizar documentos académicos (como programas de curso o apuntes) y, a partir de ese análisis, generar materiales educativos de alta calidad como presentaciones de PowerPoint, guías de trabajo y modelos de examen.
 
 El objetivo es actuar como un asistente pedagógico inteligente, optimizando el tiempo del docente y mejorando la calidad de los recursos educativos.
 
@@ -50,7 +50,7 @@ El proyecto sigue la estructura estándar de una aplicación Next.js con el App 
 
 ### 4.1. Autenticación con Supabase
 
-- El flujo de autenticación (inicio de sesión, registro) se gestiona a través del cliente de Supabase (`@supabase/ssr` y `@supabase/auth-helpers-nextjs`).
+- El flujo de autenticación (inicio de sesión, registro) se gestiona través del cliente de Supabase (`@supabase/ssr` y `@supabase/auth-helpers-nextjs`).
 - **Middleware (`src/lib/supabase/middleware.ts`):** Refresca la sesión del usuario en cada petición al servidor, manteniendo al usuario autenticado.
 - **Seguridad (RLS):** La base de datos utiliza Row Level Security (RLS) en la tabla `profiles` para asegurar que un usuario solo pueda leer y modificar su propia información. Se utiliza un *trigger* en la base de datos para crear un perfil automáticamente cuando un nuevo usuario se registra.
 
