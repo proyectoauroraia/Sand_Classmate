@@ -4,6 +4,7 @@
  * @fileOverview Flows for analyzing and generating educational content.
  * - analyzeAndEnrichContent: Analyzes a document, summarizes it, and enriches it with scientific context.
  * - generateMaterialFromAnalysis: Generates specific educational materials based on a prior analysis.
+ * - askSandClassmate: A simple flow for testing the connection to the AI model.
  */
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
@@ -325,3 +326,40 @@ export async function generateMaterialFromAnalysis(
     const { output } = await generationPrompt(input);
     return output?.markdownContent || '';
 }
+
+
+// New flow for the test page
+const AskSandClassmateContextSchema = z.object({
+    subject: z.string().describe('The academic subject for the question.'),
+    level: z.string().describe('The educational level (e.g., secondary, university).'),
+});
+
+export const askSandClassmate = ai.defineFlow(
+    {
+        name: 'askSandClassmate',
+        inputSchema: z.string().describe('The user\'s question.'),
+        outputSchema: z.string().describe('The AI\'s answer.'),
+        metadata: {
+            // Include context in the metadata so we can pass it to the prompt
+            context: AskSandClassmateContextSchema,
+        },
+    },
+    async (question, context) => {
+        const prompt = `You are Sand Classmate, an expert pedagogical assistant.
+        A user is asking a question in the context of the subject "${context.subject}" at the "${context.level}" level.
+        
+        Provide a clear, concise, and helpful answer in Spanish to the following question:
+        
+        Question: "${question}"
+        
+        Answer:`;
+
+        const { text } = await ai.generate({
+            model: 'llama3',
+            prompt: prompt,
+            config: { temperature: 0.5 },
+        });
+
+        return text;
+    }
+);
