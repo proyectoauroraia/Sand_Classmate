@@ -1,21 +1,18 @@
-
 'use server';
 /**
  * @fileOverview Genkit configuration and custom model definition for Sand Classmate.
- * This file sets up a custom model that uses the Groq API via fetch() to avoid
- * external dependencies and configures Genkit to use it.
+ * This file sets up Genkit and a custom model that uses the Groq API via fetch().
  */
-
-import * as genkit from '@genkit-ai/core';
+import { genkit } from '@genkit-ai/core';
 import { defineModel } from '@genkit-ai/ai/model';
 
-// Configure Genkit first to ensure all components are initialized correctly.
-genkit.configureGenkit({
+// Initialize Genkit and define the main 'ai' object.
+// The call to genkit() replaces the deprecated configureGenkit().
+export const ai = genkit({
   plugins: [], // No external plugins needed as we use fetch() directly.
   logLevel: 'debug',
   enableTracingAndMetrics: true,
 });
-
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
@@ -113,11 +110,3 @@ ESTILO:
     throw new Error(`Error al generar respuesta con Sand Classmate: ${error instanceof Error ? error.message : 'Error desconocido'}`);
   }
 });
-
-// Provide a consistent 'ai' object for use across the application.
-export const ai = {
-    defineModel,
-    definePrompt: genkit.definePrompt,
-    defineFlow: genkit.defineFlow,
-    generate: genkit.generate,
-};
