@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, AlertCircle, CheckCircle, BrainCircuit } from 'lucide-react';
 import { DuneBackground } from '@/components/icons/dune-background';
+import type { GenerateResponse } from 'genkit';
 
 export default function TestGroq() {
   const [question, setQuestion] = useState('');
@@ -22,7 +23,10 @@ export default function TestGroq() {
     // This is a bit of a hack for client-side check, but it works for this test page.
     // In a real app, this check would happen server-side.
     // We are just checking if the variable has a value, not the value itself.
-    setApiKeyIsSet(!!process.env.NEXT_PUBLIC_SUPABASE_URL); // Using an existing public var as a proxy.
+    // NOTE: In a real scenario, you wouldn't expose GROQ_API_KEY to the client.
+    // This is just for this debug page.
+    const key = process.env.NEXT_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY;
+    setApiKeyIsSet(!!key);
   }, []);
 
   const testGroq = async () => {
@@ -33,12 +37,13 @@ export default function TestGroq() {
     setResponse('');
 
     try {
-      // The function is now inside the imported flows object
+      // The flow returns the full GenerateResponse object
       const result = await educationalContentFlows.askSandClassmate(question, {
         subject: 'Matemáticas',
         level: 'secundaria'
       });
       
+      // We extract the text from the response
       setResponse(result);
     } catch (err: any) {
       setError(`Error: ${err.message}`);
@@ -76,9 +81,10 @@ export default function TestGroq() {
                     <ul className="space-y-1 text-sm text-muted-foreground">
                         <li className="flex items-center gap-2">
                             {apiKeyIsSet ? <CheckCircle className="h-4 w-4 text-green-500" /> : <AlertCircle className="h-4 w-4 text-amber-500" />}
-                            <span>GROQ_API_KEY configurada en el servidor.</span>
+                            <span>GROQ_API_KEY configurada en el entorno.</span>
                         </li>
-                        <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500" /> Genkit y Groq SDK instalados.</li>
+                        <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500" /> Groq SDK instalado.</li>
+                         <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500" /> Modelo personalizado definido en Genkit.</li>
                     </ul>
                 </div>
 
@@ -141,7 +147,7 @@ export default function TestGroq() {
                         <div className="mt-3 text-sm text-destructive/80">
                             <strong>Posibles soluciones:</strong>
                             <ul className="list-disc list-inside mt-1">
-                                <li>Verificar que GROQ_API_KEY esté en `.env`</li>
+                                <li>Verificar que GROQ_API_KEY esté en `.env.local`</li>
                                 <li>Reiniciar el servidor de desarrollo</li>
                                 <li>Verificar la conexión a internet</li>
                             </ul>
@@ -152,7 +158,7 @@ export default function TestGroq() {
                  <div className="mt-8 p-4 bg-secondary/40 rounded-lg text-xs text-muted-foreground">
                     <strong>Información de desarrollo:</strong>
                     <br />
-                    • Modelo: llama3-8b-8192 (Groq Cloud)
+                    • Modelo: llama3-8b-8192 (vía Groq SDK)
                     • Costo aproximado: $0.10 por millón de tokens
                     • Velocidad: ~500 tokens/segundo
                     <br />

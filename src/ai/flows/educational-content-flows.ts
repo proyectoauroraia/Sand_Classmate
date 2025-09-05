@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview Flows for analyzing and generating educational content.
@@ -6,7 +5,7 @@
  * - generateMaterialFromAnalysis: Generates specific educational materials based on a prior analysis.
  * - askSandClassmate: A simple flow for testing the connection to the AI model.
  */
-import { ai } from '@/ai/genkit';
+import { ai, sandClassmateModel } from '@/ai/genkit';
 import { z } from 'genkit';
 import { createClient } from '@/lib/supabase/server';
 import type { UserProfile } from '@/lib/types';
@@ -71,6 +70,7 @@ export async function analyzeAndEnrichContent(
       name: 'contentAnalysisPrompt',
       input: { schema: AnalyzeContentInputSchema },
       output: { schema: AnalyzeContentOutputSchema },
+      model: sandClassmateModel,
       prompt: `You are an expert university pedagogy assistant. Your task is to perform a structured analysis of the provided educational document (syllabus, exam, course plan, etc.). Your analysis must be coherent, constructive, and focused on extracting key information and providing enrichment.
 
       IMPORTANT: All generated text, summaries, titles, and descriptions MUST be in Spanish. All generated URLs must be valid, well-formed (starting with https://), and directly related to the content. Do not include spaces within URLs.
@@ -320,6 +320,7 @@ export async function generateMaterialFromAnalysis(
         name: `generate${materialType}Prompt`,
         input: { schema: GenerateMaterialInputSchema },
         output: { schema: GenerateMaterialOutputSchema },
+        model: sandClassmateModel,
         prompt: finalPrompt,
     });
 
@@ -354,12 +355,13 @@ export const askSandClassmate = ai.defineFlow(
         
         Answer:`;
 
-        const { text } = await ai.generate({
-            model: 'llama3',
+        const response = await ai.generate({
+            model: sandClassmateModel,
             prompt: prompt,
             config: { temperature: 0.5 },
         });
 
-        return text;
+        return response.text;
     }
 );
+
