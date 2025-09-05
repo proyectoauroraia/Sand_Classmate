@@ -4,7 +4,7 @@ Bienvenido a la documentación para desarrolladores de Sand Classmate. Este docu
 
 ## 1. Descripción General del Proyecto
 
-Sand Classmate es una aplicación web diseñada para docentes universitarios. Su función principal es utilizar IA generativa (Google Gemini a través de Genkit) para analizar documentos académicos (como programas de curso o apuntes) y, a partir de ese análisis, generar materiales educativos de alta calidad como presentaciones de PowerPoint, guías de trabajo y modelos de examen.
+Sand Classmate es una aplicación web diseñada para docentes universitarios. Su función principal es utilizar IA generativa (Llama 3 a través de Groq y Genkit) para analizar documentos académicos (como programas de curso o apuntes) y, a partir de ese análisis, generar materiales educativos de alta calidad como presentaciones de PowerPoint, guías de trabajo y modelos de examen.
 
 El objetivo es actuar como un asistente pedagógico inteligente, optimizando el tiempo del docente y mejorando la calidad de los recursos educativos.
 
@@ -17,7 +17,7 @@ La aplicación está construida sobre un stack moderno de JavaScript:
 - **Estilos:** [Tailwind CSS](https://tailwindcss.com/)
 - **Componentes UI:** [ShadCN/UI](https://ui.shadcn.com/)
 - **Backend y Autenticación:** [Supabase](https://supabase.com/) (PostgreSQL, Auth, Storage)
-- **Inteligencia Artificial:** [Firebase Genkit](https://firebase.google.com/docs/genkit) (con modelos de Google Gemini)
+- **Inteligencia Artificial:** [Firebase Genkit](https://firebase.google.com/docs/genkit) (con Llama 3 a través de Groq)
 - **Formularios:** [React Hook Form](https://react-hook-form.com/) y [Zod](https://zod.dev/) para validación.
 
 ## 3. Estructura de Archivos Clave
@@ -50,7 +50,7 @@ El proyecto sigue la estructura estándar de una aplicación Next.js con el App 
 
 ### 4.1. Autenticación con Supabase
 
-- El flujo de autenticación (inicio de sesión, registro) se gestiona a través del cliente de Supabase (`@supabase/ssr` y `@supabase/auth-helpers-nextjs`).
+- El flujo de autenticación (inicio de sesión, registro) se gestiona través del cliente de Supabase (`@supabase/ssr` y `@supabase/auth-helpers-nextjs`).
 - **Middleware (`src/lib/supabase/middleware.ts`):** Refresca la sesión del usuario en cada petición al servidor, manteniendo al usuario autenticado.
 - **Seguridad (RLS):** La base de datos utiliza Row Level Security (RLS) en la tabla `profiles` para asegurar que un usuario solo pueda leer y modificar su propia información. Se utiliza un *trigger* en la base de datos para crear un perfil automáticamente cuando un nuevo usuario se registra.
 
@@ -59,7 +59,7 @@ El proyecto sigue la estructura estándar de una aplicación Next.js con el App 
 1.  **Carga del Archivo (`FileUploader`):** El usuario sube un archivo (PDF o DOCX) en el cliente.
 2.  **Conversión a Data URI:** El archivo se convierte a un `data URI` (Base64) en el navegador.
 3.  **Llamada a la Server Action (`analyzeContentAction`):** Se invoca una Server Action, pasando el `data URI`.
-4.  **Ejecución del Flujo de Genkit (`analyzeAndEnrichContent`):** La Server Action llama al flujo de Genkit. Este flujo envía el documento al modelo de IA (Gemini) con un *prompt* diseñado para analizar el contenido desde una perspectiva pedagógica.
+4.  **Ejecución del Flujo de Genkit (`analyzeAndEnrichContent`):** La Server Action llama al flujo de Genkit. Este flujo envía el documento al modelo de IA (Llama 3) con un *prompt* diseñado para analizar el contenido desde una perspectiva pedagógica.
 5.  **Respuesta Estructurada:** La IA devuelve una respuesta en formato JSON estructurado (`AnalysisResult`).
 6.  **Visualización en el Cliente (`AnalysisDisplay`):** El resultado se muestra al usuario en el cliente, dividido en pestañas para facilitar la visualización.
 
@@ -88,8 +88,8 @@ Para ejecutar este proyecto localmente, un nuevo desarrollador debe seguir estos
       NEXT_PUBLIC_SUPABASE_URL=https://<id-proyecto>.supabase.co
       NEXT_PUBLIC_SUPABASE_ANON_KEY=<tu-llave-anon>
 
-      # Clave de API para el modelo de Google Gemini
-      GEMINI_API_KEY=<tu-llave-de-api-de-gemini>
+      # Clave de API para el modelo de Llama 3 a través de Groq
+      GROQ_API_KEY=<tu-llave-de-api-de-groq>
       
       # URL base de la aplicación (para desarrollo)
       NEXT_PUBLIC_BASE_URL=http://localhost:3000

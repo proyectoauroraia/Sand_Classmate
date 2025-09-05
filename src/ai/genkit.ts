@@ -1,7 +1,17 @@
-import {genkit} from 'genkit';
-import {googleAI} from '@genkit-ai/googleai';
+import { genkit, configureGenkit, llama3 } from '@genkit-ai/core';
+import { groq } from 'genkitx-groq';
+import { defineModel } from '@genkit-ai/ai/model';
 
-export const ai = genkit({
-  plugins: [googleAI({apiKey: process.env.GEMINI_API_KEY})],
-  model: 'googleai/gemini-1.5-flash-latest',
+configureGenkit({
+  plugins: [
+    groq({
+      apiKey: process.env.GROQ_API_KEY,
+    }),
+  ],
+  logLevel: 'debug',
+  enableTracingAndMetrics: true,
 });
+
+export const model = llama3;
+
+export const ai = genkit;

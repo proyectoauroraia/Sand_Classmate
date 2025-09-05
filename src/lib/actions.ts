@@ -506,8 +506,10 @@ export async function createPptxAction(
         let userName: string | undefined;
 
         if(user) {
-            const { data: profile } = await supabase.from('profiles').select('fullName').eq('id', user.id).single();
-            userName = profile?.fullName;
+            const { data: profile } = await supabase.from('profiles').select('first_name, last_name').eq('id', user.id).single();
+            if(profile) {
+                 userName = [profile.first_name, profile.last_name].filter(Boolean).join(' ');
+            }
         }
 
         if (!markdownContent || typeof markdownContent !== 'string') {
@@ -617,13 +619,44 @@ export async function updateUserProfileAction(
       return { data: null, error: 'No estás autenticado.' };
     }
 
-    const fullName = formData.get('fullName') as string;
-    if (!fullName || fullName.trim().length === 0) {
-        return { data: null, error: 'El nombre completo es requerido.'};
+    const firstName = formData.get('firstName') as string;
+    const lastName = formData.get('lastName') as string;
+    const institutionsStr = formData.get('institutions') as string;
+    let institutions: string[] = [];
+
+    try {
+        institutions = JSON.parse(institutionsStr);
+    } catch(e) {
+        return { data: null, error: 'Formato de instituciones inválido.' };
+    }
+
+    if (!firstName || firstName.trim().length === 0) {
+        return { data: null, error: 'El nombre es requerido.'};
     }
     
     const profileImageFile = formData.get('profileImage') as File | null;
-    let avatarUrl = user.user_metadata.avatar_url;
+    let avatarUrl: string | undefined = undefined;
+
+    // This object is for updating the 'profiles' table.
+    const profileDataToUpdate: {
+        id: string;
+        first_name: string;
+        last_name: string;
+        institutions: string[];
+        avatar_url?: string;
+    } = {
+      id: user.id,
+      first_name: firstName,
+      last_name: lastName,
+      institutions: institutions,
+    };
+    
+    // This object is for updating the Supabase Auth user_metadata.
+    const userMetaDataToUpdate: { first_name: string, last_name: string, avatar_url?: string } = {
+        first_name: firstName,
+        last_name: lastName,
+    };
+
 
     if (profileImageFile && profileImageFile.size > 0) {
         const fileExt = profileImageFile.name.split('.').pop();
@@ -631,7 +664,7 @@ export async function updateUserProfileAction(
 
         const { error: uploadError } = await supabase.storage
             .from('avatars')
-            .upload(filePath, profileImageFile);
+            .upload(filePath, profileImageFile, { upsert: true });
 
         if (uploadError) {
             throw new Error(`Error al subir el avatar: ${uploadError.message}`);
@@ -639,39 +672,32 @@ export async function updateUserProfileAction(
 
         const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
         avatarUrl = urlData.publicUrl;
-
-        // Update user metadata in Supabase Auth
-        const { error: userUpdateError } = await supabase.auth.updateUser({
-            data: { avatar_url: avatarUrl }
-        });
-
-        if (userUpdateError) {
-            throw new Error(`Error al actualizar metadatos del usuario: ${userUpdateError.message}`);
-        }
+        
+        profileDataToUpdate.avatar_url = avatarUrl;
+        userMetaDataToUpdate.avatar_url = avatarUrl;
     }
 
-
-    const profileData: Partial<UserProfile> = {
-      fullName,
-      role: formData.get('role') as string,
-      city: formData.get('city') as string,
-      avatar_url: avatarUrl
-    };
-
-    const { data, error } = await supabase
+    // 1. Update the 'profiles' table
+    const { data, error: profileUpsertError } = await supabase
       .from('profiles')
-      .upsert({
-          id: user.id,
-          ...profileData,
-      }, { onConflict: 'id' })
+      .upsert(profileDataToUpdate)
       .select()
       .single();
-
-    if (error) {
-      if (error.message.includes('permission denied')) {
+    
+    if (profileUpsertError) {
+      if (profileUpsertError.message.includes('permission denied')) {
         throw new Error('Error de permisos. Asegúrate de que las políticas de RLS en Supabase permiten la operación de UPSERT.');
       }
-      throw error;
+      throw profileUpsertError;
+    }
+    
+    // 2. Update the user metadata in Supabase Auth to ensure consistency
+    const { error: userUpdateError } = await supabase.auth.updateUser({
+        data: userMetaDataToUpdate,
+    });
+
+    if (userUpdateError) {
+        console.error(`Error al sincronizar metadatos del usuario: ${userUpdateError.message}`);
     }
     
     revalidatePath('/dashboard/profile');

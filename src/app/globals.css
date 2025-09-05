@@ -58,4 +58,7 @@
   body {
     @apply bg-card text-card-foreground;
   }
+  input[type="text"], input[type="email"], input[type="password"], textarea {
+      @apply bg-background/50 border-border;
+  }
 }

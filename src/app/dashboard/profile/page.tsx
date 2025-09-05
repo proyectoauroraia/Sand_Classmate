@@ -2,18 +2,17 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { UserCircle2, BrainCircuit, Lock, Loader2 } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@/lib/supabase/client';
 import { updateUserProfileAction } from '@/lib/actions';
 import type { User } from '@supabase/supabase-js';
-
+import type { UserProfile } from '@/lib/types';
 
 export default function ProfilePage() {
     const { toast } = useToast();
@@ -25,49 +24,52 @@ export default function ProfilePage() {
     const [user, setUser] = React.useState<User | null>(null);
     
     // Form State
-    const [fullName, setFullName] = React.useState('');
+    const [firstName, setFirstName] = React.useState('');
+    const [lastName, setLastName] = React.useState('');
     const [email, setEmail] = React.useState('');
-    const [role, setRole] = React.useState('');
-    const [city, setCity] = React.useState('');
+    const [institutions, setInstitutions] = React.useState<string[]>([]);
+    const [currentInstitution, setCurrentInstitution] = React.useState('');
+    
     const [profileImage, setProfileImage] = React.useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
+    const namesAreEditable = !(firstName && lastName);
+
     React.useEffect(() => {
         const fetchUserAndProfile = async () => {
+            setLoading(true);
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
 
             if (user) {
                 setUser(user);
                 setEmail(user.email ?? '');
-                setPreviewUrl(user.user_metadata?.avatar_url ?? null);
 
-                // Fetch profile data from 'profiles' table
                 const { data: profile, error } = await supabase
                     .from('profiles')
                     .select('*')
                     .eq('id', user.id)
-                    .single();
-
+                    .single<UserProfile>();
+                
                 if (profile) {
-                    setFullName(profile.fullName ?? user.user_metadata?.full_name ?? '');
-                    setRole(profile.role ?? '');
-                    setCity(profile.city ?? '');
-                    if (profile.avatar_url) {
-                        setPreviewUrl(profile.avatar_url);
-                    }
-                } else if (error && error.code !== 'PGRST116') { // Ignore 'no rows found' error
+                    setFirstName(profile.first_name ?? '');
+                    setLastName(profile.last_name ?? '');
+                    setPreviewUrl(profile.avatar_url ?? user.user_metadata?.avatar_url ?? null);
+                    setInstitutions(profile.institutions || []);
+                } else if (error && error.code !== 'PGRST116') {
                     console.error("Error fetching profile:", error.message);
+                    toast({ variant: 'destructive', title: 'Error al cargar el perfil', description: error.message });
                 } else {
-                     setFullName(user.user_metadata?.full_name ?? '');
+                    setFirstName(user.user_metadata?.first_name ?? '');
+                    setLastName(user.user_metadata?.last_name ?? '');
+                    setPreviewUrl(user.user_metadata?.avatar_url ?? null);
                 }
             }
             setLoading(false);
         };
 
         fetchUserAndProfile();
-    }, []);
-
+    }, [toast]);
 
     const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
@@ -76,15 +78,31 @@ export default function ProfilePage() {
             setPreviewUrl(URL.createObjectURL(file));
         }
     };
+    
+    const handleAddInstitution = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && currentInstitution.trim() !== '') {
+            e.preventDefault();
+            if (!institutions.includes(currentInstitution.trim())) {
+                setInstitutions([...institutions, currentInstitution.trim()]);
+            }
+            setCurrentInstitution('');
+        }
+    };
+
+    const handleRemoveInstitution = (institutionToRemove: string) => {
+        setInstitutions(institutions.filter(inst => inst !== institutionToRemove));
+    };
+
 
     const handleSaveChanges = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
 
         const formData = new FormData();
-        formData.append('fullName', fullName);
-        formData.append('role', role);
-        formData.append('city', city);
+        formData.append('firstName', firstName);
+        formData.append('lastName', lastName);
+        formData.append('institutions', JSON.stringify(institutions));
+        
         if (profileImage) {
             formData.append('profileImage', profileImage);
         }
@@ -105,12 +123,20 @@ export default function ProfilePage() {
                 title: "¡Perfil Actualizado!",
                 description: "Tus cambios han sido guardados exitosamente.",
             });
-            // Update the preview URL with the new one from the server if it exists
             if (data?.avatar_url) {
                 setPreviewUrl(data.avatar_url);
             }
+            if (data?.institutions) {
+                setInstitutions(data.institutions);
+            }
         }
     };
+    
+    const getInitials = () => {
+        const first = firstName ? firstName.charAt(0) : '';
+        const last = lastName ? lastName.charAt(0) : '';
+        return `${first}${last}`.toUpperCase() || email.charAt(0).toUpperCase();
+    }
 
     if (loading) {
         return (
@@ -129,24 +155,23 @@ export default function ProfilePage() {
     }
     
     return (
-        <form onSubmit={handleSaveChanges}>
-            <div className="space-y-8 p-4 md:p-6 lg:p-8">
-                <div>
-                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Mi Perfil y Configuración</h1>
+        <div className="flex flex-col items-center justify-start h-full p-4 md:p-6 lg:p-8">
+            <div className="w-full max-w-4xl">
+                 <div className="mb-8">
+                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Mi Perfil</h1>
                     <p className="text-muted-foreground mt-1 text-sm md:text-base">
                         Gestiona tu información para mejorar la personalización de la IA.
                     </p>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 items-start">
-                    {/* Left Column: General Info */}
-                    <div className="lg:col-span-1 space-y-6">
-                        <Card className="bg-card/80 backdrop-blur-sm border-border/20 shadow-lg">
-                            <CardHeader className="items-center text-center p-6">
-                                <div className="relative group w-24 h-24 md:w-32 md:h-32">
+                <form onSubmit={handleSaveChanges}>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                         <div className="md:col-span-1">
+                            <Card className="bg-card/80 backdrop-blur-sm border-border/20 shadow-lg text-center p-6">
+                                 <div className="relative group w-24 h-24 md:w-32 md:h-32 mx-auto">
                                     <Avatar className="h-full w-full cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                                         <AvatarImage src={previewUrl ?? undefined} alt="Foto de Perfil" data-ai-hint="person face" className="object-cover" />
-                                        <AvatarFallback className="bg-secondary/50 text-muted-foreground">
-                                            <UserCircle2 className="h-16 w-16 md:h-20 md:w-20" />
+                                        <AvatarFallback className="bg-secondary/50 text-muted-foreground text-3xl">
+                                            {getInitials()}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div 
@@ -165,60 +190,68 @@ export default function ProfilePage() {
                                     onChange={handleProfileImageChange}
                                 />
                                 <div className="pt-4">
-                                    <CardTitle className="text-xl md:text-2xl">{fullName || 'Nombre de Usuario'}</CardTitle>
-                                    <CardDescription className="mt-1 text-sm">{role || 'Rol o Empleo'}</CardDescription>
+                                    <h3 className="text-lg md:text-xl font-semibold">{[firstName, lastName].filter(Boolean).join(' ') || 'Nombre Apellido'}</h3>
+                                    <p className="text-sm text-muted-foreground mt-1">{email}</p>
                                 </div>
-                            </CardHeader>
-                            <CardContent className="space-y-4 px-4 md:px-6">
-                                <div className="space-y-2">
-                                    <Label htmlFor="fullName">Nombre Completo</Label>
-                                    <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="email">Correo Electrónico</Label>
-                                    <Input id="email" type="email" value={email} disabled />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="role">Rol o Empleo</Label>
-                                    <Input id="role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Ej: Académico, Universidad de..." />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="city">Ciudad</Label>
-                                    <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ej: Santiago, Chile" />
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
+                            </Card>
+                        </div>
+                        <div className="md:col-span-2">
+                             <Card className="bg-card/80 backdrop-blur-sm border-border/20 shadow-lg">
+                                <CardHeader>
+                                    <CardTitle>Información Personal</CardTitle>
+                                    <CardDescription>Esta información es privada y no se compartirá sin tu permiso.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                         <div className="space-y-2">
+                                            <Label htmlFor="firstName">Nombre</Label>
+                                            <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} disabled={!namesAreEditable} />
+                                        </div>
+                                         <div className="space-y-2">
+                                            <Label htmlFor="lastName">Apellido</Label>
+                                            <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} disabled={!namesAreEditable} />
+                                        </div>
+                                     </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="email">Email de Contacto</Label>
+                                        <Input id="email" type="email" value={email} disabled />
+                                         <p className="text-xs text-muted-foreground">Tu email de inicio de sesión no se puede cambiar.</p>
+                                    </div>
+                                    
+                                     <div className="space-y-2">
+                                        <Label htmlFor="institutions">Mis Casas de Estudio o Universidades</Label>
+                                        <Input 
+                                            id="institutions" 
+                                            placeholder="Añadir institución y presionar Enter..."
+                                            value={currentInstitution}
+                                            onChange={(e) => setCurrentInstitution(e.target.value)}
+                                            onKeyDown={handleAddInstitution}
+                                        />
+                                        <div className="flex flex-wrap gap-2 pt-2">
+                                            {institutions.map((inst, index) => (
+                                                <div key={index} className="flex items-center gap-1 bg-secondary text-secondary-foreground rounded-full px-3 py-1 text-sm">
+                                                    <span>{inst}</span>
+                                                    <button type="button" onClick={() => handleRemoveInstitution(inst)} className="rounded-full hover:bg-muted/50 p-0.5">
+                                                        <X className="h-3 w-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
 
-                    {/* Right Column: Password */}
-                    <div className="lg:col-span-2 space-y-6">
-                        <Card className="bg-card/80 backdrop-blur-sm border-border/20 shadow-lg">
-                            <CardHeader>
-                                <div className="flex items-center gap-3">
-                                    <Lock className="h-6 w-6 text-primary" />
-                                    <CardTitle className="text-lg md:text-xl">Cambiar Contraseña</CardTitle>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="current-password">Contraseña Actual</Label>
-                                    <Input id="current-password" type="password" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="new-password">Nueva Contraseña</Label>
-                                    <Input id="new-password" type="password" />
-                                </div>
-                            </CardContent>
-                        </Card>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </div>
-                </div>
-                <div className="flex justify-end pt-4">
-                    <Button type="submit" size="lg" disabled={saving || loading} className="w-full md:w-auto py-6 text-base">
-                        {saving && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
-                        {saving ? 'Guardando...' : 'Guardar Cambios'}
-                    </Button>
-                </div>
+                   
+                    <div className="flex justify-end pt-6">
+                        <Button type="submit" size="lg" disabled={saving || loading} className="w-full md:w-auto py-6 text-base">
+                            {saving && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+                            {saving ? 'Guardando...' : 'Guardar Cambios'}
+                        </Button>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     );
 }
