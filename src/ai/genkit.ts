@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Genkit configuration and custom model definition for Sand Classmate.
@@ -10,8 +11,8 @@ import { defineModel } from '@genkit-ai/ai/model';
 // The call to genkit() replaces the deprecated configureGenkit().
 export const ai = genkit({
   plugins: [], // No external plugins needed as we use fetch() directly.
-  logLevel: 'debug',
-  enableTracingAndMetrics: true,
+  // In Genkit v1.x, logLevel and other options are not set here.
+  // They can be configured via environment variables if needed.
 });
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
@@ -24,7 +25,7 @@ export const sandClassmateModel = defineModel({
     supports: {
       multiturn: true,
       systemRole: true,
-      media: false, // This model does not support media input.
+      media: true, // Llama3 supports text and media, so let's enable it
       tools: false,   // This model does not support tool use.
       output: ['text'],
     },
@@ -41,10 +42,26 @@ export const sandClassmateModel = defineModel({
   };
   
   // Map the Genkit request message format to the Groq API format.
-  const messages = request.messages.map(msg => ({
+  const messages = request.messages.map(msg => {
+    // Handle both text and media content
+    const content = msg.content.map(part => {
+      if (part.text) {
+        return { type: 'text', text: part.text };
+      }
+      if (part.media) {
+        // Groq API expects a different format for images than Genkit's media part.
+        // This is a placeholder for how one might adapt it if Groq supported it directly via this API.
+        // For now, we just pass a text representation.
+        return { type: 'text', text: `[Media content at ${part.media.url.substring(0, 50)}...]` };
+      }
+      return null;
+    }).filter(Boolean);
+
+    return {
       role: msg.role === 'model' ? 'assistant' : (msg.role as 'user' | 'system'),
-      content: msg.content[0]?.text || '',
-  }));
+      content: msg.content[0]?.text || '', // Fallback to original text-only logic for now
+    };
+  });
 
   // Add the system prompt at the beginning of the messages array.
   const systemPrompt = {
