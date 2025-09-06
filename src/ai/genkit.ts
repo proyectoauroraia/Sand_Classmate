@@ -1,9 +1,6 @@
-'use server';
-/**
- * @fileOverview Genkit configuration and initialization.
- */
+import 'server-only';
 import { genkit } from '@genkit-ai/core';
-import { groq } from '@genkit-ai/groq';
+import { groq } from 'genkitx-groq';
 
 export const ai = genkit({
   plugins: [
