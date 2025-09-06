@@ -42,18 +42,8 @@ export function AuthTabs() {
   const [loading, setLoading] = useState(false);
 
   const getRedirectURL = () => {
-    // We redirect back to the home page after authentication.
-    // Using location.origin ensures the protocol (http/https) is correct.
-    let url =
-      typeof window !== 'undefined'
-        ? `${window.location.origin}/auth/callback`
-        : 'http://localhost:3000/auth/callback'; // Fallback for server-side rendering
-    
-    // Make sure to include the protocol in the URL.
-    if (!url.startsWith('http')) {
-        url = `https://${url}`;
-    }
-    return url;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+    return `${baseUrl}/auth/callback`;
   }
 
   const handleSignUp = async (e: React.FormEvent) => {
